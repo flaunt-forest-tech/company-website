@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 
 import './globals.css';
 import Script from 'next/script';
+import Head from 'next/head';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,12 +29,20 @@ export default function RootLayout({
   return (
     <>
       <html lang="en">
+        <Head>
+          {/* Load jQuery early using defer for global scope */}
+          <script src="/js/vendor/jquery/jquery.min.js" defer />
+          <script src="/js/plugins/js/plugins.min.js" defer />
+          <script src="/js/theme.js" defer />
+          <script src="/js/demo-it-services.js" defer />
+          <script src="/js/custom.js" defer />
+          <script src="/js/theme.init.js" defer />
+        </Head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
         </body>
       </html>
       {/* Scripts */}
-      <Script src="/js/vendor/jquery/jquery.min.js" strategy="afterInteractive" />
       <Script src="/js/plugins/js/plugins.min.js" strategy="afterInteractive" />
       <Script src="/js/theme.js" strategy="afterInteractive" />
       <Script src="/js/demo-it-services.js" strategy="afterInteractive" />
