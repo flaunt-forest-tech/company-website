@@ -33,6 +33,7 @@ export default function RootLayout({
         </body>
       </html>
       {/* Scripts */}
+      <Script src="/js/vendor/jquery/jquery.min.js" strategy="afterInteractive" />
       <Script src="/js/plugins/js/plugins.min.js" strategy="afterInteractive" />
       <Script src="/js/theme.js" strategy="afterInteractive" />
       <Script src="/js/demo-it-services.js" strategy="afterInteractive" />
