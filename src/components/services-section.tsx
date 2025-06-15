@@ -12,7 +12,7 @@ const ServicesSection = () => {
         backgroundPosition: 'bottom right',
       }}
     >
-      <div className="container container-xl-custom pb-5 mb-5">
+      <div className="container container-xl-custom ">
         <div className="row">
           <div className="col">
             <div className="overflow-hidden mb-2">

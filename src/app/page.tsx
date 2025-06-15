@@ -1,4 +1,5 @@
 import Carousel from '@/components/carousel';
+import Footer from '@/components/footer';
 import GetInTouchSection from '@/components/get-in-touch-section';
 import Header from '@/components/header';
 import ITServicesOverview from '@/components/it-services-overview';
@@ -21,6 +22,7 @@ export default function Home() {
         <ServicesSection />
         <GetInTouchSection />
       </div>
+      <Footer />
     </div>
   );
 }
