@@ -1,5 +1,6 @@
 import Carousel from '@/components/carousel';
 import Header from '@/components/header';
+import ITServicesOverview from '@/components/it-services-overview';
 
 export default function Home() {
   return (
@@ -7,6 +8,7 @@ export default function Home() {
       <Header />
       <div role="main" className="main">
         <Carousel />
+        <ITServicesOverview />
       </div>
     </div>
   );
