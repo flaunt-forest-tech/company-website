@@ -1,4 +1,4 @@
-'use client'
+'use client';
 // import "../app/globals.css";
 import React from 'react';
 import Image from 'next/image';
@@ -17,14 +17,8 @@ const Header: React.FC = () => {
               <div className="header-row">
                 <div className="header-logo">
                   <a href="demo-it-services.html">
-                    <Image
-                      alt="Porto"
-                      width={162}
-                      height={42}
-                      src="/img/logo.png"
-                      priority
-                    />
-                    </a>
+                    <Image alt="Porto" width={162} height={42} src="/img/logo.png" priority />
+                  </a>
                 </div>
               </div>
             </div>
@@ -112,10 +106,10 @@ const Header: React.FC = () => {
                         SUPPORT
                       </span>
                       <a
-                        href="tel:+1234567890"
+                        href="tel:+6093393835"
                         className="font-weight-bold text-color-primary text-5"
                       >
-                        800-123-4567
+                        609-339-3835
                       </a>
                     </li>
                     <li className="d-flex flex-column">
