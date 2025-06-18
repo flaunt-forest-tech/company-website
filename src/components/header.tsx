@@ -2,6 +2,7 @@
 // import "../app/globals.css";
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Header: React.FC = () => {
   return (
@@ -34,9 +35,9 @@ const Header: React.FC = () => {
                           </a>
                         </li>
                         <li>
-                          <a className="nav-link" href="demo-it-services-about-us.html">
+                          <Link className="nav-link" href="/about-us">
                             About Us
-                          </a>
+                          </Link>
                         </li>
                         <li className="dropdown">
                           <a
@@ -106,7 +107,7 @@ const Header: React.FC = () => {
                         SUPPORT
                       </span>
                       <a
-                        href="tel:+6093393835"
+                        href="tel:+16093393835"
                         className="font-weight-bold text-color-primary text-5"
                       >
                         609-339-3835
@@ -117,10 +118,10 @@ const Header: React.FC = () => {
                         SALES
                       </span>
                       <a
-                        href="tel:+1234567890"
+                        href="tel:+16467520078"
                         className="font-weight-bold text-color-primary text-5"
                       >
-                        800-123-4567
+                        646-752-0078
                       </a>
                     </li>
                   </ul>

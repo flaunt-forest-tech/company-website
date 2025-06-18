@@ -9,9 +9,9 @@ export default function Footer() {
           <div className="col-md-4 col-lg-2 mb-4 mb-lg-0">
             <h4 className="ls-0">OUR ADDRESS</h4>
             <ul className="list list-unstyled">
-              <li className="mb-1">12345 Porto Blvd.</li>
-              <li className="mb-1">Suite 1500</li>
-              <li>Los Angeles, California 90000</li>
+              <li className="mb-1">30118 Gold</li>
+              <li className="mb-1">Finch Pl</li>
+              <li>Fulshear, TX 77441</li>
             </ul>
           </div>
 
@@ -21,19 +21,19 @@ export default function Footer() {
               <li className="pb-1 mb-2">
                 <span className="d-block line-height-2">SUPPORT</span>
                 <a
-                  href="tel:+1234567890"
+                  href="tel:+16093393835"
                   className="text-color-light text-6 text-lg-4 text-xl-6 font-weight-bold"
                 >
-                  800-123-4567
+                  609-339-3835
                 </a>
               </li>
               <li>
                 <span className="d-block line-height-2">SALES</span>
                 <a
-                  href="tel:+1234567890"
+                  href="tel:+16467520078"
                   className="text-color-light text-6 text-lg-4 text-xl-6 font-weight-bold"
                 >
-                  800-123-4568
+                  646-752-0078
                 </a>
               </li>
             </ul>
