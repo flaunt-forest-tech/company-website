@@ -313,8 +313,8 @@ function OurMission() {
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR VISION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
                 To be a trusted leader in IT services by delivering exceptional
-                <strong className="text-color-dark">value</strong>and
-                <strong className="text-color-dark">innovative</strong> solutions worldwide.
+                <strong className="text-color-dark"> value </strong> and
+                <strong className="text-color-dark"> innovative</strong> solutions worldwide.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
                 We envision a future where technology seamlessly integrates with business goals to
@@ -346,7 +346,7 @@ function OurMission() {
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">PORTO CAREERS</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
                 Join our dynamic team and help shape the future of IT services by driving
-                <strong className="text-color-dark">innovation</strong> and{' '}
+                <strong className="text-color-dark"> innovation</strong> and{' '}
                 <strong className="text-color-dark">excellence.</strong>
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
