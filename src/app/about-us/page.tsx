@@ -2,8 +2,8 @@
 import Footer from '@/components/footer';
 import GetInTouchSection from '@/components/get-in-touch-section';
 import Header from '@/components/header';
+import ScriptLoader from '@/components/script-loader';
 import Image from 'next/image';
-import Script from 'next/script';
 
 export default function AboutUSPage() {
   return (
@@ -25,13 +25,7 @@ export default function AboutUSPage() {
         <GetInTouchSection />
       </div>
       <Footer />
-      {/* Scripts */}
-      <Script src="/js/vendor/jquery/jquery.min.js" strategy="afterInteractive" />
-      <Script src="/js/plugins/js/plugins.min.js" strategy="afterInteractive" />
-      <Script src="/js/theme.js" strategy="afterInteractive" />
-      <Script src="/js/demo-it-services.js" strategy="afterInteractive" />
-      <Script src="/js/custom.js" strategy="afterInteractive" />
-      <Script src="/js/theme.init.js" strategy="afterInteractive" />
+      <ScriptLoader />
     </div>
   );
 }

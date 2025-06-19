@@ -4,6 +4,9 @@ import GetInTouchSection from '@/components/get-in-touch-section';
 import Header from '@/components/header';
 import ITServicesOverview from '@/components/home/it-services-overview';
 import ServicesSection from '@/components/home/services-section';
+import ScriptLoader from '@/components/script-loader';
+
+export const dynamic = 'force-dynamic';
 
 export default function Home() {
   return (
@@ -23,6 +26,7 @@ export default function Home() {
         <GetInTouchSection />
       </div>
       <Footer />
+      <ScriptLoader />
     </div>
   );
 }

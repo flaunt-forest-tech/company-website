@@ -11,7 +11,6 @@ export default function ScriptLoader() {
     { src: '/js/plugins/js/plugins.min.js', name: 'Plugins' },
     { src: '/js/theme.js', name: 'Theme' },
     { src: '/js/demo-it-services.js', name: 'Demo IT Services' },
-    { src: '/js/custom.js', name: 'Custom Scripts' },
     { src: '/js/theme.init.js', name: 'Theme Initialization' },
   ];
 
@@ -21,8 +20,7 @@ export default function ScriptLoader() {
         // Check if script is already loaded
         const existingScript = document.querySelector(`script[src="${src}"]`);
         if (existingScript) {
-          resolve();
-          return;
+          existingScript.remove();
         }
 
         const script = document.createElement('script');
