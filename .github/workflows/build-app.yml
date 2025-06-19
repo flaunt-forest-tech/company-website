@@ -1,4 +1,4 @@
-name: Build jnk App
+name: Build fft App
 
 on:
   workflow_dispatch:
