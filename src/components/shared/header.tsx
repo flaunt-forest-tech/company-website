@@ -6,10 +6,12 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ItServicesOverview'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ItServicesOverview' | 'CloudServices'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
+  const isItServiceMenuActive =
+    activePage === 'ItServicesOverview' || activePage === 'CloudServices';
   return (
     <header
       id="header"
@@ -53,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                         <li className="dropdown">
                           <Link
                             className={cn('dropdown-item dropdown-toggle', {
-                              active: activePage === 'ItServicesOverview',
+                              active: isItServiceMenuActive,
                             })}
                             href="/it-services/overview"
                           >
@@ -66,9 +68,9 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                               </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/cloud-services">
                                 Cloud Services
-                              </a>
+                              </Link>
                             </li>
                             <li>
                               <a className="nav-link" href="demo-it-services-services-detail.html">

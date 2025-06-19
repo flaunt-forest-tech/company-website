@@ -5,6 +5,7 @@ import ScriptLoader from '@/components/script-loader';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import GetInTouchSection from '@/components/shared/get-in-touch-section';
+import { services } from '@/constants/services';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -26,38 +27,38 @@ export default function ITServicesOverviewPage() {
 }
 
 function ServicesSection() {
-  const services = [
-    {
-      icon: 'backup-data-server.svg',
-      title: 'Cloud Services',
-      description:
-        'Deploy and manage scalable cloud infrastructure that grows with your business. We help you transition seamlessly to AWS, Azure, or Google Cloud.',
-    },
-    {
-      icon: 'remove-monitor-access.svg',
-      title: 'Tech Support',
-      description:
-        'Our expert support team is available 24/7 to troubleshoot issues, optimize performance, and keep your systems running smoothly.',
-    },
-    {
-      icon: 'password-lock-secure.svg',
-      title: 'Data Security',
-      description:
-        'Protect your sensitive data with industry-grade encryption, compliance-ready solutions, and proactive threat detection.',
-    },
-    {
-      icon: 'floppy-disk-memory.svg',
-      title: 'Software Dev',
-      description:
-        'Build custom applications tailored to your business processes — from web apps to enterprise-grade software solutions.',
-    },
-    {
-      icon: 'network-database.svg',
-      title: 'Server Consulting',
-      description:
-        'Optimize and secure your IT infrastructure with our server architecture design, maintenance, and cost-efficiency consulting.',
-    },
-  ];
+  // const services = [
+  //   {
+  //     icon: 'backup-data-server.svg',
+  //     title: 'Cloud Services',
+  //     description:
+  //       'Deploy and manage scalable cloud infrastructure that grows with your business. We help you transition seamlessly to AWS, Azure, or Google Cloud.',
+  //   },
+  //   {
+  //     icon: 'remove-monitor-access.svg',
+  //     title: 'Tech Support',
+  //     description:
+  //       'Our expert support team is available 24/7 to troubleshoot issues, optimize performance, and keep your systems running smoothly.',
+  //   },
+  //   {
+  //     icon: 'password-lock-secure.svg',
+  //     title: 'Data Security',
+  //     description:
+  //       'Protect your sensitive data with industry-grade encryption, compliance-ready solutions, and proactive threat detection.',
+  //   },
+  //   {
+  //     icon: 'floppy-disk-memory.svg',
+  //     title: 'Software Dev',
+  //     description:
+  //       'Build custom applications tailored to your business processes — from web apps to enterprise-grade software solutions.',
+  //   },
+  //   {
+  //     icon: 'network-database.svg',
+  //     title: 'Server Consulting',
+  //     description:
+  //       'Optimize and secure your IT infrastructure with our server architecture design, maintenance, and cost-efficiency consulting.',
+  //   },
+  // ];
 
   const processSteps = [
     {
