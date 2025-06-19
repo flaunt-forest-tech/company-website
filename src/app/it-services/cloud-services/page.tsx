@@ -4,6 +4,7 @@ import Header from '@/components/shared/header';
 import ScriptLoader from '@/components/script-loader';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
+import { services } from '@/constants/services';
 
 export default function CloudServicesPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -16,8 +17,6 @@ export default function CloudServicesPage() {
       <div role="main" className="main">
         <PageHeader {...pageHeaderData} />
         <CloudServicesSection />
-        {/* <ServicesSection />
-        <GetInTouchSection /> */}
       </div>
       <Footer />
       <ScriptLoader />
@@ -26,26 +25,6 @@ export default function CloudServicesPage() {
 }
 
 function CloudServicesSection() {
-  const services = [
-    {
-      title: 'IT CONSULTING',
-      description:
-        'Strategic guidance to align your IT investments with your long-term business objectives, delivering measurable ROI.',
-      delay: 1400,
-    },
-    {
-      title: 'MANAGED CLOUD',
-      description:
-        'Fully managed cloud infrastructure services to ensure high availability, performance, and security without the complexity.',
-      delay: 1600,
-    },
-    {
-      title: 'CLOUD COMPUTING',
-      description:
-        'Modernize your business by leveraging scalable computing power, storage, and services in the cloud.',
-      delay: 1800,
-    },
-  ];
   return (
     <section
       className="section custom-section-full-width bg-color-transparent border-0 mt-0 mb-1"
@@ -80,7 +59,7 @@ function CloudServicesSection() {
             </p>
           </div>
           <div className="col-md-4 offset-md-1 ps-md-5">
-            {services.map((item, idx) => (
+            {services.slice(0, 3).map((item, idx) => (
               <div key={idx}>
                 <h4 className="custom-heading-bar font-weight-bold text-color-dark text-5 mb-2">
                   {item.title}
@@ -155,52 +134,38 @@ function CloudServicesSection() {
             </div>
           </div>
         </div>
-
-        {/* <div className="row">
-          <div className="col">
-            <div className="owl-carousel owl-theme nav-style-2 nav-font-size-sm mb-0">
-              {[
-                'Cloud Services',
-                'Tech Support',
-                'Data Security',
-                'Software Dev',
-                'Server Consulting',
-              ].map((service, idx) => (
-                <div
-                  key={idx}
-                  className={`card border-0 bg-color-transparent ${idx % 2 !== 0 ? 'mt-lg-5' : ''}`}
-                >
-                  <div className="card-body text-center p-4 my-3">
-                    <div className="custom-icon-wrapper">
-                      <Image
-                        src={`/img/icons/${service.toLowerCase().replace(/ /g, '-')}.svg`}
-                        alt=""
-                        width={100}
-                        height={100}
-                        className={`img-fluid ${idx % 2 === 0 ? 'svg-fill-color-primary' : 'svg-fill-color-dark'} pb-2 mb-4`}
-                      />
-                    </div>
-                    <h4
-                      className={`font-weight-bold text-6 mb-3 ${idx % 2 === 0 ? 'text-color-primary' : 'text-color-dark'}`}
-                    >
-                      {service}
-                    </h4>
-                    <p className="custom-text-size-1 px-lg-4">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc viverra erat
-                      orci.
-                    </p>
-                    <a
-                      href="/services-detail"
-                      className={`font-weight-bold custom-text-size-1 ${idx % 2 === 0 ? 'text-color-dark' : 'text-color-primary'}`}
-                    >
-                      READ MORE +
-                    </a>
+        <div className="row">
+          {services.map((service, index) => (
+            <div
+              key={index}
+              className={`col-12 col-sm-6 col-lg-4 mb-4 ${index % 2 !== 0 ? 'mt-lg-5' : ''}`}
+            >
+              <div className="card border-0 bg-color-transparent h-100">
+                <div className="card-body text-center p-4 my-3">
+                  <div className="custom-icon-wrapper mb-4">
+                    <Image
+                      src={`/img/icons/${service.icon}`}
+                      width={100}
+                      height={100}
+                      alt={service.title}
+                      className={`img-fluid svg-fill-color-${service.titleClass}`}
+                    />
                   </div>
+                  <h4 className={`text-color-${service.titleClass} font-weight-bold text-6 mb-3`}>
+                    {service.title}
+                  </h4>
+                  <p className="custom-text-size-1 px-lg-4">{service.description}</p>
+                  <a
+                    href="/demo-it-services-services-detail"
+                    className={`text-color-${service.linkClass} font-weight-bold custom-text-size-1`}
+                  >
+                    READ MORE +
+                  </a>
                 </div>
-              ))}
+              </div>
             </div>
-          </div>
-        </div> */}
+          ))}
+        </div>
       </div>
     </section>
   );
