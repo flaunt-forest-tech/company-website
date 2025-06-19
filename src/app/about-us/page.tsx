@@ -1,7 +1,7 @@
 'use client';
-import Footer from '@/components/footer';
-import GetInTouchSection from '@/components/get-in-touch-section';
-import Header from '@/components/header';
+import Footer from '@/components/shared/footer';
+import GetInTouchSection from '@/components/shared/get-in-touch-section';
+import Header from '@/components/shared/header';
 import ScriptLoader from '@/components/script-loader';
 import Image from 'next/image';
 
