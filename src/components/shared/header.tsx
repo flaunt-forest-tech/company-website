@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ItServicesOverview'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
@@ -51,17 +51,19 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                           </Link>
                         </li>
                         <li className="dropdown">
-                          <a
-                            className="dropdown-item dropdown-toggle"
-                            href="demo-it-services-services.html"
+                          <Link
+                            className={cn('dropdown-item dropdown-toggle', {
+                              active: activePage === 'ItServicesOverview',
+                            })}
+                            href="/it-services/overview"
                           >
                             IT Services
-                          </a>
+                          </Link>
                           <ul className="dropdown-menu">
                             <li>
-                              <a className="nav-link" href="demo-it-services-services.html">
+                              <Link className="nav-link" href="/it-services/overview">
                                 Overview
-                              </a>
+                              </Link>
                             </li>
                             <li>
                               <a className="nav-link" href="demo-it-services-services-detail.html">
