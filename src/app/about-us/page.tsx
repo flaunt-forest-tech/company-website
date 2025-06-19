@@ -8,7 +8,7 @@ import Script from 'next/script';
 export default function AboutUSPage() {
   return (
     <div className="body">
-      <Header />
+      <Header activePage="AboutUs" />
       <div role="main" className="main">
         <PageHeader />
         <WhoWeAreSection />

@@ -1,14 +1,14 @@
-import Carousel from '@/components/carousel';
+import Carousel from '@/components/home/carousel';
 import Footer from '@/components/footer';
 import GetInTouchSection from '@/components/get-in-touch-section';
 import Header from '@/components/header';
-import ITServicesOverview from '@/components/it-services-overview';
-import ServicesSection from '@/components/services-section';
+import ITServicesOverview from '@/components/home/it-services-overview';
+import ServicesSection from '@/components/home/services-section';
 
 export default function Home() {
   return (
     <div className="body">
-      <Header />
+      <Header activePage="Home" />
       <div role="main" className="main">
         <Carousel />
         <ITServicesOverview />

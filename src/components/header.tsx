@@ -3,8 +3,13 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
-const Header: React.FC = () => {
+type HeaderProps = {
+  activePage: 'Home' | 'AboutUs'; // prop to determine the active page
+};
+
+const Header: React.FC<HeaderProps> = ({ activePage }) => {
   return (
     <header
       id="header"
@@ -30,12 +35,18 @@ const Header: React.FC = () => {
                     <nav className="collapse">
                       <ul className="nav nav-pills" id="mainNav">
                         <li>
-                          <a className="nav-link active" href="demo-it-services.html">
+                          <Link
+                            className={cn('nav-link', { active: activePage === 'Home' })}
+                            href="/"
+                          >
                             Home
-                          </a>
+                          </Link>
                         </li>
                         <li>
-                          <Link className="nav-link" href="/about-us">
+                          <Link
+                            className={cn('nav-link', { active: activePage === 'AboutUs' })}
+                            href="/about-us"
+                          >
                             About Us
                           </Link>
                         </li>
