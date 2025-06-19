@@ -4,13 +4,18 @@ import GetInTouchSection from '@/components/shared/get-in-touch-section';
 import Header from '@/components/shared/header';
 import ScriptLoader from '@/components/script-loader';
 import Image from 'next/image';
+import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 
 export default function AboutUSPage() {
+  const pageHeaderData: PageHeaderProps = {
+    title: 'ABOUT US',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'About Us' }],
+  };
   return (
     <div className="body">
       <Header activePage="AboutUs" />
       <div role="main" className="main">
-        <PageHeader />
+        <PageHeader {...pageHeaderData} />
         <WhoWeAreSection />
         <div className="container container-xl-custom pb-3 mb-4 mt-4">
           <div className="row">
@@ -27,38 +32,6 @@ export default function AboutUSPage() {
       <Footer />
       <ScriptLoader />
     </div>
-  );
-}
-
-function PageHeader() {
-  return (
-    <section className="page-header page-header-modern custom-page-header-style-1 bg-color-primary page-header-lg mb-0">
-      <div className="container container-xl-custom py-5">
-        <div className="row">
-          <div className="col-md-8 order-2 order-md-1 align-self-center p-static">
-            <h1
-              className="font-weight-extra-bold text-14 appear-animation"
-              data-appear-animation="fadeInRightShorter"
-              data-appear-animation-delay="200"
-            >
-              ABOUT US
-            </h1>
-          </div>
-          <div className="col-md-4 order-1 order-md-2 align-self-center">
-            <ul
-              className="breadcrumb d-block text-md-end breadcrumb-light appear-animation"
-              data-appear-animation="fadeInRightShorter"
-              data-appear-animation-delay="400"
-            >
-              <li>
-                <a href="#">Home</a>
-              </li>
-              <li className="active">About Us</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
