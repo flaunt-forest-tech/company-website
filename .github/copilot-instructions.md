@@ -6,6 +6,7 @@
 - Ensure all code passes linting and tests before committing.
 - Use descriptive commit messages.
 - Avoid committing secrets or sensitive data.
+- Use `type` instead of `interface` in TypeScript.
 
 ## Coding Guidelines
 
