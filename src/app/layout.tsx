@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 // import Script from 'next/script';
 // import Head from 'next/head';
-import ScriptLoader from '@/components/script-loader';
+// import ScriptLoader from '@/components/script-loader';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -41,7 +41,7 @@ export default function RootLayout({
         {/* </Head> */}
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           {children}
-          <ScriptLoader />
+          {/* <ScriptLoader /> */}
         </body>
       </html>
       {/* Scripts */}
