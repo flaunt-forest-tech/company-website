@@ -6,12 +6,11 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ItServicesOverview' | 'CloudServices'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ITServices'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
-  const isItServiceMenuActive =
-    activePage === 'ItServicesOverview' || activePage === 'CloudServices';
+  const isItServiceMenuActive = activePage === 'ITServices';
   return (
     <header
       id="header"
@@ -73,9 +72,9 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                               </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/tech-support">
                                 Tech Support
-                              </a>
+                              </Link>
                             </li>
                             <li>
                               <a className="nav-link" href="demo-it-services-services-detail.html">

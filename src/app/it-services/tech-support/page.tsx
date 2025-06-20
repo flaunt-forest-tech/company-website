@@ -6,9 +6,9 @@ import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import { services } from '@/constants/services';
 
-export default function CloudServicesPage() {
+export default function TechSupportPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'CLOUD SERVICES',
+    title: 'TECH SUPPORT',
     breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'IT Services' }],
   };
   return (
