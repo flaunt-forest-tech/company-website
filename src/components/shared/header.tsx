@@ -56,13 +56,13 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             className={cn('dropdown-item dropdown-toggle', {
                               active: isItServiceMenuActive,
                             })}
-                            href="/it-services/overview"
+                            href="/it-services"
                           >
                             IT Services
                           </Link>
                           <ul className="dropdown-menu">
                             <li>
-                              <Link className="nav-link" href="/it-services/overview">
+                              <Link className="nav-link" href="/it-services">
                                 Overview
                               </Link>
                             </li>
