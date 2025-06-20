@@ -6,12 +6,11 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ItServicesOverview' | 'CloudServices'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ITServices'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
-  const isItServiceMenuActive =
-    activePage === 'ItServicesOverview' || activePage === 'CloudServices';
+  const isItServiceMenuActive = activePage === 'ITServices';
   return (
     <header
       id="header"
@@ -57,13 +56,13 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             className={cn('dropdown-item dropdown-toggle', {
                               active: isItServiceMenuActive,
                             })}
-                            href="/it-services/overview"
+                            href="/it-services"
                           >
                             IT Services
                           </Link>
                           <ul className="dropdown-menu">
                             <li>
-                              <Link className="nav-link" href="/it-services/overview">
+                              <Link className="nav-link" href="/it-services">
                                 Overview
                               </Link>
                             </li>
@@ -73,19 +72,19 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                               </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/tech-support">
                                 Tech Support
-                              </a>
+                              </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/data-security">
                                 Data Security
-                              </a>
+                              </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/software-dev">
                                 Software Dev
-                              </a>
+                              </Link>
                             </li>
                           </ul>
                         </li>
