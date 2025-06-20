@@ -77,17 +77,14 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                               </Link>
                             </li>
                             <li>
-                              {/* <a className="nav-link" href="demo-it-services-services-detail.html">
-                                Data Security
-                              </a> */}
                               <Link className="nav-link" href="/it-services/data-security">
                                 Data Security
                               </Link>
                             </li>
                             <li>
-                              <a className="nav-link" href="demo-it-services-services-detail.html">
+                              <Link className="nav-link" href="/it-services/software-dev">
                                 Software Dev
-                              </a>
+                              </Link>
                             </li>
                           </ul>
                         </li>
