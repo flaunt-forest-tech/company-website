@@ -5,7 +5,7 @@ import ScriptLoader from '@/components/script-loader';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import GetInTouchSection from '@/components/shared/get-in-touch-section';
-import { services } from '@/constants/services';
+import { SERVICES } from '@/constants/services';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -77,7 +77,7 @@ function ServicesSection() {
         </div>
 
         <div className="row row-gutter-sm justify-content-center pb-5 mb-5">
-          {services.map(({ icon, title, description }) => (
+          {SERVICES.map(({ icon, title, description }) => (
             <div key={title} className="col-md-6 col-xl-4 mb-4">
               <div className="card border-0 custom-box-shadow-1">
                 <div className="card-body text-center p-5 my-3">

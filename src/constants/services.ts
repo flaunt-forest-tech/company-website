@@ -1,4 +1,4 @@
-export const services = [
+export const SERVICES = [
   {
     icon: 'backup-data-server.svg',
     title: 'Cloud Services',

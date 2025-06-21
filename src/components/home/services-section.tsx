@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { services } from '@/constants/services';
+import { SERVICES } from '@/constants/services';
 
 const ServicesSection = () => {
   return (
@@ -30,7 +30,7 @@ const ServicesSection = () => {
         </div>
 
         <div className="row pt-4">
-          {services.slice(0, 4).map((service, index) => (
+          {SERVICES.slice(0, 4).map((service, index) => (
             <div
               key={service.title}
               className={`col-md-6 col-lg-3 text-center mb-5 ${index % 2 !== 0 ? 'mt-lg-5' : ''}`}

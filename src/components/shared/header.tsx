@@ -97,9 +97,6 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                           </Link>
                         </li>
                         <li>
-                          <a className="nav-link" href="demo-it-services-contact.html">
-                            Contact
-                          </a>
                           <Link
                             className={cn('nav-link', { active: activePage === 'Contact' })}
                             href="/contact"
