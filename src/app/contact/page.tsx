@@ -8,8 +8,9 @@ import { CONTACT } from '@/constants/contact';
 // import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { sendEmail } from '../actions/sendEmail';
 
-type ContactFormInputs = {
+export type ContactFormInputs = {
   name: string;
   phone: string;
   email: string;
@@ -170,9 +171,14 @@ function ContactSection() {
   const [status, setStatus] = useState<'success' | 'error' | null>(null);
   const { register, handleSubmit } = useForm<ContactFormInputs>();
 
-  const onSubmit: SubmitHandler<ContactFormInputs> = (data) => {
-    console.log(data);
-    setStatus('success');
+  const onSubmit: SubmitHandler<ContactFormInputs> = async (data) => {
+    const response = await sendEmail(data);
+    if (response.success) {
+      setStatus('success');
+    } else {
+      setStatus('error');
+      console.error('Error sending email:', response.error);
+    }
   };
 
   return (
