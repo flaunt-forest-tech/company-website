@@ -5,7 +5,12 @@ export const CONTACT = {
     salesFormatted: '646-752-0078',
     sales: '+16467520078',
   },
-  ADDRESS: '1234 Elm Street, Springfield, USA',
-  PHONE: '+1 (555) 123-4567',
-  EMAIL: '',
+  ADDRESS: {
+    street: '30118 Gold',
+    street2: 'Finch Pl',
+    city: 'Fulshear',
+    state: 'TX',
+    zip: '77441',
+  },
+  EMAIL: 'mail@domain.com',
 };

@@ -10,9 +10,9 @@ export default function Footer() {
           <div className="col-md-4 col-lg-2 mb-4 mb-lg-0">
             <h4 className="ls-0">OUR ADDRESS</h4>
             <ul className="list list-unstyled">
-              <li className="mb-1">30118 Gold</li>
-              <li className="mb-1">Finch Pl</li>
-              <li>Fulshear, TX 77441</li>
+              <li className="mb-1">{CONTACT.ADDRESS.street}</li>
+              <li className="mb-1">{CONTACT.ADDRESS.street2}</li>
+              <li>{`${CONTACT.ADDRESS.city}, ${CONTACT.ADDRESS.state} ${CONTACT.ADDRESS.zip}`}</li>
             </ul>
           </div>
 
