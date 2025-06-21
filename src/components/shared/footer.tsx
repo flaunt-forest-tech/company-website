@@ -1,3 +1,4 @@
+import { CONTACT } from '@/constants/contact';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -21,19 +22,19 @@ export default function Footer() {
               <li className="pb-1 mb-2">
                 <span className="d-block line-height-2">SUPPORT</span>
                 <a
-                  href="tel:+16093393835"
+                  href={`tel:${CONTACT.CELL.support}`}
                   className="text-color-light text-6 text-lg-4 text-xl-6 font-weight-bold"
                 >
-                  609-339-3835
+                  {CONTACT.CELL.supportFormatted}
                 </a>
               </li>
               <li>
                 <span className="d-block line-height-2">SALES</span>
                 <a
-                  href="tel:+16467520078"
+                  href={`tel:${CONTACT.CELL.sales}`}
                   className="text-color-light text-6 text-lg-4 text-xl-6 font-weight-bold"
                 >
-                  646-752-0078
+                  {CONTACT.CELL.salesFormatted}
                 </a>
               </li>
             </ul>
