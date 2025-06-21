@@ -6,7 +6,16 @@ import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import { CONTACT } from '@/constants/contact';
 // import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import React from 'react';
+import React, { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+
+type ContactFormInputs = {
+  name: string;
+  phone: string;
+  email: string;
+  subject: string;
+  message: string;
+};
 
 export default function ContactPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -18,21 +27,8 @@ export default function ContactPage() {
       <Header activePage="Contact" />
       <div role="main" className="main">
         <PageHeader {...pageHeaderData} />
+        <LocationSection />
         <ContactSection />
-        {/* Uncomment the sections below as needed */}
-        {/* <ServicesSection />
-        {/* <WhoWeAreSection />
-        <div className="container container-xl-custom pb-3 mb-4 mt-4">
-          <div className="row">
-            <div className="col">
-              <hr className="my-5" />
-            </div>
-          </div>
-        </div>
-        <OurClients />
-        <CountersSection />
-        <OurMission />
-        <GetInTouchSection /> */}
       </div>
       <Footer />
       <ScriptLoader />
@@ -40,7 +36,7 @@ export default function ContactPage() {
   );
 }
 
-function ContactSection() {
+function LocationSection() {
   return (
     <section className="section border-0 py-0 m-0">
       <div className="container-fluid">
@@ -169,3 +165,160 @@ function ContactSection() {
 //     <></>
 //   );
 // }
+
+function ContactSection() {
+  const [status, setStatus] = useState<'success' | 'error' | null>(null);
+  const { register, handleSubmit } = useForm<ContactFormInputs>();
+
+  const onSubmit: SubmitHandler<ContactFormInputs> = (data) => {
+    console.log(data);
+    setStatus('success');
+  };
+
+  return (
+    <section
+      className="section custom-section-full-width bg-color-transparent border-0 mt-1 mb-1"
+      style={{
+        backgroundImage: 'url(img/demos/it-services/backgrounds/dots-background-4.png)',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'top right',
+      }}
+    >
+      <div className="container container-xl-custom mt-3">
+        <div className="row justify-content-center">
+          <div className="col-lg-10">
+            <div className="overflow-hidden mb-2">
+              <span
+                className="d-block font-weight-bold custom-text-color-grey-1 text-center line-height-1 mb-0 appear-animation"
+                data-appear-animation="maskUp"
+                data-appear-animation-delay="300"
+              >
+                GET IN TOUCH
+              </span>
+            </div>
+            <div className="overflow-hidden mb-4">
+              <h2
+                className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0 appear-animation"
+                data-appear-animation="maskUp"
+                data-appear-animation-delay="500"
+              >
+                How Can We Help?
+              </h2>
+            </div>
+            <p
+              className="custom-text-size-1 text-center mb-5 appear-animation"
+              data-appear-animation="fadeInUpShorter"
+              data-appear-animation-delay="700"
+            >
+              Contact us to request a quote or to schedule a consultation with our team.
+            </p>
+          </div>
+        </div>
+
+        <div className="row mb-4">
+          <div
+            className="col appear-animation"
+            data-appear-animation="fadeInUpShorter"
+            data-appear-animation-delay="900"
+          >
+            <form className="contact-form" onSubmit={handleSubmit(onSubmit)}>
+              {status === 'success' && (
+                <div className="contact-form-success alert alert-success mt-4">
+                  <strong>Success!</strong> Your message has been sent to us.
+                </div>
+              )}
+              {status === 'error' && (
+                <div className="contact-form-error alert alert-danger mt-4">
+                  <strong>Error!</strong> There was an error sending your message.
+                  <span className="mail-error-message text-1 d-block"></span>
+                </div>
+              )}
+
+              <div className="row row-gutter-sm">
+                <div className="form-group col-lg-6 mb-4">
+                  <input
+                    type="text"
+                    id="name"
+                    maxLength={100}
+                    required
+                    data-msg-required="Please enter your name."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    placeholder="Your Name"
+                    {...register('name')}
+                  />
+                </div>
+                <div className="form-group col-lg-6 mb-4">
+                  <input
+                    type="text"
+                    id="phone"
+                    maxLength={100}
+                    required
+                    data-msg-required="Please enter your phone number."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    placeholder="Phone Number"
+                    {...register('phone')}
+                  />
+                </div>
+              </div>
+
+              <div className="row row-gutter-sm">
+                <div className="form-group col-lg-6 mb-4">
+                  <input
+                    type="email"
+                    id="email"
+                    maxLength={100}
+                    required
+                    data-msg-required="Please enter your email address."
+                    data-msg-email="Please enter a valid email address."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    placeholder="Your Email"
+                    {...register('email')}
+                  />
+                </div>
+                <div className="form-group col-lg-6 mb-4">
+                  <input
+                    type="text"
+                    id="subject"
+                    maxLength={100}
+                    required
+                    data-msg-required="Please enter the subject."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    placeholder="Subject"
+                    {...register('subject')}
+                  />
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="form-group col mb-4">
+                  <textarea
+                    id="message"
+                    rows={10}
+                    maxLength={5000}
+                    required
+                    data-msg-required="Please enter your message."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    placeholder="Your Message"
+                    {...register('message')}
+                  ></textarea>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="form-group col mb-0">
+                  <button
+                    type="submit"
+                    className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
+                    data-loading-text="Loading..."
+                  >
+                    SUBMIT <i className="custom-arrow-icon ms-5"></i>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
