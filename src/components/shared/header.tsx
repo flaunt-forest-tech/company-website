@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
               <div className="header-row">
                 <div className="header-logo">
                   <a href="demo-it-services.html">
-                    <Image alt="Porto" width={162} height={42} src="/img/logo.png" priority />
+                    <Image alt="fft" width={183} height={76} src="/img/logo.png" priority />
                   </a>
                 </div>
               </div>

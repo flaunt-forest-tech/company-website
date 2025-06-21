@@ -5,6 +5,8 @@ import ScriptLoader from '@/components/script-loader';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import { CONTACT } from '@/constants/contact';
+// import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
+import React from 'react';
 
 export default function ContactPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -121,11 +123,12 @@ function ContactSection() {
           <div className="col-lg-7 px-0">
             <div id="googlemaps" className="google-map h-100 my-0" style={{ minHeight: '500px' }}>
               {/* Google Maps - Go to the bottom of the page to change settings and map location. */}
-              <div
+              {/* <div
                 id="googlemaps"
                 className="google-map h-100 my-0"
                 style={{ minHeight: '500px' }}
-              ></div>
+              ></div> */}
+              {/* <GoogleMapSection /> */}
             </div>
           </div>
         </div>
@@ -133,3 +136,36 @@ function ContactSection() {
     </section>
   );
 }
+
+// function GoogleMapSection() {
+//   // const [map, setMap] = React.useState(null);
+
+//   const containerStyle = {
+//     width: '400px',
+//     height: '400px',
+//   };
+
+//   const center = {
+//     lat: -3.745,
+//     lng: -38.523,
+//   };
+//   const { isLoaded } = useJsApiLoader({
+//     id: 'google-map-script',
+//     googleMapsApiKey: 'YOUR_API_KEY',
+//   });
+
+//   return isLoaded ? (
+//     <GoogleMap
+//       mapContainerStyle={containerStyle}
+//       center={center}
+//       zoom={10}
+//       // onLoad={onLoad}
+//       // onUnmount={onUnmount}
+//     >
+//       {/* Child components, such as markers, info windows, etc. */}
+//       <></>
+//     </GoogleMap>
+//   ) : (
+//     <></>
+//   );
+// }
