@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ITServices' | 'Careers'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ITServices' | 'Careers' | 'Contact'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
@@ -100,6 +100,12 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                           <a className="nav-link" href="demo-it-services-contact.html">
                             Contact
                           </a>
+                          <Link
+                            className={cn('nav-link', { active: activePage === 'Contact' })}
+                            href="/contact"
+                          >
+                            Contact
+                          </Link>
                         </li>
                       </ul>
                     </nav>
