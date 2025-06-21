@@ -1,5 +1,5 @@
+import { SERVICES } from '@/constants/services';
 import Image from 'next/image';
-import { services } from '@/constants/services';
 
 export default function ServicesSection() {
   return (
@@ -36,7 +36,7 @@ export default function ServicesSection() {
             </p>
           </div>
           <div className="col-md-4 offset-md-1 ps-md-5">
-            {services.slice(0, 3).map((item, idx) => (
+            {SERVICES.slice(0, 3).map((item, idx) => (
               <div key={idx}>
                 <h4 className="custom-heading-bar font-weight-bold text-color-dark text-5 mb-2">
                   {item.title}
@@ -112,7 +112,7 @@ export default function ServicesSection() {
           </div>
         </div>
         <div className="row">
-          {services.map((service, index) => (
+          {SERVICES.map((service, index) => (
             <div
               key={index}
               className={`col-12 col-sm-6 col-lg-4 mb-4 ${index % 2 !== 0 ? 'mt-lg-5' : ''}`}

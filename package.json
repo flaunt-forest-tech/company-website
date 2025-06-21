@@ -12,10 +12,12 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "clsx": "^2.1.1",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.58.1",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {

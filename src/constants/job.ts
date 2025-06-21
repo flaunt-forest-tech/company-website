@@ -1,4 +1,4 @@
-export const jobs = [
+export const JOBS = [
   {
     title: 'INFRASTRUCTURE MONITORING - SOFTWARE DEVELOPER',
     content: [

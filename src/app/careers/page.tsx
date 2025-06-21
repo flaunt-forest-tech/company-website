@@ -4,7 +4,7 @@ import Header from '@/components/shared/header';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import React from 'react';
 import Link from 'next/link';
-import { jobs } from '@/constants/job';
+import { JOBS } from '@/constants/job';
 
 const CareersPage: React.FC = () => {
   const pageHeaderData: PageHeaderProps = {
@@ -58,7 +58,7 @@ function CareersSection() {
         <div className="row justify-content-center">
           <div className="col-md-10 col-lg-9 col-xl-8">
             <div className="accordion accordion-modern without-bg" id="accordion11">
-              {jobs.map((job) => (
+              {JOBS.map((job) => (
                 <div className="card card-default" key={job.id}>
                   <div className="card-header">
                     <h4 className="card-title m-0">

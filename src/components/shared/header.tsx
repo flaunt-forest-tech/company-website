@@ -4,9 +4,10 @@ import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { CONTACT } from '@/constants/contact';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ITServices' | 'Careers'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'ITServices' | 'Careers' | 'Contact'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
@@ -24,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
               <div className="header-row">
                 <div className="header-logo">
                   <a href="demo-it-services.html">
-                    <Image alt="Porto" width={162} height={42} src="/img/logo.png" priority />
+                    <Image alt="fft" width={183} height={76} src="/img/logo.png" priority />
                   </a>
                 </div>
               </div>
@@ -97,9 +98,12 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                           </Link>
                         </li>
                         <li>
-                          <a className="nav-link" href="demo-it-services-contact.html">
+                          <Link
+                            className={cn('nav-link', { active: activePage === 'Contact' })}
+                            href="/contact"
+                          >
                             Contact
-                          </a>
+                          </Link>
                         </li>
                       </ul>
                     </nav>
@@ -119,10 +123,10 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                         SUPPORT
                       </span>
                       <a
-                        href="tel:+16093393835"
+                        href={`tel:${CONTACT.CELL.support}`}
                         className="font-weight-bold text-color-primary text-5"
                       >
-                        609-339-3835
+                        {CONTACT.CELL.supportFormatted}
                       </a>
                     </li>
                     <li className="d-flex flex-column">
@@ -130,10 +134,10 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                         SALES
                       </span>
                       <a
-                        href="tel:+16467520078"
+                        href={`tel:${CONTACT.CELL.sales}`}
                         className="font-weight-bold text-color-primary text-5"
                       >
-                        646-752-0078
+                        {CONTACT.CELL.salesFormatted}
                       </a>
                     </li>
                   </ul>
