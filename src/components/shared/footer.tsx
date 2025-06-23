@@ -1,4 +1,5 @@
 import { CONTACT } from '@/constants/contact';
+import { SERVICES } from '@/constants/services';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -44,13 +45,13 @@ export default function Footer() {
             <h4 className="ls-0">USEFUL LINKS</h4>
             <ul className="list-unstyled">
               <li className="mb-1">
-                <Link href="/services">Our Services</Link>
+                <Link href="/it-services">Our Services</Link>
               </li>
               <li className="mb-1">
                 <Link href="#">Payment Methods</Link>
               </li>
               <li className="mb-1">
-                <Link href="#">Services Guide</Link>
+                <Link href="/it-services">Services Guide</Link>
               </li>
               <li>
                 <Link href="#">FAQs</Link>
@@ -61,13 +62,11 @@ export default function Footer() {
           <div className="col-md-4 col-lg-2 mb-4 mb-md-0">
             <h4 className="ls-0">OUR SERVICES</h4>
             <ul className="list-unstyled">
-              {['Cloud Services', 'Tech Support', 'Data Security', 'Software Dev'].map(
-                (service, index) => (
-                  <li key={index} className="mb-1">
-                    <Link href="/services/detail">{service}</Link>
-                  </li>
-                )
-              )}
+              {SERVICES.map((service) => (
+                <li key={service.title} className="mb-1">
+                  <Link href={service.link}>{service.title}</Link>
+                </li>
+              ))}
             </ul>
           </div>
 

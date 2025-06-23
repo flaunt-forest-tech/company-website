@@ -6,6 +6,7 @@ import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import GetInTouchSection from '@/components/shared/get-in-touch-section';
 import { SERVICES } from '@/constants/services';
+import Link from 'next/link';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -77,7 +78,7 @@ function ServicesSection() {
         </div>
 
         <div className="row row-gutter-sm justify-content-center pb-5 mb-5">
-          {SERVICES.map(({ icon, title, description }) => (
+          {SERVICES.map(({ icon, title, description, link }) => (
             <div key={title} className="col-md-6 col-xl-4 mb-4">
               <div className="card border-0 custom-box-shadow-1">
                 <div className="card-body text-center p-5 my-3">
@@ -90,12 +91,15 @@ function ServicesSection() {
                   />
                   <h4 className="text-color-primary font-weight-bold text-6 mb-3">{title}</h4>
                   <p className="custom-text-size-1">{description}</p>
-                  <a
+                  {/* <a
                     href="/demo-it-services-services-detail"
                     className="text-color-dark font-weight-bold custom-text-size-1"
                   >
                     READ MORE +
-                  </a>
+                  </a> */}
+                  <Link href={link} className="text-color-dark font-weight-bold custom-text-size-1">
+                    READ MORE +
+                  </Link>
                 </div>
               </div>
             </div>
