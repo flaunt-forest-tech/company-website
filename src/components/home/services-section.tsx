@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { SERVICES } from '@/constants/services';
+import Link from 'next/link';
 
 const ServicesSection = () => {
   return (
@@ -46,12 +47,12 @@ const ServicesSection = () => {
                 {service.title}
               </h4>
               <p className="custom-text-size-1 px-lg-4">{service.description}</p>
-              <a
-                href="/demo-it-services-services-detail"
+              <Link
                 className={`${service.linkClass} font-weight-bold custom-text-size-1`}
+                href={service.link}
               >
                 READ MORE +
-              </a>
+              </Link>
             </div>
           ))}
         </div>
@@ -59,40 +60,5 @@ const ServicesSection = () => {
     </section>
   );
 };
-
-// const services = [
-//   {
-//     title: 'Cloud Services',
-//     icon: '/img/icons/backup-data-server.svg',
-//     description:
-//       'Reliable cloud infrastructure to host, scale, and manage your applications with maximum uptime and flexibility.',
-//     titleClass: 'text-color-primary',
-//     linkClass: 'text-color-dark',
-//   },
-//   {
-//     title: 'Tech Support',
-//     icon: '/img/icons/remove-monitor-access.svg',
-//     description:
-//       'Expert IT support to troubleshoot hardware and software issues, ensuring your business stays productive.',
-//     titleClass: 'text-color-dark',
-//     linkClass: 'text-color-primary',
-//   },
-//   {
-//     title: 'Data Security',
-//     icon: '/img/icons/password-lock-secure.svg',
-//     description:
-//       'Comprehensive security solutions to protect your business data from cyber threats and unauthorized access.',
-//     titleClass: 'text-color-primary',
-//     linkClass: 'text-color-dark',
-//   },
-//   {
-//     title: 'Software Dev',
-//     icon: '/img/icons/floppy-disk-memory.svg',
-//     description:
-//       'Custom software development tailored to your business needs, from web apps to enterprise-grade platforms.',
-//     titleClass: 'text-color-dark',
-//     linkClass: 'text-color-primary',
-//   },
-// ];
 
 export default ServicesSection;

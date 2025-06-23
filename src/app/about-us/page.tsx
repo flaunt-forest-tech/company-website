@@ -5,6 +5,7 @@ import Header from '@/components/shared/header';
 import ScriptLoader from '@/components/script-loader';
 import Image from 'next/image';
 import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
+import Link from 'next/link';
 
 export default function AboutUSPage() {
   const pageHeaderData: PageHeaderProps = {
@@ -320,12 +321,12 @@ function OurMission() {
                 We offer an empowering work environment where your skills can flourish and your
                 ideas can make an impact.
               </p>
-              <a
-                href="demo-it-services-careers.html"
+              <Link
+                href="/careers"
                 className="d-flex align-items-center custom-link-effect-1 text-color-primary font-weight-bold text-decoration-none text-4"
               >
                 See All Positions <i className="custom-arrow-icon ms-2" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

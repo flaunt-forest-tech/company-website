@@ -1,13 +1,6 @@
-'use client';
-
 import Link from 'next/link';
-import { useEffect } from 'react';
 
 const GetInTouchSection = () => {
-  useEffect(() => {
-    // Optional: If you're using a custom animation library, initialize it here
-  }, []);
-
   return (
     <section className="section section-height-3 bg-color-dark border-0 m-0">
       <div className="container container-xl-custom">

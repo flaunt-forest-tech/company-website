@@ -90,7 +90,7 @@ function CareersSection() {
                         </li>
                       </ul>
                       <Link
-                        href="/demo-it-services-contact"
+                        href="/contact"
                         className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
                       >
                         APPLY NOW <i className="custom-arrow-icon ms-2"></i>
