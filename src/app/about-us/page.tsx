@@ -25,7 +25,8 @@ export default function AboutUSPage() {
             </div>
           </div>
         </div>
-        {/* <OurClients />
+        {/* leaves it for now and we can uncomment after we actual get the client
+        <OurClients />
         <CountersSection /> */}
         <OurMission />
         <GetInTouchSection />
