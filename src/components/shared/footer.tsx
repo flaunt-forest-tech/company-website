@@ -90,7 +90,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://www.twitter.com/" target="_blank" rel="noopener noreferrer">
+                <a href="https://x.com/flauntforest/" target="_blank" rel="noopener noreferrer">
                   <i className="fab fa-x-twitter"></i>
                 </a>
               </li>
