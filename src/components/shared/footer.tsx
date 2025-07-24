@@ -12,7 +12,6 @@ export default function Footer() {
             <h4 className="ls-0">OUR ADDRESS</h4>
             <ul className="list list-unstyled">
               <li className="mb-1">{CONTACT.ADDRESS.street}</li>
-              <li className="mb-1">{CONTACT.ADDRESS.street2}</li>
               <li>{`${CONTACT.ADDRESS.city}, ${CONTACT.ADDRESS.state} ${CONTACT.ADDRESS.zip}`}</li>
             </ul>
           </div>
@@ -91,7 +90,7 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href="https://www.twitter.com/" target="_blank" rel="noopener noreferrer">
+                <a href="https://x.com/flauntforest/" target="_blank" rel="noopener noreferrer">
                   <i className="fab fa-x-twitter"></i>
                 </a>
               </li>
@@ -112,13 +111,13 @@ export default function Footer() {
               <hr className="my-0 bg-color-light opacity-2" />
             </div>
           </div>
-          <div className="row py-4 mt-2">
-            <div className="col-lg-6 text-center text-lg-start mb-3 mb-lg-0">
+          <div className="row align-items-center py-4 mt-2">
+            <div className="col-lg-6 d-flex justify-content-center justify-content-lg-start mb-4 mb-lg-0">
               <Link href="/">
                 <Image alt="Porto" width={115} height={30} src="/img/logo-light.png" />
               </Link>
             </div>
-            <div className="col-lg-6 text-center text-lg-end">
+            <div className="col-lg-6 d-flex justify-content-center justify-content-lg-end">
               <p className="text-3 mb-0">Flaunt Forest Tech. © 2025. All Rights Reserved</p>
             </div>
           </div>
