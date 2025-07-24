@@ -1,6 +1,6 @@
 export const CONTACT = {
   CELL: {
-    supportFormatted: '609-339-3835',
+    supportFormatted: '609-338-3835',
     support: '+16093393835',
     salesFormatted: '646-752-0078',
     sales: '+16467520078',
