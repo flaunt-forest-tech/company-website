@@ -25,8 +25,9 @@ export default function AboutUSPage() {
             </div>
           </div>
         </div>
+        {/* leaves it for now and we can uncomment after we actual get the client
         <OurClients />
-        <CountersSection />
+        <CountersSection /> */}
         <OurMission />
         <GetInTouchSection />
       </div>
@@ -104,127 +105,127 @@ function WhoWeAreSection() {
   );
 }
 
-function OurClients() {
-  const logos = [
-    { src: '/img/about-us/clients/logo-8.png', delay: 500 },
-    { src: '/img/about-us/clients/logo-9.png', delay: 1000, style: { maxWidth: '200px' } },
-    { src: '/img/about-us/clients/logo-10.png', delay: 900 },
-    { src: '/img/about-us/clients/logo-11.png', delay: 600, style: { maxWidth: '220px' } },
-    { src: '/img/about-us/clients/logo-12.png', delay: 1200 },
-    { src: '/img/about-us/clients/logo-13.png', delay: 500, style: { maxWidth: '200px' } },
-    { src: '/img/about-us/clients/logo-14.png', delay: 800, style: { maxWidth: '220px' } },
-    { src: '/img/about-us/clients/logo-15.png', delay: 1100, style: { maxWidth: '180px' } },
-  ];
+// function OurClients() {
+//   const logos = [
+//     { src: '/img/about-us/clients/logo-8.png', delay: 500 },
+//     { src: '/img/about-us/clients/logo-9.png', delay: 1000, style: { maxWidth: '200px' } },
+//     { src: '/img/about-us/clients/logo-10.png', delay: 900 },
+//     { src: '/img/about-us/clients/logo-11.png', delay: 600, style: { maxWidth: '220px' } },
+//     { src: '/img/about-us/clients/logo-12.png', delay: 1200 },
+//     { src: '/img/about-us/clients/logo-13.png', delay: 500, style: { maxWidth: '200px' } },
+//     { src: '/img/about-us/clients/logo-14.png', delay: 800, style: { maxWidth: '220px' } },
+//     { src: '/img/about-us/clients/logo-15.png', delay: 1100, style: { maxWidth: '180px' } },
+//   ];
 
-  return (
-    <div className="container container-xl-custom">
-      <div className="row">
-        <div className="col">
-          <div className="overflow-hidden mb-2">
-            <span
-              className="d-block font-weight-bold custom-text-color-grey-1 text-center line-height-1 mb-0 appear-animation"
-              data-appear-animation="maskUp"
-              data-appear-animation-delay="200"
-            >
-              WHO ARE WITH US
-            </span>
-          </div>
-          <div className="overflow-hidden mb-5">
-            <h2
-              className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0 appear-animation"
-              data-appear-animation="maskUp"
-              data-appear-animation-delay="400"
-            >
-              Our Amazing Clients
-            </h2>
-          </div>
-        </div>
-      </div>
+//   return (
+//     <div className="container container-xl-custom">
+//       <div className="row">
+//         <div className="col">
+//           <div className="overflow-hidden mb-2">
+//             <span
+//               className="d-block font-weight-bold custom-text-color-grey-1 text-center line-height-1 mb-0 appear-animation"
+//               data-appear-animation="maskUp"
+//               data-appear-animation-delay="200"
+//             >
+//               WHO ARE WITH US
+//             </span>
+//           </div>
+//           <div className="overflow-hidden mb-5">
+//             <h2
+//               className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0 appear-animation"
+//               data-appear-animation="maskUp"
+//               data-appear-animation-delay="400"
+//             >
+//               Our Amazing Clients
+//             </h2>
+//           </div>
+//         </div>
+//       </div>
 
-      <div className="row align-items-center justify-content-center pb-4 mb-5">
-        {logos.map(({ src, delay, style }, index) => (
-          <div
-            key={index}
-            className={`col-md-4 col-xl-3 text-center mb-5 ${index >= 4 ? 'mb-xl-0' : ''} appear-animation`}
-            data-appear-animation="expandIn"
-            data-appear-animation-delay={delay}
-          >
-            <Image
-              src={src}
-              alt={`Client logo ${index + 1}`}
-              className="img-fluid"
-              style={style}
-              width={200} // required
-              height={100} // required
-              sizes="(max-width: 768px) 100vw, 200px"
-            />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+//       <div className="row align-items-center justify-content-center pb-4 mb-5">
+//         {logos.map(({ src, delay, style }, index) => (
+//           <div
+//             key={index}
+//             className={`col-md-4 col-xl-3 text-center mb-5 ${index >= 4 ? 'mb-xl-0' : ''} appear-animation`}
+//             data-appear-animation="expandIn"
+//             data-appear-animation-delay={delay}
+//           >
+//             <Image
+//               src={src}
+//               alt={`Client logo ${index + 1}`}
+//               className="img-fluid"
+//               style={style}
+//               width={200} // required
+//               height={100} // required
+//               sizes="(max-width: 768px) 100vw, 200px"
+//             />
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 
-function CountersSection() {
-  return (
-    <section className="section section-height-3 bg-color-dark custom-box-shadow-1 border-0 m-0">
-      <div className="container container-xl-custom">
-        <div className="counters row justify-content-center align-items-center">
-          <div className="col-sm-6 col-lg-3 mb-5 mb-lg-0">
-            <div className="counter">
-              <strong
-                className="text-color-light font-weight-bold text-13 mb-2"
-                data-to="35"
-                data-append="+"
-              >
-                0
-              </strong>
-              <label className="custom-font-secondary text-color-light text-5">Business Year</label>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3 mb-5 mb-lg-0">
-            <div className="counter">
-              <strong
-                className="text-color-light font-weight-bold text-13 mb-2"
-                data-to="240"
-                data-append="+"
-              >
-                0
-              </strong>
-              <label className="custom-font-secondary text-color-light text-5">Clients</label>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3 mb-5 mb-sm-0">
-            <div className="counter">
-              <strong
-                className="text-color-light font-weight-bold text-13 mb-2"
-                data-to="2000"
-                data-append="+"
-              >
-                0
-              </strong>
-              <label className="custom-font-secondary text-color-light text-5">
-                Projects Delivery
-              </label>
-            </div>
-          </div>
-          <div className="col-sm-6 col-lg-3">
-            <div className="counter">
-              <strong
-                className="text-color-light font-weight-bold text-13 mb-2"
-                data-to="130"
-                data-append="+"
-              >
-                0
-              </strong>
-              <label className="custom-font-secondary text-color-light text-5">Team Members</label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+// function CountersSection() {
+//   return (
+//     <section className="section section-height-3 bg-color-dark custom-box-shadow-1 border-0 m-0">
+//       <div className="container container-xl-custom">
+//         <div className="counters row justify-content-center align-items-center">
+//           <div className="col-sm-6 col-lg-3 mb-5 mb-lg-0">
+//             <div className="counter">
+//               <strong
+//                 className="text-color-light font-weight-bold text-13 mb-2"
+//                 data-to="35"
+//                 data-append="+"
+//               >
+//                 0
+//               </strong>
+//               <label className="custom-font-secondary text-color-light text-5">Business Year</label>
+//             </div>
+//           </div>
+//           <div className="col-sm-6 col-lg-3 mb-5 mb-lg-0">
+//             <div className="counter">
+//               <strong
+//                 className="text-color-light font-weight-bold text-13 mb-2"
+//                 data-to="240"
+//                 data-append="+"
+//               >
+//                 0
+//               </strong>
+//               <label className="custom-font-secondary text-color-light text-5">Clients</label>
+//             </div>
+//           </div>
+//           <div className="col-sm-6 col-lg-3 mb-5 mb-sm-0">
+//             <div className="counter">
+//               <strong
+//                 className="text-color-light font-weight-bold text-13 mb-2"
+//                 data-to="2000"
+//                 data-append="+"
+//               >
+//                 0
+//               </strong>
+//               <label className="custom-font-secondary text-color-light text-5">
+//                 Projects Delivery
+//               </label>
+//             </div>
+//           </div>
+//           <div className="col-sm-6 col-lg-3">
+//             <div className="counter">
+//               <strong
+//                 className="text-color-light font-weight-bold text-13 mb-2"
+//                 data-to="130"
+//                 data-append="+"
+//               >
+//                 0
+//               </strong>
+//               <label className="custom-font-secondary text-color-light text-5">Team Members</label>
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </section>
+//   );
+// }
 
 function OurMission() {
   return (

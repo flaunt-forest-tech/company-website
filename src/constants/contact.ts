@@ -6,8 +6,7 @@ export const CONTACT = {
     sales: '+16467520078',
   },
   ADDRESS: {
-    street: '30118 Gold',
-    street2: 'Finch Pl',
+    street: '30118 Gold Finch Pl',
     city: 'Fulshear',
     state: 'TX',
     zip: '77441',
