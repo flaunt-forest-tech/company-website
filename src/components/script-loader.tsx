@@ -8,7 +8,6 @@ export default function ScriptLoader() {
 
   const scripts = [
     { src: '/js/vendor/jquery/jquery.min.js', name: 'jQuery' },
-    { src: '/js/plugins/js/plugins.min.js', name: 'Plugins' },
     { src: '/js/theme.js', name: 'Theme' },
     { src: '/js/demo-it-services.js', name: 'Demo IT Services' },
     { src: '/js/theme.init.js', name: 'Theme Initialization' },
