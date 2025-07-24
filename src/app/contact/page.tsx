@@ -65,9 +65,6 @@ function LocationSection() {
                       </h4>
                       <p className="text-color-light opacity-5 font-weight-light custom-text-size-1 pb-2 mb-4">
                         {CONTACT.ADDRESS.street}
-                        <br />
-                        {CONTACT.ADDRESS.street2}
-                        <br />
                         {`${CONTACT.ADDRESS.city}, ${CONTACT.ADDRESS.state} ${CONTACT.ADDRESS.zip}`}
                       </p>
                     </div>

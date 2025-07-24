@@ -12,7 +12,6 @@ export default function Footer() {
             <h4 className="ls-0">OUR ADDRESS</h4>
             <ul className="list list-unstyled">
               <li className="mb-1">{CONTACT.ADDRESS.street}</li>
-              <li className="mb-1">{CONTACT.ADDRESS.street2}</li>
               <li>{`${CONTACT.ADDRESS.city}, ${CONTACT.ADDRESS.state} ${CONTACT.ADDRESS.zip}`}</li>
             </ul>
           </div>
