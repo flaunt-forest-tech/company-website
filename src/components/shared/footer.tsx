@@ -111,13 +111,13 @@ export default function Footer() {
               <hr className="my-0 bg-color-light opacity-2" />
             </div>
           </div>
-          <div className="row py-4 mt-2">
-            <div className="col-lg-6 text-center text-lg-start mb-3 mb-lg-0">
+          <div className="row align-items-center py-4 mt-2">
+            <div className="col-lg-6 d-flex justify-content-center justify-content-lg-start mb-4 mb-lg-0">
               <Link href="/">
                 <Image alt="Porto" width={115} height={30} src="/img/logo-light.png" />
               </Link>
             </div>
-            <div className="col-lg-6 text-center text-lg-end">
+            <div className="col-lg-6 d-flex justify-content-center justify-content-lg-end">
               <p className="text-3 mb-0">Flaunt Forest Tech. © 2025. All Rights Reserved</p>
             </div>
           </div>
