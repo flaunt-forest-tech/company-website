@@ -11,5 +11,5 @@ export const CONTACT = {
     state: 'TX',
     zip: '77441',
   },
-  EMAIL: 'flauntforesttech@gmail.com',
+  EMAIL: 'sales@flauntforest.com',
 };

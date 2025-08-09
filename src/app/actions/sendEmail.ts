@@ -15,7 +15,7 @@ export async function sendEmail(formData: ContactFormInputs) {
   try {
     const data = await resend.emails.send({
       from: 'Acme <onboarding@resend.dev>',
-      to: ['flauntforesttech@gmail.com'],
+      to: ['sales@flauntforest.com'],
       subject: subject,
       html: message,
     });
