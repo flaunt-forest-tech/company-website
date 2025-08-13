@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 const ITServicesOverview: React.FC = () => {
   return (
     <section
@@ -101,14 +102,14 @@ const ITServicesOverview: React.FC = () => {
               Our team partners with you to create value through technology—enhancing efficiency,
               driving growth, and enabling long-term success in a digital-first world.
             </p>
-            <a
-              href="/demo-it-services-about-us"
+            <Link
+              href="/about-us"
               className="d-flex align-items-center custom-link-effect-1 text-color-primary font-weight-bold text-decoration-none text-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1300"
             >
               Find Out More <i className="custom-arrow-icon ms-2"></i>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
