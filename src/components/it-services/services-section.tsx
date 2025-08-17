@@ -1,5 +1,6 @@
 import { SERVICES } from '@/constants/services';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function ServicesSection() {
   return (
@@ -21,18 +22,23 @@ export default function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                Enable Your Business To Its Maximum Potential With Cloud Innovation
+                Enable Your Business To Its Maximum Potential With AI-Powered Cloud Innovation
               </h2>
             </div>
             <p className="custom-text-size-1 pt-3 pb-1 mb-4">
-              Our cloud solutions empower your organization with the flexibility and scalability it
-              needs to grow. Whether you&apos;re migrating legacy systems or building new
-              infrastructure, we help streamline your operations for better performance and reduced
-              costs.
+              Our next-generation cloud solutions combine scalability with AI-driven intelligence,
+              empowering your organization to grow faster and smarter. Whether you’re migrating
+              legacy systems, building new infrastructure, or integrating AI into your operations,
+              we help streamline workflows, enhance performance, and reduce costs.
             </p>
             <p className="custom-text-size-1">
-              With a dedicated team of experts and proven frameworks, we ensure seamless cloud
-              adoption, robust security, and ongoing optimization tailored to your business goals.
+              With a dedicated team of experts and proven frameworks, we deliver seamless cloud
+              adoption, robust AI-enabled security, and continuous optimization—all tailored to your
+              unique business goals.
+            </p>
+            <p className="custom-text-size-1">
+              We go beyond traditional IT. By combining our knowledge with AI innovation, we help
+              your business grow stronger, faster, and smarter.
             </p>
           </div>
           <div className="col-md-4 offset-md-1 ps-md-5">
@@ -72,15 +78,20 @@ export default function ServicesSection() {
           </div>
           <div className="col-lg-6">
             <p className="custom-text-size-1 pb-2 mb-4">
-              Our team brings together passionate professionals, forward-thinking leadership, and a
-              collaborative environment to drive client success.
+              Our team brings together passionate professionals, forward-thinking leadership, and
+              deep industry knowledge—enhanced by the latest AI innovations—to deliver smarter,
+              faster, and more reliable solutions.
             </p>
             <p className="custom-text-size-1 pb-2 mb-4">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              By blending our proven IT expertise with the power of AI, we create solutions that are
+              tailored, scalable, and future-ready. This unique approach ensures your business gains
+              the efficiency of automation without losing the insight of human expertise.
             </p>
             <p className="custom-text-size-1 pb-3 mb-4">
-              Partnering with us means access to a dedicated support system and a workplace that
-              fosters personal and professional growth.
+              We are not just another IT company. By combining human expertise with AI intelligence,
+              we solve challenges in ways traditional providers cannot. Partnering with us means
+              access to a dedicated support system, future-ready technology, and a partner committed
+              to your long-term growth.
             </p>
             <a
               href="/contact"
@@ -132,12 +143,12 @@ export default function ServicesSection() {
                     {service.title}
                   </h4>
                   <p className="custom-text-size-1 px-lg-4">{service.description}</p>
-                  <a
-                    href="/demo-it-services-services-detail"
+                  <Link
+                    href="#"
                     className={`text-color-${service.linkClass} font-weight-bold custom-text-size-1`}
                   >
                     READ MORE +
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>

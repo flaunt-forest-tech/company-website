@@ -34,9 +34,9 @@ const ITServicesOverview: React.FC = () => {
                     IT CONSULTING
                   </h4>
                   <p className="custom-font-secondary text-4 mb-3">
-                    We help businesses harness technology to drive growth,{' '}
-                    <strong className="text-color-dark">streamline operations</strong>, and stay
-                    ahead of the competition.
+                    We help businesses harness AI and advanced technology to drive growth,{' '}
+                    <strong className="text-color-dark">streamline operations</strong>, automate
+                    workflows, and stay ahead of the competition.
                   </p>
                 </div>
               </div>
@@ -60,9 +60,9 @@ const ITServicesOverview: React.FC = () => {
                       IT SUPPORT
                     </h4>
                     <p className="text-end custom-font-secondary text-4 ps-4 ms-3 mb-3">
-                      Our reliable IT support services ensure your systems run smoothly and
-                      securely. From troubleshooting to proactive maintenance, we keep your business
-                      operations uninterrupted and your team productive.
+                      Our reliable IT support services—enhanced with AI-driven monitoring and
+                      predictive maintenance—ensure your systems run smoothly and securely. We keep
+                      your business operations uninterrupted and your team highly productive.
                     </p>
                   </div>
                 </div>
@@ -91,16 +91,17 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We focus on bringing value and solve business challenges through the delivery of
-              modern IT services and solutions
+              We solve business challenges with AI-powered IT services and modern technology
+              solutions
             </h2>
             <p
               className="custom-text-size-1 pb-3 mb-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Our team partners with you to create value through technology—enhancing efficiency,
-              driving growth, and enabling long-term success in a digital-first world.
+              Our team partners with you to create value through AI and modern IT—enhancing
+              efficiency, unlocking data-driven insights, driving growth, and enabling long-term
+              success in a digital-first world.
             </p>
             <Link
               href="/about-us"
