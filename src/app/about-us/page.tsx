@@ -63,8 +63,8 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We focus on bringing value and solve business challenges through the delivery of
-              modern IT services and solutions
+              We solve business challenges with AI-powered IT services and modern technology
+              solutions
             </h2>
 
             <p
@@ -72,9 +72,10 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Our team specializes in delivering innovative IT support and infrastructure solutions
-              tailored to meet the unique needs of small and medium businesses. We emphasize
-              reliability, scalability, and long-term value in everything we do.
+              Our team specializes in delivering innovative IT, cloud, and AI solutions tailored to
+              the unique needs of small and medium businesses. By combining AI-driven insights with
+              human expertise and reliable infrastructure, we help organizations scale with
+              confidence, enhance decision-making, and achieve long-term value.
             </p>
 
             <p
@@ -83,8 +84,11 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1300"
               data-plugin-options='{"accY": 200}'
             >
-              From proactive system monitoring to cloud migrations and cybersecurity enhancements,
-              we empower organizations to operate efficiently and securely in a digital-first world.
+              We are not just another IT company. Unlike traditional providers that focus only on
+              infrastructure or maintenance, we deliver smarter, faster, and more powerful
+              solutions—from proactive AI-powered system monitoring to cloud migrations and advanced
+              cybersecurity. This unique blend of knowledge + AI intelligence empowers businesses to
+              operate smarter, more securely, and more efficiently in a digital-first world.
             </p>
           </div>
 
@@ -248,17 +252,20 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR MISSION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                We are committed to delivering innovative IT solutions that empower businesses to
-                grow <strong className="text-color-dark">efficiently </strong>and{' '}
-                <strong className="text-color-dark">securely</strong>.
+                We are committed to delivering
+                <strong className="text-color-dark"> AI-powered IT solutions</strong> that help
+                businesses grow smarter, faster, and more securely. By combining cloud, automation,
+                and intelligent analytics, we empower organizations to adapt, innovate, and succeed
+                in the AI-driven.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
                 Our dedicated team works closely with clients to understand their unique challenges
-                and craft tailored strategies that drive success.
+                and craft AI-driven, tailored strategies that accelerate success and innovation.
               </p>
               <p className="custom-text-size-1 mb-0">
-                Through continuous improvement and proactive support, we strive to exceed
-                expectations and foster long-term partnerships.
+                Through continuous improvement, intelligent automation, and proactive AI-powered
+                support, we strive to exceed expectations, deliver measurable value, and foster
+                long-term partnerships in the digital-first era.
               </p>
             </div>
           </div>
@@ -281,17 +288,22 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR VISION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                To be a trusted leader in IT services by delivering exceptional
-                <strong className="text-color-dark"> value </strong> and
-                <strong className="text-color-dark"> innovative</strong> solutions worldwide.
+                To be a trusted global leader in{' '}
+                <strong className="text-color-dark">AI-powered IT services</strong>—delivering
+                exceptional value, intelligent automation, and innovative solutions that transform
+                businesses worldwide.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We envision a future where technology seamlessly integrates with business goals to
-                create unparalleled opportunities.
+                We envision a future where{' '}
+                <strong className="text-color-dark">
+                  AI seamlessly integrates with business strategy
+                </strong>
+                , enabling organizations to unlock data-driven opportunities, enhance
+                decision-making, and achieve sustainable growth.
               </p>
               <p className="custom-text-size-1 mb-0">
-                Our focus is on fostering sustainable growth, embracing change, and inspiring
-                progress in everything we do.
+                Our focus is on fostering sustainable, AI-powered growth, embracing technological
+                change, and inspiring progress through innovation in everything we do.
               </p>
             </div>
           </div>
@@ -314,13 +326,14 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">PORTO CAREERS</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Join our dynamic team and help shape the future of IT services by driving
-                <strong className="text-color-dark"> innovation</strong> and{' '}
-                <strong className="text-color-dark">excellence.</strong>
+                Join our dynamic team and help shape the{' '}
+                <strong className="text-color-dark">future of AI-powered IT services</strong> by
+                driving innovation, automation, and excellence.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We offer an empowering work environment where your skills can flourish and your
-                ideas can make an impact.
+                We offer an empowering work environment where your skills in AI, cloud, and emerging
+                technologies can flourish, and your ideas can make a real impact on the digital
+                future.
               </p>
               <Link
                 href="/careers"

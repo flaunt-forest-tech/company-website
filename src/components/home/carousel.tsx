@@ -45,7 +45,7 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              ARE YOU LOOKING FOR SUPERIOR TECH IT SUPPORT?
+              AI-POWERED, RELIABLE, AND FUTURE-READY IT SOLUTIONS
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
