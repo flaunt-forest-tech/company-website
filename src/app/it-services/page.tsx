@@ -32,17 +32,17 @@ function ServicesSection() {
     {
       step: '1',
       title: '1. BRAINSTORM',
-      desc: 'We begin by understanding your goals and challenges to craft a tailored solution strategy.',
+      desc: 'We begin by understanding your goals and challenges, then explore how AI and modern IT can be tailored—or even built from the ground up—to meet your unique needs.',
     },
     {
       step: '2',
       title: '2. DEVELOPMENT',
-      desc: 'Our engineering team builds and rigorously tests the solution using agile methodologies.',
+      desc: 'Our engineering team not only leverages AI tools and automation to accelerate development, but also has the capability to design and build custom AI solutions that seamlessly integrate into your business.',
     },
     {
       step: '3',
       title: '3. DELIVERY',
-      desc: 'We deploy your solution, ensure a smooth handover, and provide ongoing support as needed.',
+      desc: 'We deploy your solution with intelligent monitoring, predictive support, and AI customization options, ensuring a smooth handover today and the flexibility to evolve your own AI ecosystem in the future.',
     },
   ];
 
@@ -70,9 +70,8 @@ function ServicesSection() {
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We deliver cutting-edge IT solutions that drive business growth, efficiency, and
-              innovation. Whether you need to modernize infrastructure, build a custom app, or
-              secure your data—we’ve got you covered.
+              We deliver AI-driven IT solutions that fuel growth, automate operations, and secure
+              your future. From modern infrastructure to smart applications—we’ve got you covered.
             </p>
           </div>
         </div>
