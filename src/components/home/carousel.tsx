@@ -53,8 +53,10 @@ const Carousel: React.FC = () => {
               data-appear-animation-delay="500"
             >
               We provide <strong className="text-color-light">affordable</strong>, highly responsive{' '}
-              <strong className="text-color-light">IT Support</strong> and Services for small and
-              medium businesses.
+              <strong className="text-color-light">IT Support</strong>,{' '}
+              <strong className="text-color-light">cloud service</strong>, and{' '}
+              <strong className="text-color-light">AI-driven technology</strong> solutions-helping
+              small and medium businesses work smarter, stay secure, and achieve long-term growth.
             </p>
             <a
               href="#services"
