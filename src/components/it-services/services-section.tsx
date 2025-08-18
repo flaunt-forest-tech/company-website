@@ -1,8 +1,13 @@
+'use client';
 import { SERVICES } from '@/constants/services';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function ServicesSection() {
+  const pathname = usePathname();
+  const mainService = SERVICES.find((s) => pathname.includes(s.link)) || SERVICES[0];
+
   return (
     <section
       className="section custom-section-full-width bg-color-transparent border-0 mt-0 mb-1"
@@ -22,27 +27,20 @@ export default function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                Enable Your Business To Its Maximum Potential With AI-Powered Cloud Innovation
+                {mainService.detailsTitle}
               </h2>
             </div>
-            <p className="custom-text-size-1 pt-3 pb-1 mb-4">
-              Our next-generation cloud solutions combine scalability with AI-driven intelligence,
-              empowering your organization to grow faster and smarter. Whether you’re migrating
-              legacy systems, building new infrastructure, or integrating AI into your operations,
-              we help streamline workflows, enhance performance, and reduce costs.
-            </p>
-            <p className="custom-text-size-1">
-              With a dedicated team of experts and proven frameworks, we deliver seamless cloud
-              adoption, robust AI-enabled security, and continuous optimization—all tailored to your
-              unique business goals.
-            </p>
-            <p className="custom-text-size-1">
-              We go beyond traditional IT. By combining our knowledge with AI innovation, we help
-              your business grow stronger, faster, and smarter.
-            </p>
+            {mainService.detailsDescription?.map((desc, idx) => (
+              <p
+                key={idx}
+                className={`custom-text-size-1 ${idx === 0 ? 'pt-3 pb-1 mb-4' : 'pb-2 mb-4'}`}
+              >
+                {desc}
+              </p>
+            ))}
           </div>
           <div className="col-md-4 offset-md-1 ps-md-5">
-            {SERVICES.slice(0, 3).map((item, idx) => (
+            {SERVICES.slice(5, 8).map((item, idx) => (
               <div key={idx}>
                 <h4 className="custom-heading-bar font-weight-bold text-color-dark text-5 mb-2">
                   {item.title}
@@ -123,7 +121,7 @@ export default function ServicesSection() {
           </div>
         </div>
         <div className="row">
-          {SERVICES.map((service, index) => (
+          {SERVICES.slice(0, 5).map((service, index) => (
             <div
               key={index}
               className={`col-12 col-sm-6 col-lg-4 mb-4 ${index % 2 !== 0 ? 'mt-lg-5' : ''}`}
@@ -144,7 +142,7 @@ export default function ServicesSection() {
                   </h4>
                   <p className="custom-text-size-1 px-lg-4">{service.description}</p>
                   <Link
-                    href="#"
+                    href={service.link}
                     className={`text-color-${service.linkClass} font-weight-bold custom-text-size-1`}
                   >
                     READ MORE +
