@@ -77,7 +77,7 @@ function ServicesSection() {
         </div>
 
         <div className="row row-gutter-sm justify-content-center pb-5 mb-5">
-          {SERVICES.map(({ icon, title, description, link }) => (
+          {SERVICES.slice(0, 5).map(({ icon, title, description, link }) => (
             <div key={title} className="col-md-6 col-xl-4 mb-4">
               <div className="card border-0 custom-box-shadow-1">
                 <div className="card-body text-center p-5 my-3">
