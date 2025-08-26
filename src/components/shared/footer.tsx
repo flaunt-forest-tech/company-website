@@ -61,7 +61,7 @@ export default function Footer() {
           <div className="col-md-4 col-lg-2 mb-4 mb-md-0">
             <h4 className="ls-0">OUR SERVICES</h4>
             <ul className="list-unstyled">
-              {SERVICES.map((service) => (
+              {SERVICES.slice(0, 4).map((service) => (
                 <li key={service.title} className="mb-1">
                   <Link href={service.link}>{service.title}</Link>
                 </li>
