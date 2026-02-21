@@ -1,50 +1,38 @@
+import { PubSubMessage, GmailPushPayload } from './types';
+
 export const runtime = 'nodejs';
 
-/**
- * Pub/Sub push body format (JSON):
- * {
- *   "message": {
- *     "data": "base64...",
- *     "messageId": "...",
- *     "attributes": {...}
- *   },
- *   "subscription": "projects/.../subscriptions/..."
- * }
- */
-interface PubSubMessage {
-  message?: {
-    data?: string;
-    messageId?: string;
-    attributes?: Record<string, string>;
-  };
-  subscription?: string;
+function decodeBase64Json<T>(b64: string): T | null {
+  try {
+    const decoded = Buffer.from(b64, 'base64').toString('utf8');
+    return JSON.parse(decoded) as T;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(req: Request) {
-  const body = (await req.json().catch(() => ({}))) as PubSubMessage;
+  const body = (await req.json()) as PubSubMessage;
 
   console.log('=== PubSub push received ===');
-  console.log('raw body:', body);
 
-  // Decode message.data (base64) if present
-  try {
-    const dataB64 = body?.message?.data;
-    if (typeof dataB64 === 'string') {
-      const decoded = Buffer.from(dataB64, 'base64').toString('utf8');
-      console.log('decoded message.data:', decoded);
+  const payload = decodeBase64Json<GmailPushPayload>(body.message.data);
 
-      // If decoded is JSON, parse it
-      try {
-        const parsed = JSON.parse(decoded);
-        console.log('decoded JSON:', parsed);
-      } catch {
-        // not JSON, ignore
-      }
-    }
-  } catch (e) {
-    console.log('decode error:', String(e));
+  if (!payload) {
+    console.log('Unable to decode payload');
+    return new Response('bad payload', { status: 400 });
   }
 
-  // IMPORTANT: respond quickly
+  console.log('Gmail push payload:', payload);
+
+  /**
+   * payload.emailAddress
+   * payload.historyId
+   *
+   * 下一步我们就在这里：
+   * → 存 historyId
+   * → 调 users.history.list
+   */
+
   return new Response('ok', { status: 200 });
 }
