@@ -1,3 +1,5 @@
+// src/app/webhooks/gmail/push/route.ts
+
 import fs from 'fs/promises';
 import path from 'path';
 import { google, gmail_v1 } from 'googleapis';
@@ -6,6 +8,7 @@ import { PubSubMessage, GmailPushPayload } from './types';
 
 export const runtime = 'nodejs';
 
+/** Pub/Sub message.data is base64(JSON-string) */
 function decodeBase64Json<T>(b64: string): T | null {
   try {
     const decoded = Buffer.from(b64, 'base64').toString('utf8');
@@ -15,6 +18,84 @@ function decodeBase64Json<T>(b64: string): T | null {
   }
 }
 
+/** Gmail body parts are base64url (not normal base64) */
+function decodeBase64UrlToUtf8(data: string) {
+  const normalized = data.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+  return Buffer.from(padded, 'base64').toString('utf8');
+}
+
+function getHeaderValue(headers: gmail_v1.Schema$MessagePartHeader[] | undefined, key: string) {
+  if (!headers) return '';
+  const found = headers.find((h) => (h.name || '').toLowerCase() === key.toLowerCase());
+  return found?.value || '';
+}
+
+/** Extract the best body we can find (prefer text/plain, fallback to text/html, recurse multipart) */
+function extractBodyText(payload: gmail_v1.Schema$MessagePart | null | undefined): {
+  text: string;
+  mimeType: string;
+} {
+  if (!payload) return { text: '', mimeType: '' };
+
+  // Single-part
+  if (payload.body?.data) {
+    return {
+      text: decodeBase64UrlToUtf8(payload.body.data),
+      mimeType: payload.mimeType || '',
+    };
+  }
+
+  const parts: gmail_v1.Schema$MessagePart[] = payload.parts || [];
+  if (!Array.isArray(parts) || parts.length === 0) {
+    return { text: '', mimeType: '' };
+  }
+
+  // Prefer text/plain
+  const plain = parts.find((p) => p?.mimeType === 'text/plain' && p?.body?.data);
+  if (plain?.body?.data) {
+    return {
+      text: decodeBase64UrlToUtf8(plain.body.data),
+      mimeType: 'text/plain',
+    };
+  }
+
+  // Fallback to text/html
+  const html = parts.find((p) => p?.mimeType === 'text/html' && p?.body?.data);
+  if (html?.body?.data) {
+    return {
+      text: decodeBase64UrlToUtf8(html.body.data),
+      mimeType: 'text/html',
+    };
+  }
+
+  // Nested multipart
+  for (const p of parts) {
+    const nested = extractBodyText(p);
+    if (nested.text) return nested;
+  }
+
+  return { text: '', mimeType: '' };
+}
+
+function stripHtmlToText(htmlOrText: string) {
+  return htmlOrText
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+}
+
+function parseEmailAddress(fromHeader: string) {
+  // "Name <email@x.com>" -> email@x.com
+  const match = fromHeader.match(/<([^>]+)>/);
+  return (match?.[1] || fromHeader).trim();
+}
+
 const STORE_DIR = path.join(process.cwd(), 'data');
 const STORE_FILE = path.join(STORE_DIR, 'gmail-history.json');
 const PROCESSED_FILE = path.join(STORE_DIR, 'gmail-processed.json');
@@ -22,6 +103,7 @@ const PROCESSED_FILE = path.join(STORE_DIR, 'gmail-processed.json');
 // Redis client (optional). Configure with REDIS_URL or REDIS_HOST/REDIS_PORT.
 let redisClient: ReturnType<typeof createClient> | null = null;
 let redisConnected = false;
+
 function getRedisUrl(): string | null {
   if (process.env.REDIS_URL) return process.env.REDIS_URL;
   const host = process.env.REDIS_HOST;
@@ -32,13 +114,13 @@ function getRedisUrl(): string | null {
 
 async function ensureRedis() {
   if (redisConnected) return redisClient;
+
   const url = getRedisUrl();
   if (!url) return null;
 
   const useTls = url.startsWith('rediss://');
   const u = new URL(url);
 
-  // construct client with inline options (avoid any)
   const client = createClient({
     url,
     socket: useTls ? { tls: true, rejectUnauthorized: false, servername: u.hostname } : undefined,
@@ -54,48 +136,65 @@ async function ensureRedis() {
     return null;
   }
 
-  client.on('error', (err) => console.error('Redis error', err?.message ?? err));
+  client.on('error', (err) =>
+    console.error('Redis error', err instanceof Error ? err.message : err)
+  );
+
   redisClient = client;
   redisConnected = true;
   console.log('Connected to Redis');
   return redisClient;
 }
 
-async function readStore(): Promise<Record<string, string>> {
+type HistoryStore = Record<string, string>; // emailAddress -> lastHistoryId
+type ProcessedStore = Record<string, Record<string, true>>; // emailAddress -> { msgId: true }
+
+// -------- File store helpers (fallback only) --------
+async function readStore(): Promise<HistoryStore> {
   try {
     await fs.mkdir(STORE_DIR, { recursive: true });
     const txt = await fs.readFile(STORE_FILE, 'utf8');
-    return JSON.parse(txt) as Record<string, string>;
+    return JSON.parse(txt) as HistoryStore;
   } catch {
     return {};
   }
 }
 
-async function writeStore(store: Record<string, string>) {
+async function writeStore(store: HistoryStore): Promise<void> {
   await fs.mkdir(STORE_DIR, { recursive: true });
   await fs.writeFile(STORE_FILE, JSON.stringify(store, null, 2), 'utf8');
 }
 
-async function readProcessed(): Promise<Record<string, true>> {
+async function readProcessed(): Promise<ProcessedStore> {
   try {
     await fs.mkdir(STORE_DIR, { recursive: true });
     const txt = await fs.readFile(PROCESSED_FILE, 'utf8');
-    return JSON.parse(txt) as Record<string, true>;
+    return JSON.parse(txt) as ProcessedStore;
   } catch {
     return {};
   }
 }
 
-async function writeProcessed(p: Record<string, true>) {
+async function writeProcessed(p: ProcessedStore): Promise<void> {
   await fs.mkdir(STORE_DIR, { recursive: true });
   await fs.writeFile(PROCESSED_FILE, JSON.stringify(p, null, 2), 'utf8');
 }
 
 export async function POST(req: Request) {
-  const body = (await req.json()) as PubSubMessage;
-
   console.log('=== PubSub push received ===');
 
+  // Optional: protect the endpoint
+  // Set WEBHOOK_SECRET in env and configure Pub/Sub push to include header: x-webhook-secret
+  const secret = process.env.WEBHOOK_SECRET;
+  if (secret) {
+    const incoming = req.headers.get('x-webhook-secret');
+    if (incoming !== secret) {
+      console.log('Unauthorized webhook call (secret mismatch)');
+      return new Response('unauthorized', { status: 401 });
+    }
+  }
+
+  const body = (await req.json()) as PubSubMessage;
   const payload = decodeBase64Json<GmailPushPayload>(body.message.data);
 
   if (!payload) {
@@ -107,13 +206,14 @@ export async function POST(req: Request) {
 
   const email = payload.emailAddress;
   const incomingHistory = payload.historyId;
+
   if (!email || !incomingHistory) {
     console.log('Missing email or historyId in payload');
     return new Response('bad payload', { status: 400 });
   }
 
-  // Prefer Redis if configured; otherwise fall back to file store
   const r = await ensureRedis();
+
   async function getLastHistory(emailAddr: string): Promise<string | null> {
     if (r) {
       const val = await r.get(`gmail:history:${emailAddr}`);
@@ -135,26 +235,24 @@ export async function POST(req: Request) {
 
   async function isProcessedId(emailAddr: string, msgId: string): Promise<boolean> {
     if (r) {
-      const members = await r.sMembers(`gmail:processed:${emailAddr}`);
-      return members.includes(msgId);
+      return Boolean(await r.sIsMember(`gmail:processed:${emailAddr}`, msgId));
     }
     const p = await readProcessed();
-    return Boolean(p[msgId]);
+    return Boolean(p[emailAddr]?.[msgId]);
   }
 
   async function markProcessedId(emailAddr: string, msgId: string): Promise<void> {
     if (r) {
       await r.sAdd(`gmail:processed:${emailAddr}`, msgId);
-      // set TTL on processed set to keep the processed list bounded
       await r.expire(`gmail:processed:${emailAddr}`, 60 * 60 * 24 * 30);
       return;
     }
     const p = await readProcessed();
-    p[msgId] = true;
+    p[emailAddr] = p[emailAddr] ?? {};
+    p[emailAddr]![msgId] = true;
     await writeProcessed(p);
   }
 
-  const store = await readStore();
   const prevHistory = await getLastHistory(email);
 
   // First time seeing this mailbox: persist and return
@@ -171,8 +269,7 @@ export async function POST(req: Request) {
     !process.env.GOOGLE_REFRESH_TOKEN
   ) {
     console.log('Google credentials missing; persisting historyId without fetching history');
-    store[email] = incomingHistory;
-    await writeStore(store);
+    await setLastHistory(email, incomingHistory);
     return new Response('ok', { status: 200 });
   }
 
@@ -186,13 +283,16 @@ export async function POST(req: Request) {
   const gmail = google.gmail({ version: 'v1', auth: oauth2 });
 
   try {
-    const res = await gmail.users.history.list({ userId: 'me', startHistoryId: prevHistory });
+    const res = await gmail.users.history.list({
+      userId: 'me',
+      startHistoryId: prevHistory,
+    });
+
     console.log('users.history.list result:', res.data);
 
-    // Process history entries: collect message IDs and fetch messages
     const toProcess = new Set<string>();
-
     const histories = (res.data.history ?? []) as gmail_v1.Schema$History[];
+
     for (const h of histories) {
       if (Array.isArray(h.messagesAdded)) {
         for (const ma of h.messagesAdded) {
@@ -207,13 +307,44 @@ export async function POST(req: Request) {
     }
 
     let processedCount = 0;
-    for (const id of Array.from(toProcess)) {
-      if (await isProcessedId(email, id)) continue; // already handled
-      try {
-        const msgRes = await gmail.users.messages.get({ userId: 'me', id, format: 'full' });
-        console.log('Fetched message', id, 'snippet:', msgRes.data.snippet?.slice(0, 100));
 
-        // TODO: persist message content to DB or process as needed
+    for (const id of Array.from(toProcess)) {
+      if (await isProcessedId(email, id)) continue;
+
+      try {
+        const msgRes = await gmail.users.messages.get({
+          userId: 'me',
+          id,
+          format: 'full',
+        });
+
+        // --- Step 2: parse headers + body ---
+        const msgPayload = msgRes.data.payload;
+        const headers = msgPayload?.headers || [];
+
+        const from = getHeaderValue(headers, 'From');
+        const subject = getHeaderValue(headers, 'Subject');
+        const messageId = getHeaderValue(headers, 'Message-ID');
+        const threadId = msgRes.data.threadId || '';
+
+        const { text: rawBody, mimeType } = extractBodyText(msgPayload);
+        const bodyText = mimeType === 'text/html' ? stripHtmlToText(rawBody) : rawBody.trim();
+
+        const fromEmail = parseEmailAddress(from);
+
+        console.log('Fetched message parsed:', {
+          id,
+          threadId,
+          from,
+          fromEmail,
+          subject,
+          messageId,
+          mimeType,
+          bodyPreview: bodyText.slice(0, 200),
+        });
+
+        // TODO Step 3: call Gemini to draft reply using (fromEmail, subject, bodyText)
+        // TODO Step 4: send threaded reply using (threadId, messageId)
 
         await markProcessedId(email, id);
         processedCount += 1;
@@ -222,7 +353,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // After successful processing, update stored historyId to the new one
     await setLastHistory(email, incomingHistory);
 
     return new Response(JSON.stringify({ ok: true, processed: processedCount }), {
@@ -235,24 +365,25 @@ export async function POST(req: Request) {
       code?: number | string;
       response?: { status?: number; data?: unknown };
     };
+
     const message =
       typeof e?.message === 'string' ? e.message : typeof err === 'string' ? err : String(err);
+
     console.error('users.history.list error:', message);
 
     // If startHistoryId is too old or invalid, reset to incomingHistory
     const msg = e?.message ?? '';
     const code = e?.code;
+
     if (typeof msg === 'string' && msg.includes('startHistoryId')) {
       console.log('startHistoryId invalid or too old; resetting to incoming historyId');
-      store[email] = incomingHistory;
-      await writeStore(store);
+      await setLastHistory(email, incomingHistory);
       return new Response('ok', { status: 200 });
     }
 
     if (code === 404 || code === 400) {
       console.log('users.history.list returned code indicating invalid startHistoryId; resetting');
-      store[email] = incomingHistory;
-      await writeStore(store);
+      await setLastHistory(email, incomingHistory);
       return new Response('ok', { status: 200 });
     }
 
