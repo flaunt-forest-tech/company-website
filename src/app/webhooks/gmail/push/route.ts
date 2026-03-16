@@ -1,5 +1,6 @@
 // src/app/webhooks/gmail/push/route.ts
 
+import { timingSafeEqual } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { google, gmail_v1 } from 'googleapis';
@@ -96,6 +97,51 @@ function parseEmailAddress(fromHeader: string) {
   return (match?.[1] || fromHeader).trim();
 }
 
+function safeCompare(secret: string, incoming: string | null) {
+  if (!incoming) return false;
+
+  const left = Buffer.from(secret, 'utf8');
+  const right = Buffer.from(incoming, 'utf8');
+
+  if (left.length !== right.length) return false;
+
+  return timingSafeEqual(left, right);
+}
+
+function isPubSubMessage(value: unknown): value is PubSubMessage {
+  if (!value || typeof value !== 'object') return false;
+
+  const maybe = value as Partial<PubSubMessage>;
+  const message = maybe.message;
+
+  return Boolean(
+    message &&
+      typeof message === 'object' &&
+      typeof message.data === 'string' &&
+      typeof message.messageId === 'string' &&
+      typeof message.publishTime === 'string'
+  );
+}
+
+function isGmailPushPayload(value: unknown): value is GmailPushPayload {
+  if (!value || typeof value !== 'object') return false;
+
+  const maybe = value as Partial<GmailPushPayload>;
+  return typeof maybe.emailAddress === 'string' && typeof maybe.historyId === 'string';
+}
+
+function looksLikeEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function maskEmail(email: string) {
+  const [local, domain] = email.split('@');
+  if (!local || !domain) return 'invalid-email';
+
+  const visibleLocal = local.length <= 2 ? `${local[0] ?? '*'}*` : `${local.slice(0, 2)}***`;
+  return `${visibleLocal}@${domain}`;
+}
+
 const STORE_DIR = path.join(process.cwd(), 'data');
 const STORE_FILE = path.join(STORE_DIR, 'gmail-history.json');
 const PROCESSED_FILE = path.join(STORE_DIR, 'gmail-processed.json');
@@ -120,10 +166,17 @@ async function ensureRedis() {
 
   const useTls = url.startsWith('rediss://');
   const u = new URL(url);
+  const skipTlsVerification = process.env.REDIS_TLS_INSECURE_SKIP_VERIFY === 'true';
 
   const client = createClient({
     url,
-    socket: useTls ? { tls: true, rejectUnauthorized: false, servername: u.hostname } : undefined,
+    socket: useTls
+      ? {
+          tls: true,
+          rejectUnauthorized: !skipTlsVerification,
+          servername: u.hostname,
+        }
+      : undefined,
   });
 
   try {
@@ -142,7 +195,7 @@ async function ensureRedis() {
 
   redisClient = client;
   redisConnected = true;
-  console.log('Connected to Redis');
+  console.log(`Connected to Redis${skipTlsVerification ? ' with insecure TLS verification disabled' : ''}`);
   return redisClient;
 }
 
@@ -183,34 +236,57 @@ async function writeProcessed(p: ProcessedStore): Promise<void> {
 export async function POST(req: Request) {
   console.log('=== PubSub push received ===');
 
-  // Optional: protect the endpoint
-  // Set WEBHOOK_SECRET in env and configure Pub/Sub push to include header: x-webhook-secret
-  const secret = process.env.WEBHOOK_SECRET;
+  const secret = process.env.WEBHOOK_SECRET?.trim() || '';
+  const requireSecret = process.env.NODE_ENV === 'production';
+
+  if (requireSecret && !secret) {
+    console.error('WEBHOOK_SECRET is required for gmail push webhook in production');
+    return new Response('server misconfigured', { status: 500 });
+  }
+
   if (secret) {
-    const incoming = req.headers.get('x-webhook-secret');
-    if (incoming !== secret) {
+    if (!safeCompare(secret, req.headers.get('x-webhook-secret'))) {
       console.log('Unauthorized webhook call (secret mismatch)');
       return new Response('unauthorized', { status: 401 });
     }
   }
 
-  const body = (await req.json()) as PubSubMessage;
-  const payload = decodeBase64Json<GmailPushPayload>(body.message.data);
+  const contentType = req.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return new Response('unsupported media type', { status: 415 });
+  }
 
-  if (!payload) {
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return new Response('invalid json', { status: 400 });
+  }
+
+  if (!isPubSubMessage(body)) {
+    return new Response('bad payload', { status: 400 });
+  }
+
+  const payload = decodeBase64Json<unknown>(body.message.data);
+
+  if (!payload || !isGmailPushPayload(payload)) {
     console.log('Unable to decode payload');
     return new Response('bad payload', { status: 400 });
   }
 
-  console.log('Gmail push payload:', payload);
-
   const email = payload.emailAddress;
   const incomingHistory = payload.historyId;
 
-  if (!email || !incomingHistory) {
+  if (!email || !incomingHistory || !looksLikeEmail(email)) {
     console.log('Missing email or historyId in payload');
     return new Response('bad payload', { status: 400 });
   }
+
+  console.log('Processing Gmail push payload', {
+    email: maskEmail(email),
+    historyId: incomingHistory,
+    messageId: body.message.messageId,
+  });
 
   const r = await ensureRedis();
 
@@ -258,7 +334,7 @@ export async function POST(req: Request) {
   // First time seeing this mailbox: persist and return
   if (!prevHistory) {
     await setLastHistory(email, incomingHistory);
-    console.log(`Saved initial historyId for ${email}: ${incomingHistory}`);
+    console.log(`Saved initial historyId for ${maskEmail(email)}: ${incomingHistory}`);
     return new Response('ok', { status: 200 });
   }
 
@@ -288,10 +364,15 @@ export async function POST(req: Request) {
       startHistoryId: prevHistory,
     });
 
-    console.log('users.history.list result:', res.data);
-
     const toProcess = new Set<string>();
     const histories = (res.data.history ?? []) as gmail_v1.Schema$History[];
+
+    console.log('Fetched Gmail history delta', {
+      email: maskEmail(email),
+      historyCount: histories.length,
+      startHistoryId: prevHistory,
+      incomingHistoryId: incomingHistory,
+    });
 
     for (const h of histories) {
       if (Array.isArray(h.messagesAdded)) {
@@ -335,12 +416,11 @@ export async function POST(req: Request) {
         console.log('Fetched message parsed:', {
           id,
           threadId,
-          from,
-          fromEmail,
-          subject,
-          messageId,
+          fromEmail: looksLikeEmail(fromEmail) ? maskEmail(fromEmail) : 'invalid-email',
+          subjectLength: subject.length,
+          messageId: messageId ? 'present' : 'missing',
           mimeType,
-          bodyPreview: bodyText.slice(0, 200),
+          bodyLength: bodyText.length,
         });
 
         // TODO Step 3: call Gemini to draft reply using (fromEmail, subject, bodyText)
@@ -387,7 +467,9 @@ export async function POST(req: Request) {
       return new Response('ok', { status: 200 });
     }
 
-    return new Response(JSON.stringify({ ok: false, error: message }), {
+    const errorOut = process.env.NODE_ENV === 'production' ? 'Internal server error' : message;
+
+    return new Response(JSON.stringify({ ok: false, error: errorOut }), {
       status: 500,
       headers: { 'content-type': 'application/json' },
     });
