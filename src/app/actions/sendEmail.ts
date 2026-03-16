@@ -20,9 +20,9 @@ export async function sendEmail(formData: ContactFormInputs) {
       html: message,
     });
     return { success: true, data };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     console.error('Email send error:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: errorMessage };
   }
 }
