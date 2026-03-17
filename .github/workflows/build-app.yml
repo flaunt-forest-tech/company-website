@@ -19,7 +19,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: ['20.19.0']
 
     steps:
       - uses: actions/checkout@v4
@@ -32,7 +32,7 @@ jobs:
           cache: npm
 
       - name: 'Install Dependencies'
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: 'Check lint errors'
         run: npm run lint
