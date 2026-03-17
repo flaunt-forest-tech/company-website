@@ -38,6 +38,10 @@ export default function ContactPage() {
 }
 
 function LocationSection() {
+  const mapQuery = encodeURIComponent(
+    `${CONTACT.ADDRESS.street}, ${CONTACT.ADDRESS.city}, ${CONTACT.ADDRESS.state} ${CONTACT.ADDRESS.zip}`
+  );
+
   return (
     <section className="section border-0 py-0 m-0">
       <div className="container-fluid">
@@ -117,13 +121,16 @@ function LocationSection() {
           {/* Right Column - Google Maps Placeholder */}
           <div className="col-lg-7 px-0">
             <div id="googlemaps" className="google-map h-100 my-0" style={{ minHeight: '500px' }}>
-              {/* Google Maps - Go to the bottom of the page to change settings and map location. */}
-              {/* <div
-                id="googlemaps"
-                className="google-map h-100 my-0"
-                style={{ minHeight: '500px' }}
-              ></div> */}
-              {/* <GoogleMapSection /> */}
+              <iframe
+                title="Corporate headquarters map"
+                src={`https://maps.google.com/maps?q=${mapQuery}&z=15&output=embed`}
+                width="100%"
+                height="100%"
+                style={{ border: 0, minHeight: '500px' }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+              />
             </div>
           </div>
         </div>

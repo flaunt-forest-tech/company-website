@@ -14,10 +14,12 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
 
     strategy:
       matrix:
-        node-version: [20.x]
+        node-version: ['20.x']
 
     steps:
       - uses: actions/checkout@v4
@@ -26,10 +28,11 @@ jobs:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '20.19.0'
+          cache: npm
 
       - name: 'Install Dependencies'
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: 'Check lint errors'
         run: npm run lint
