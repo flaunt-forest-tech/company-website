@@ -4,6 +4,34 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+const SERVICE_USE_CASES: Record<string, string[]> = {
+  'AI Solutions': [
+    'Executive copilots for faster strategic planning and decision support.',
+    'Predictive models for demand, churn, and revenue optimization.',
+    'Customer-facing AI experiences that improve response speed and conversion.',
+  ],
+  'AI Agents & Agentic AI': [
+    'Autonomous agents handling multi-step internal workflows end-to-end.',
+    'Cross-tool orchestration for support, operations, and back-office execution.',
+    'Decision automation with human-in-the-loop governance controls.',
+  ],
+  'Data & Analytics': [
+    'Leadership dashboards with real-time KPIs and business health visibility.',
+    'Unified pipelines that connect sales, operations, and customer data.',
+    'Analytics foundations that prepare teams for AI-native execution.',
+  ],
+  'Cloud & Infrastructure': [
+    'Cloud modernization for AI workloads and scalable digital products.',
+    'Reliability engineering to reduce downtime and protect performance.',
+    'Security and governance baselines for compliant growth at scale.',
+  ],
+  'Web3.0 Solutions': [
+    'Blockchain-based workflows for transparent records and trusted transactions.',
+    'Smart contract systems that automate validation and execution logic.',
+    'Decentralized applications for new ecosystem and platform business models.',
+  ],
+};
+
 export default function ServicesSection() {
   const pathname = usePathname();
   const mainService = SERVICES.find((s) => pathname.includes(s.link)) || SERVICES[0];
@@ -76,20 +104,16 @@ export default function ServicesSection() {
           </div>
           <div className="col-lg-6">
             <p className="custom-text-size-1 pb-2 mb-4">
-              Our team brings together passionate professionals, forward-thinking leadership, and
-              deep industry knowledge—enhanced by the latest AI innovations—to deliver smarter,
-              faster, and more reliable solutions.
+              Our team combines data strategy, automation engineering, and AI delivery expertise to
+              turn business goals into measurable outcomes.
             </p>
             <p className="custom-text-size-1 pb-2 mb-4">
-              By blending our proven IT expertise with the power of AI, we create solutions that are
-              tailored, scalable, and future-ready. This unique approach ensures your business gains
-              the efficiency of automation without losing the insight of human expertise.
+              We treat IT and cloud as the foundation, then build intelligent capabilities on top so
+              your operations can scale with confidence.
             </p>
             <p className="custom-text-size-1 pb-3 mb-4">
-              We are not just another IT company. By combining human expertise with AI intelligence,
-              we solve challenges in ways traditional providers cannot. Partnering with us means
-              access to a dedicated support system, future-ready technology, and a partner committed
-              to your long-term growth.
+              From Data & Analytics to AI-native workflows, we help you move faster, make smarter
+              decisions, and unlock long-term growth opportunities.
             </p>
             <a
               href="/contact"
@@ -104,6 +128,34 @@ export default function ServicesSection() {
           <div className="col">
             <hr className="my-5" />
           </div>
+        </div>
+
+        <div className="row">
+          <div className="col text-center">
+            <div className="overflow-hidden mb-2">
+              <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
+                BUSINESS USE CASES
+              </span>
+            </div>
+            <div className="overflow-hidden mb-4">
+              <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
+                Where This Service Creates Value
+              </h2>
+            </div>
+          </div>
+        </div>
+        <div className="row mb-5">
+          {(SERVICE_USE_CASES[mainService.title] || SERVICE_USE_CASES['AI Solutions']).map(
+            (item) => (
+              <div key={item} className="col-md-6 col-lg-4 mb-4">
+                <div className="card border-0 custom-box-shadow-1 h-100">
+                  <div className="card-body p-4">
+                    <p className="custom-text-size-1 mb-0">{item}</p>
+                  </div>
+                </div>
+              </div>
+            )
+          )}
         </div>
 
         <div className="row">

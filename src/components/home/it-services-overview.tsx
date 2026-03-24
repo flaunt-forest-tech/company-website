@@ -23,7 +23,7 @@ const ITServicesOverview: React.FC = () => {
                 <Image
                   src="/img/generic-1.jpg"
                   className="card-img-top rounded-0 img-fluid"
-                  alt="IT Consulting"
+                  alt="AI Strategy"
                   width={600}
                   height={400}
                   style={{ width: '100%', height: 'auto' }}
@@ -31,12 +31,11 @@ const ITServicesOverview: React.FC = () => {
                 />
                 <div className="card-body pt-4">
                   <h4 className="custom-heading-bar font-weight-bold text-color-dark text-5">
-                    IT CONSULTING
+                    AI STRATEGY
                   </h4>
                   <p className="custom-font-secondary text-4 mb-3">
-                    We help businesses harness AI and advanced technology to drive growth,{' '}
-                    <strong className="text-color-dark">streamline operations</strong>, automate
-                    workflows, and stay ahead of the competition.
+                    We align AI with your business model to drive measurable outcomes: faster
+                    execution, lower operating cost, and stronger competitive advantage.
                   </p>
                 </div>
               </div>
@@ -49,7 +48,7 @@ const ITServicesOverview: React.FC = () => {
                   <Image
                     src="/img/generic-2.jpg"
                     className="card-img-top rounded-0 img-fluid"
-                    alt="IT Support"
+                    alt="Agentic Automation"
                     width={600}
                     height={400}
                     style={{ width: '100%', height: 'auto' }}
@@ -57,12 +56,11 @@ const ITServicesOverview: React.FC = () => {
                   />
                   <div className="card-body pt-4">
                     <h4 className="custom-heading-bar custom-heading-bar-right font-weight-bold text-color-dark text-end text-5">
-                      IT SUPPORT
+                      AGENTIC AUTOMATION
                     </h4>
                     <p className="text-end custom-font-secondary text-4 ps-4 ms-3 mb-3">
-                      Our reliable IT support services—enhanced with AI-driven monitoring and
-                      predictive maintenance—ensure your systems run smoothly and securely. We keep
-                      your business operations uninterrupted and your team highly productive.
+                      We build AI agents that automate workflows, support decision-making, and keep
+                      critical operations moving without bottlenecks.
                     </p>
                   </div>
                 </div>
@@ -91,17 +89,16 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We solve business challenges with AI-powered IT services and modern technology
-              solutions
+              We are not just an IT company
             </h2>
             <p
               className="custom-text-size-1 pb-3 mb-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Our team partners with you to create value through AI and modern IT—enhancing
-              efficiency, unlocking data-driven insights, driving growth, and enabling long-term
-              success in a digital-first world.
+              We are an AI-first company, and IT is the infrastructure that supports execution. We
+              lead with Data & Analytics, then scale into AI solutions and intelligent automation so
+              organizations can become truly AI-native.
             </p>
             <Link
               href="/about-us"

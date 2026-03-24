@@ -14,6 +14,7 @@ export type ContactFormInputs = {
   name: string;
   phone: string;
   email: string;
+  inquiryType: string;
   subject: string;
   message: string;
 };
@@ -190,7 +191,7 @@ function ContactSection() {
     <section
       className="section custom-section-full-width bg-color-transparent border-0 mt-1 mb-1"
       style={{
-        backgroundImage: 'url(img/demos/it-services/backgrounds/dots-background-4.png)',
+        backgroundImage: 'url(/img/demos/it-services/backgrounds/dots-background-4.png)',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'top right',
       }}
@@ -213,7 +214,7 @@ function ContactSection() {
                 data-appear-animation="maskUp"
                 data-appear-animation-delay="500"
               >
-                How Can We Help?
+                Start Your AI Transformation
               </h2>
             </div>
             <p
@@ -221,7 +222,8 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Contact us to request a quote or to schedule a consultation with our team.
+              Tell us where you are in your journey, and we will design a practical plan from Data &
+              Analytics to AI at scale.
             </p>
           </div>
         </div>
@@ -287,6 +289,29 @@ function ContactSection() {
                   />
                 </div>
                 <div className="form-group col-lg-6 mb-4">
+                  <select
+                    id="inquiryType"
+                    required
+                    data-msg-required="Please choose your consultation goal."
+                    className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
+                    defaultValue=""
+                    {...register('inquiryType')}
+                  >
+                    <option value="" disabled>
+                      Consultation Goal
+                    </option>
+                    <option value="Data Foundation & Analytics">Data Foundation & Analytics</option>
+                    <option value="AI Strategy & Roadmap">AI Strategy & Roadmap</option>
+                    <option value="AI Agents & Automation">AI Agents & Automation</option>
+                    <option value="Cloud & Infrastructure">Cloud & Infrastructure</option>
+                    <option value="Web3.0 Solutions">Web3.0 Solutions</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="row row-gutter-sm">
+                <div className="form-group col-lg-12 mb-4">
                   <input
                     type="text"
                     id="subject"

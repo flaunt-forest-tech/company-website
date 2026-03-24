@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             })}
                             href="/it-services"
                           >
-                            IT Services
+                            AI Solutions
                           </Link>
                           <ul className="dropdown-menu">
                             <li>
@@ -69,22 +69,27 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/cloud-services">
-                                Cloud Services
+                                AI Solutions
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/tech-support">
-                                Tech Support
+                                AI Agents &amp; Agentic AI
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/data-security">
-                                Data Security
+                                Data &amp; Analytics
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/software-dev">
-                                Software Dev
+                                Cloud &amp; Infrastructure
+                              </Link>
+                            </li>
+                            <li>
+                              <Link className="nav-link" href="/it-services/web3-solutions">
+                                Web3.0 Solutions
                               </Link>
                             </li>
                           </ul>

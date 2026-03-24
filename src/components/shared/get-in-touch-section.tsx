@@ -18,16 +18,15 @@ const GetInTouchSection = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              LET&apos;S TALK ABOUT YOUR IT & AI SOLUTIONS NEEDS
+              LET&apos;S DESIGN YOUR AI-FIRST GROWTH STRATEGY
             </h2>
             <p
               className="custom-font-secondary text-4 custom-text-color-light-3 mb-0 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Whether you need reliable IT support, scalable infrastructure, or a custom AI solution
-              built for your business, our team is here to help you grow, innovate, and stay secure
-              in a digital-first world.
+              We help you build a strong Data & Analytics foundation, then scale with intelligent
+              automation and AI so your business becomes truly AI-native.
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">

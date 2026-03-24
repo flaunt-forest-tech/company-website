@@ -10,8 +10,8 @@ import Link from 'next/link';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'IT SERVICES',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'IT Services' }],
+    title: 'AI SOLUTIONS',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
   };
   return (
     <div className="body">
@@ -31,18 +31,18 @@ function ServicesSection() {
   const processSteps = [
     {
       step: '1',
-      title: '1. BRAINSTORM',
-      desc: 'We begin by understanding your goals and challenges, then explore how AI and modern IT can be tailored—or even built from the ground up—to meet your unique needs.',
+      title: '1. DATA FOUNDATION',
+      desc: 'We start by mapping your business goals to data. We design the metrics, data model, and reporting layer needed for confident decision-making.',
     },
     {
       step: '2',
-      title: '2. DEVELOPMENT',
-      desc: 'Our engineering team not only leverages AI tools and automation to accelerate development, but also has the capability to design and build custom AI solutions that seamlessly integrate into your business.',
+      title: '2. AUTOMATION ENGINEERING',
+      desc: 'Next, we transform workflows using intelligent automation and agentic systems so operations run faster with less manual overhead.',
     },
     {
       step: '3',
-      title: '3. DELIVERY',
-      desc: 'We deploy your solution with intelligent monitoring, predictive support, and AI customization options, ensuring a smooth handover today and the flexibility to evolve your own AI ecosystem in the future.',
+      title: '3. AI SCALE-UP',
+      desc: 'Finally, we deploy AI solutions on top of your data and infrastructure stack, then optimize continuously to keep performance and business outcomes growing.',
     },
   ];
 
@@ -66,12 +66,12 @@ function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                World-Class Solutions for your Business
+                AI-First Solutions for Modern Businesses
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We deliver AI-driven IT solutions that fuel growth, automate operations, and secure
-              your future. From modern infrastructure to smart applications—we’ve got you covered.
+              We help organizations build data-driven foundations first, then scale with automation,
+              AI solutions, and modern infrastructure for long-term growth.
             </p>
           </div>
         </div>
