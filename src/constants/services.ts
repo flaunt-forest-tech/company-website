@@ -3,14 +3,22 @@ export const SERVICES = [
     icon: 'backup-data-server.svg',
     title: 'AI Solutions',
     description:
+<<<<<<< Updated upstream
       'Custom AI systems tailored to your business, from automation to predictive intelligence.',
+=======
+      'Upgrade your existing website, app, or internal platform with practical AI features-or build a brand-new digital product from scratch.',
+>>>>>>> Stashed changes
     titleClass: 'text-color-primary',
     linkClass: 'text-color-dark',
     link: '/it-services/cloud-services',
     detailsTitle: 'Turn AI Into Real Business Results',
     detailsDescription: [
       'We help you identify, prioritize, and deploy AI use cases that directly improve revenue, cost efficiency, and execution speed.',
+<<<<<<< Updated upstream
       'From internal copilots to customer-facing AI experiences, we design solutions that integrate cleanly with your existing systems and workflows.',
+=======
+      'From internal copilots to customer-facing AI experiences, we integrate AI into your current web and app stack without disrupting operations-or architect new web/app products purpose-built for AI from day one.',
+>>>>>>> Stashed changes
       'The result is a practical AI roadmap, faster implementation, and stronger long-term returns from your technology investments.',
     ],
   },

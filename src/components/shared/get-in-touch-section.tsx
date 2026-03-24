@@ -25,8 +25,13 @@ const GetInTouchSection = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
+<<<<<<< Updated upstream
               We help you build a strong Data & Analytics foundation, then scale with intelligent
               automation and AI so your business becomes truly AI-native.
+=======
+              Share your goals and we will map the right path-whether it is upgrading your existing
+              website/app with AI or building a new digital product from scratch.
+>>>>>>> Stashed changes
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">

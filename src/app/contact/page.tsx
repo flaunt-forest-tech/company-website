@@ -222,8 +222,14 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
+<<<<<<< Updated upstream
               Tell us where you are in your journey, and we will design a practical plan from Data &
               Analytics to AI at scale.
+=======
+              Tell us your current systems and goals. We can upgrade your existing website/app with
+              AI capabilities or build a brand-new website/app, plus support enterprise platforms,
+              data integration, and end-to-end AI implementation.
+>>>>>>> Stashed changes
             </p>
           </div>
         </div>

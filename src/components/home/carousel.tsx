@@ -52,8 +52,17 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
+<<<<<<< Updated upstream
               We are an <strong className="text-color-light">AI-first technology company</strong>{' '}
               helping businesses automate, scale, and grow in the digital era.
+=======
+              We start from your existing <strong className="text-color-light">IT systems</strong>{' '}
+              and upgrade them with <strong className="text-color-light">AI solutions</strong>,{' '}
+              <strong className="text-color-light">agentic AI</strong>,{' '}
+              <strong className="text-color-light">Data &amp; Analytics</strong>, and{' '}
+              <strong className="text-color-light">Web3.0 innovation</strong>. We can upgrade your
+              current website/app or build a brand-new one tailored to your next stage of growth.
+>>>>>>> Stashed changes
             </p>
             <a
               href="#services"
