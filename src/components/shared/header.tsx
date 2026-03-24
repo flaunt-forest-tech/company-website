@@ -59,32 +59,37 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             })}
                             href="/it-services"
                           >
-                            IT Services
+                            AI Solutions
                           </Link>
                           <ul className="dropdown-menu">
                             <li>
                               <Link className="nav-link" href="/it-services">
-                                Overview
+                                Transformation Overview
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/cloud-services">
-                                Cloud Services
+                                AI Integration Solutions
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/tech-support">
-                                Tech Support
+                                AI Agents &amp; Agentic AI
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/data-security">
-                                Data Security
+                                Data Intelligence &amp; Analytics
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/software-dev">
-                                Software Dev
+                                Cloud, Platform &amp; Infrastructure
+                              </Link>
+                            </li>
+                            <li>
+                              <Link className="nav-link" href="/it-services/web3-solutions">
+                                Web3.0 &amp; Decentralized Systems
                               </Link>
                             </li>
                           </ul>

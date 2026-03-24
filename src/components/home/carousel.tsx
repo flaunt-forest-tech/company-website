@@ -10,7 +10,7 @@ const Carousel: React.FC = () => {
         viewBox="0 0 481.54166 222.25"
         version="1.1"
         style={{
-          backgroundImage: 'url(img/backgrounds/bg-full.jpg)',
+          backgroundImage: 'url(/img/backgrounds/bg-full.jpg)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -45,18 +45,19 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              AI-POWERED, RELIABLE, AND FUTURE-READY IT SOLUTIONS
+              BUILD AN AI-FIRST BUSINESS THAT MOVES FASTER
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              We provide <strong className="text-color-light">affordable</strong>, highly responsive{' '}
-              <strong className="text-color-light">IT Support</strong>,{' '}
-              <strong className="text-color-light">cloud service</strong>, and{' '}
-              <strong className="text-color-light">AI-driven technology</strong> solutions-helping
-              small and medium businesses work smarter, stay secure, and achieve long-term growth.
+              We start from your existing <strong className="text-color-light">IT systems</strong>{' '}
+              and upgrade them with <strong className="text-color-light">AI solutions</strong>,{' '}
+              <strong className="text-color-light">agentic AI</strong>,{' '}
+              <strong className="text-color-light">Data &amp; Analytics</strong>, and{' '}
+              <strong className="text-color-light">Web3.0 innovation</strong> so your web apps,
+              business apps, and operations become faster, smarter, and future-ready.
             </p>
             <a
               href="#services"
@@ -67,7 +68,15 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              GET STARTED NOW <i className="custom-arrow-icon ms-2"></i>
+              START WITH DATA ASSESSMENT <i className="custom-arrow-icon ms-2"></i>
+            </a>
+            <a
+              href="/contact"
+              className="btn btn-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 ms-2 mt-2 mt-sm-0 appear-animation"
+              data-appear-animation="fadeInUpShorter"
+              data-appear-animation-delay="850"
+            >
+              BOOK AI DISCOVERY CALL <i className="custom-arrow-icon ms-2"></i>
             </a>
           </div>
         </div>

@@ -5,8 +5,8 @@ import ServicesSection from '@/components/it-services/services-section';
 
 export default function TechSupportPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'TECH SUPPORT',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'IT Services' }],
+    title: 'AI AGENTS & AGENTIC AI',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
   };
   return (
     <ITServicePageLayout pageHeaderData={pageHeaderData}>

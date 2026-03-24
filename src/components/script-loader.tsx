@@ -2,14 +2,23 @@
 
 import { useEffect, useState } from 'react';
 
+declare global {
+  interface Window {
+    __fftScriptsLoaded?: boolean;
+  }
+}
+
 export default function ScriptLoader() {
   const [currentScriptIndex, setCurrentScriptIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
-  const scripts = [
+  const baseScripts = [
     { src: '/js/vendor/jquery/jquery.min.js', name: 'jQuery' },
     { src: '/js/plugins/js/plugins.min.js', name: 'Plugins' },
     { src: '/js/theme.js', name: 'Theme' },
+  ];
+
+  const pageScripts = [
     { src: '/js/demo-it-services.js', name: 'Demo IT Services' },
     { src: '/js/theme.init.js', name: 'Theme Initialization' },
   ];
@@ -17,10 +26,10 @@ export default function ScriptLoader() {
   useEffect(() => {
     const loadScript = (src: string): Promise<void> => {
       return new Promise((resolve, reject) => {
-        // Check if script is already loaded
         const existingScript = document.querySelector(`script[src="${src}"]`);
         if (existingScript) {
-          existingScript.remove();
+          resolve();
+          return;
         }
 
         const script = document.createElement('script');
@@ -29,7 +38,8 @@ export default function ScriptLoader() {
         script.defer = false;
 
         script.onload = () => {
-          console.log(`✅ ${scripts.find((s) => s.src === src)?.name} loaded successfully`);
+          const scriptName = [...baseScripts, ...pageScripts].find((s) => s.src === src)?.name;
+          console.log(`✅ ${scriptName} loaded successfully`);
           resolve();
         };
 
@@ -42,11 +52,39 @@ export default function ScriptLoader() {
       });
     };
 
+    const rerunScript = (src: string): Promise<void> => {
+      return new Promise((resolve, reject) => {
+        const existingDynamicScripts = document.querySelectorAll(
+          `script[data-fft-runtime="${src}"]`
+        );
+        existingDynamicScripts.forEach((node) => node.remove());
+
+        const script = document.createElement('script');
+        script.src = `${src}?v=${Date.now()}`;
+        script.async = false;
+        script.defer = false;
+        script.setAttribute('data-fft-runtime', src);
+
+        script.onload = () => resolve();
+        script.onerror = (error) => reject(error);
+
+        document.body.appendChild(script);
+      });
+    };
+
     const loadScriptsSequentially = async () => {
       try {
-        for (let i = 0; i < scripts.length; i++) {
-          setCurrentScriptIndex(i);
-          await loadScript(scripts[i].src);
+        if (!window.__fftScriptsLoaded) {
+          for (let i = 0; i < baseScripts.length; i++) {
+            setCurrentScriptIndex(i);
+            await loadScript(baseScripts[i].src);
+          }
+          window.__fftScriptsLoaded = true;
+        }
+
+        for (let i = 0; i < pageScripts.length; i++) {
+          setCurrentScriptIndex(baseScripts.length + i);
+          await rerunScript(pageScripts[i].src);
         }
 
         console.log('🎉 All scripts loaded successfully!');
@@ -78,9 +116,9 @@ export default function ScriptLoader() {
           fontFamily: 'monospace',
         }}
       >
-        Loading scripts... {currentScriptIndex + 1}/{scripts.length}
+        Loading scripts... {currentScriptIndex + 1}/{baseScripts.length + pageScripts.length}
         <br />
-        {scripts[currentScriptIndex]?.name}
+        {[...baseScripts, ...pageScripts][currentScriptIndex]?.name}
       </div>
     );
   }
