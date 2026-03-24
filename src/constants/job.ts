@@ -1,9 +1,9 @@
 export const JOBS = [
   {
-    title: 'INFRASTRUCTURE MONITORING - SOFTWARE DEVELOPER',
+    title: 'AI PLATFORM ENGINEER',
     content: [
-      'We are seeking a software developer to build and maintain our infrastructure monitoring tools. You will work closely with DevOps and platform teams to ensure system stability, reliability, and scalability.',
-      'This role requires deep understanding of distributed systems, observability tools like Prometheus or Grafana, and scripting skills to automate workflows and alerts.',
+      'Build and operate scalable infrastructure for AI products, data pipelines, and agentic workflows in production.',
+      'You will collaborate with platform and product teams to improve reliability, observability, and deployment speed across client-facing systems.',
     ],
     location: 'TEXAS',
     qualification: '3+ YEARS EXPERIENCE, GRADUATION',
@@ -11,10 +11,10 @@ export const JOBS = [
     open: true,
   },
   {
-    title: 'MAIN DEVELOPER - SOFTWARE DEVELOPER',
+    title: 'FULL-STACK PRODUCT ENGINEER',
     content: [
-      'Join our core development team to architect and implement scalable backend systems for high-traffic enterprise applications.',
-      'Ideal candidates will have experience with Node.js, microservices architecture, and working in agile environments with CI/CD pipelines.',
+      'Design and deliver new websites and web applications that integrate AI capabilities from day one.',
+      'You will own features end to end across frontend, backend, and integrations, with a strong focus on performance and business impact.',
     ],
     location: 'TEXAS',
     qualification: '3+ YEARS EXPERIENCE, GRADUATION',
@@ -22,10 +22,10 @@ export const JOBS = [
     open: false,
   },
   {
-    title: 'FRONT-END DEVELOPER - SOFTWARE DEVELOPER',
+    title: 'FRONTEND ENGINEER (WEB & APP)',
     content: [
-      'We are hiring a frontend developer to craft engaging, high-performance web applications using modern JavaScript frameworks like React or Vue.',
-      'Strong skills in responsive design, cross-browser compatibility, and component-based architecture are essential for this role.',
+      'Craft high-performance user experiences for AI-enabled websites, dashboards, and product interfaces.',
+      'You should be strong in modern React/TypeScript patterns, responsive systems, and component architecture for scalable product delivery.',
     ],
     location: 'TEXAS',
     qualification: '3+ YEARS EXPERIENCE, GRADUATION',
@@ -33,10 +33,10 @@ export const JOBS = [
     open: false,
   },
   {
-    title: 'LEAD DESIGNER - DESIGN',
+    title: 'PRODUCT DESIGN LEAD (UX/UI)',
     content: [
-      'As a Lead Designer, you will drive the visual direction of our digital products, ensuring exceptional user experience and visual storytelling.',
-      'You should have a strong portfolio of UX/UI design, familiarity with tools like Figma or Sketch, and the ability to mentor junior designers.',
+      'Lead UX and UI design across AI products, enterprise workflows, and next-generation digital platforms.',
+      'You will translate complex systems into clear interfaces and guide design quality across the full product lifecycle.',
     ],
     location: 'TEXAS',
     qualification: '3+ YEARS EXPERIENCE, GRADUATION',

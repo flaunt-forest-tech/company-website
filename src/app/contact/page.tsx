@@ -222,9 +222,11 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Tell us your current systems and goals. We can help with web/app AI upgrades,
-              enterprise platform support, cross-system data integration, and end-to-end AI
-              implementation.
+              Tell us about your current systems and goals. We can help with existing platform
+              upgrades,
+              new website and app development, AI agents, enterprise platform support,
+              cross-system data integration, full-stack delivery (frontend, backend, database),
+              and end-to-end AI implementation on AWS, GCP, Azure, or hybrid cloud.
             </p>
           </div>
         </div>
@@ -250,6 +252,9 @@ function ContactSection() {
 
               <div className="row row-gutter-sm">
                 <div className="form-group col-lg-6 mb-4">
+                  <label htmlFor="name" className="visually-hidden">
+                    Your Name
+                  </label>
                   <input
                     type="text"
                     id="name"
@@ -262,6 +267,9 @@ function ContactSection() {
                   />
                 </div>
                 <div className="form-group col-lg-6 mb-4">
+                  <label htmlFor="phone" className="visually-hidden">
+                    Phone Number
+                  </label>
                   <input
                     type="text"
                     id="phone"
@@ -277,6 +285,9 @@ function ContactSection() {
 
               <div className="row row-gutter-sm">
                 <div className="form-group col-lg-6 mb-4">
+                  <label htmlFor="email" className="visually-hidden">
+                    Your Email
+                  </label>
                   <input
                     type="email"
                     id="email"
@@ -290,6 +301,9 @@ function ContactSection() {
                   />
                 </div>
                 <div className="form-group col-lg-6 mb-4">
+                  <label htmlFor="inquiryType" className="visually-hidden">
+                    Consultation Goal
+                  </label>
                   <select
                     id="inquiryType"
                     required
@@ -305,7 +319,16 @@ function ContactSection() {
                     <option value="AI Strategy & Roadmap">AI Strategy & Roadmap</option>
                     <option value="AI Agents & Automation">AI Agents & Automation</option>
                     <option value="Web/App + AI Integration">Web/App + AI Integration</option>
+                    <option value="New Website / App Development">
+                      New Website / App Development
+                    </option>
+                    <option value="Full-Stack Engineering (Frontend/Backend/Database)">
+                      Full-Stack Engineering (Frontend/Backend/Database)
+                    </option>
                     <option value="Enterprise Platform Support">Enterprise Platform Support</option>
+                    <option value="Cloud Architecture (AWS/GCP/Azure)">
+                      Cloud Architecture (AWS/GCP/Azure)
+                    </option>
                     <option value="Cross-System Data Integration & Analytics">
                       Cross-System Data Integration & Analytics
                     </option>
@@ -318,6 +341,9 @@ function ContactSection() {
 
               <div className="row row-gutter-sm">
                 <div className="form-group col-lg-12 mb-4">
+                  <label htmlFor="subject" className="visually-hidden">
+                    Subject
+                  </label>
                   <input
                     type="text"
                     id="subject"
@@ -333,6 +359,9 @@ function ContactSection() {
 
               <div className="row">
                 <div className="form-group col mb-4">
+                  <label htmlFor="message" className="visually-hidden">
+                    Your Message
+                  </label>
                   <textarea
                     id="message"
                     rows={10}

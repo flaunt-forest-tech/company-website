@@ -7,11 +7,11 @@ import { cn } from '@/lib/utils';
 import { CONTACT } from '@/constants/contact';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'ITServices' | 'Careers' | 'Contact'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'AISolutions' | 'ITServices' | 'Careers' | 'Contact'; // prop to determine the active page
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
-  const isItServiceMenuActive = activePage === 'ITServices';
+  const isItServiceMenuActive = activePage === 'ITServices' || activePage === 'AISolutions';
   return (
     <header
       id="header"
@@ -57,11 +57,16 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             className={cn('dropdown-item dropdown-toggle', {
                               active: isItServiceMenuActive,
                             })}
-                            href="/it-services"
+                            href="/ai-solutions"
                           >
                             AI Solutions
                           </Link>
                           <ul className="dropdown-menu">
+                            <li>
+                              <Link className="nav-link" href="/ai-solutions">
+                                AI Solutions Overview
+                              </Link>
+                            </li>
                             <li>
                               <Link className="nav-link" href="/it-services">
                                 Transformation Overview

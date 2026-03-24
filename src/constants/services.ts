@@ -3,14 +3,14 @@ export const SERVICES = [
     icon: 'backup-data-server.svg',
     title: 'AI Integration Solutions',
     description:
-      'Upgrade your existing website, app, or internal platform with practical AI features and automation.',
+      'Upgrade existing systems or build new full-stack websites and apps with practical AI features and automation.',
     titleClass: 'text-color-primary',
     linkClass: 'text-color-dark',
     link: '/it-services/cloud-services',
     detailsTitle: 'Integrate AI Into Real Business Operations',
     detailsDescription: [
       'We help you identify, prioritize, and deploy AI use cases that directly improve revenue, cost efficiency, and execution speed.',
-      'From internal copilots to customer-facing AI experiences, we integrate AI into your current web and app stack without disrupting operations.',
+      'From internal copilots to customer-facing AI experiences, we integrate AI into your current stack and new digital products across frontend, backend, and database layers without disrupting operations.',
       'The result is a practical AI roadmap, faster implementation, and stronger long-term returns from your technology investments.',
     ],
   },
@@ -18,14 +18,14 @@ export const SERVICES = [
     icon: 'remove-monitor-access.svg',
     title: 'AI Agents & Agentic AI',
     description:
-      'Autonomous systems and dedicated support teams for workflows, enterprise tools, and operational decision-making.',
+      'Autonomous systems and dedicated support teams for workflows, enterprise tools, and operational decision-making across APIs and data systems.',
     titleClass: 'text-color-dark',
     linkClass: 'text-color-primary',
     link: '/it-services/tech-support',
     detailsTitle: 'Scale With Agentic AI Systems',
     detailsDescription: [
       'We build AI agents that can execute multi-step tasks, coordinate across tools, and support real-time decision workflows.',
-      'By automating repetitive processes across operations, support, and back office functions, your teams gain speed and consistency at scale.',
+      'By automating repetitive processes across operations, support, and back office functions, your teams gain speed and consistency at scale across full-stack systems.',
       'We also provide software support teams for business-critical enterprise platforms across multiple industries.',
       'Every agentic system is designed with governance, reliability, and business KPIs in mind so automation delivers trusted outcomes.',
     ],
@@ -40,7 +40,7 @@ export const SERVICES = [
     detailsTitle: 'Build Decision Intelligence Across Your Organization',
     detailsDescription: [
       'We extract and unify data from commerce systems, operational tools, and enterprise platforms to create a reliable decision layer.',
-      'We help businesses build data-driven systems that power smarter decisions, enable automation, and improve operational performance.',
+      'We help businesses build data-driven systems that power smarter decisions, enable automation, and improve operational performance across frontend, backend, and database workflows.',
       'Your data foundation becomes the launchpad for AI adoption, intelligent workflows, and long-term growth.',
       'This is how organizations move from analytics maturity to AI-native execution.',
     ],
@@ -48,15 +48,16 @@ export const SERVICES = [
   {
     icon: 'floppy-disk-memory.svg',
     title: 'Cloud, Platform & Infrastructure',
-    description: 'Scalable and secure cloud systems optimized for AI and modern applications.',
+    description:
+      'Scalable and secure cloud systems on AWS, GCP, and Azure, optimized for AI and full-stack applications.',
     titleClass: 'text-color-dark',
     linkClass: 'text-color-primary',
     link: '/it-services/software-dev',
     detailsTitle: 'Scale On Secure, Future-Ready Digital Foundations',
     detailsDescription: [
-      'We architect and modernize cloud environments that are secure, scalable, and ready for AI workloads and modern applications.',
+      'We architect and modernize cloud environments on AWS, GCP, Azure, and hybrid setups that are secure, scalable, and ready for AI workloads and modern applications.',
       'From migration and optimization to reliability and governance, we help your infrastructure and support operations perform under real business demand.',
-      'The outcome is faster deployment, stronger resilience, and a cloud foundation built for long-term innovation.',
+      'The outcome is faster deployment, stronger resilience, and a cloud foundation built for long-term innovation across frontend, backend, and database services.',
     ],
   },
   {

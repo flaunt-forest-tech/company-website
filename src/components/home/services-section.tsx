@@ -26,24 +26,29 @@ const TRANSFORMATION_PATH = [
 
 const WHY_CHOOSE_US = [
   {
-    title: 'Business-First AI Delivery',
+    title: 'Business-First Outcomes',
     description:
-      'We start from outcomes, not hype. Every solution is tied to cost, speed, or growth impact.',
+      'Every initiative is mapped to measurable impact: cost reduction, delivery speed, or growth.',
   },
   {
-    title: 'Data-To-AI Execution Model',
+    title: 'Full-Stack Product Teams',
     description:
-      'We build a strong analytics layer first, then scale automation and AI on top of it.',
+      'One delivery team across frontend, backend, database, and cloud from architecture to release.',
   },
   {
-    title: 'Agentic Systems Expertise',
+    title: 'Data-To-AI Execution',
     description:
-      'From workflow orchestration to decision support, we design autonomous systems that work in production.',
+      'We strengthen analytics foundations first, then scale automation and AI with lower risk.',
   },
   {
-    title: 'Future-Ready Technology Stack',
+    title: 'Agentic Systems In Production',
     description:
-      'Cloud-native architecture, secure data pipelines, and Web3.0 capabilities for long-term innovation.',
+      'We design and deploy agentic workflows that orchestrate tools and execute real business tasks.',
+  },
+  {
+    title: 'Cloud Delivery On AWS, GCP, Azure',
+    description:
+      'Production-ready infrastructure with secure delivery pipelines and scalable cloud operations.',
   },
 ];
 
@@ -72,8 +77,8 @@ const ServicesSection = () => {
               </h2>
             </div>
             <p className="custom-text-size-1 text-center mb-4">
-              A practical transformation path: start with data, automate with intelligence, then
-              scale AI across the business.
+              Upgrade existing systems, launch new digital products, and scale AI with a practical
+              path your team can execute.
             </p>
           </div>
         </div>
@@ -101,17 +106,21 @@ const ServicesSection = () => {
                 WHY CLIENTS CHOOSE US
               </span>
             </div>
-            <div className="overflow-hidden mb-4">
+            <div className="overflow-hidden mb-3">
               <h3 className="text-color-dark font-weight-bold text-7 line-height-2 mb-0">
                 Built For Companies That Want To Move First
               </h3>
             </div>
+            <p className="custom-text-size-1 mb-0">
+              Home gives you the overview. AI Solutions shows the full model, trust framework,
+              and implementation detail.
+            </p>
           </div>
         </div>
 
         <div className="row pb-2">
           {WHY_CHOOSE_US.map((item) => (
-            <div key={item.title} className="col-md-6 col-lg-3 mb-4">
+            <div key={item.title} className="col-md-6 col-lg-4 mb-4">
               <div className="card border-0 custom-box-shadow-1 h-100">
                 <div className="card-body p-4">
                   <h4 className="font-weight-bold text-5 mb-3">{item.title}</h4>
@@ -120,6 +129,20 @@ const ServicesSection = () => {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="row py-3">
+          <div className="col text-center">
+            <p className="custom-text-size-1 mb-3">
+              Want the full delivery model, case studies, trust framework, and FAQ?
+            </p>
+            <Link
+              href="/ai-solutions"
+              className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 me-2 mb-2"
+            >
+              VIEW FULL AI SOLUTIONS PAGE <i className="custom-arrow-icon ms-2"></i>
+            </Link>
+          </div>
         </div>
 
         <div className="row pt-4">

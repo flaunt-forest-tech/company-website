@@ -64,7 +64,7 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We are not just an IT company
+              We are a full-stack digital and AI solution partner
             </h2>
 
             <p
@@ -72,8 +72,8 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We are an AI-first partner built on strong IT execution. We do not replace your
-              existing systems, we upgrade them.
+              We are an AI-first partner built on strong IT execution. We do not just replace your
+              existing systems; we upgrade them while building new digital products where needed.
             </p>
 
             <p
@@ -82,10 +82,10 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1300"
               data-plugin-options='{"accY": 200}'
             >
-              From web and app projects enhanced with AI, to enterprise software support teams
-              across complex environments, to cross-platform data integration for analytics and
-              automation, we help businesses move from traditional operations to intelligent
-              execution.
+              From new website and app development to AI-enhanced product upgrades, from enterprise
+              software support across complex environments to cross-platform data integration, AI
+              agents, and agentic automation, we help businesses move from traditional operations
+              to intelligent execution.
             </p>
           </div>
 
@@ -143,7 +143,7 @@ function IndustryUseCasesSection() {
               INDUSTRY USE CASES
             </span>
             <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-4">
-              How We Apply IT + AI In The Real World
+              How We Apply Digital + AI In The Real World
             </h2>
           </div>
         </div>

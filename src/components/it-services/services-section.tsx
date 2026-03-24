@@ -7,23 +7,23 @@ import { usePathname } from 'next/navigation';
 const SERVICE_USE_CASES: Record<string, string[]> = {
   'AI Integration Solutions': [
     'Executive copilots for faster strategic planning and decision support.',
-    'Predictive models for demand, churn, and revenue optimization.',
-    'Customer-facing AI experiences that improve response speed and conversion.',
+    'AI features embedded into full-stack web and app products across frontend, backend, and database layers.',
+    'Predictive models for demand, churn, and revenue optimization across business-critical systems.',
   ],
   'AI Agents & Agentic AI': [
     'Autonomous agents handling multi-step internal workflows end-to-end.',
-    'Cross-tool orchestration for support, operations, and back-office execution.',
+    'Cross-tool orchestration for support, operations, and back-office execution across API and database workflows.',
     'Decision automation with human-in-the-loop governance controls.',
   ],
   'Data Intelligence & Analytics': [
     'Leadership dashboards with real-time KPIs and business health visibility.',
-    'Unified pipelines that connect sales, operations, and customer data.',
+    'Unified pipelines that connect sales, operations, and customer data from multiple platforms.',
     'Analytics foundations that prepare teams for AI-native execution.',
   ],
   'Cloud, Platform & Infrastructure': [
-    'Cloud modernization for AI workloads and scalable digital products.',
+    'Cloud modernization on AWS, GCP, and Azure for AI workloads and scalable digital products.',
     'Reliability engineering to reduce downtime and protect performance.',
-    'Security and governance baselines for compliant growth at scale.',
+    'Security and governance baselines for compliant growth at scale across hybrid environments.',
   ],
   'Web3.0 & Decentralized Systems': [
     'Blockchain-based workflows for transparent records and trusted transactions.',
@@ -105,21 +105,23 @@ export default function ServicesSection() {
           <div className="col-lg-6">
             <p className="custom-text-size-1 pb-2 mb-4">
               Our team combines data strategy, automation engineering, and AI delivery expertise to
-              turn business goals into measurable outcomes.
+              turn business goals into measurable outcomes with full-stack execution.
             </p>
             <p className="custom-text-size-1 pb-2 mb-4">
-              We treat IT and cloud as the foundation, then build intelligent capabilities on top so
-              your operations can scale with confidence.
+              We treat IT and cloud as the foundation, then build intelligent capabilities on top
+              so your operations can scale with confidence across frontend, backend, and database
+              systems.
             </p>
             <p className="custom-text-size-1 pb-3 mb-4">
-              From Data & Analytics to AI-native workflows, we help you move faster, make smarter
-              decisions, and unlock long-term growth opportunities.
+              From data and analytics to AI-native workflows on AWS, GCP, Azure, and hybrid cloud,
+              we help you move faster, make smarter decisions, and unlock long-term growth
+              opportunities.
             </p>
             <a
               href="/contact"
               className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
             >
-              GET A QUOTE <i className="custom-arrow-icon ms-5" />
+              BOOK A FULL-STACK AI CONSULTATION <i className="custom-arrow-icon ms-5" />
             </a>
           </div>
         </div>

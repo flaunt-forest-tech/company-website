@@ -11,7 +11,7 @@ import Link from 'next/link';
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
     title: 'TRANSFORMATION OVERVIEW',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Transformation Overview' }],
   };
   return (
     <div className="body">
@@ -70,8 +70,10 @@ function ServicesSection() {
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We help organizations build data-driven foundations first, then scale with automation,
-              AI solutions, and modern infrastructure for long-term growth.
+              We help organizations modernize existing platforms and build new websites and apps
+              from scratch, then scale with automation, AI agents, AI solutions, and modern
+              infrastructure for long-term growth across frontend, backend, database, and
+              AWS/GCP/Azure cloud environments.
             </p>
           </div>
         </div>
