@@ -52,8 +52,12 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              We are an <strong className="text-color-light">AI-first technology company</strong>{' '}
-              helping businesses automate, scale, and grow in the digital era.
+              We start from your existing <strong className="text-color-light">IT systems</strong>{' '}
+              and upgrade them with <strong className="text-color-light">AI solutions</strong>,{' '}
+              <strong className="text-color-light">agentic AI</strong>,{' '}
+              <strong className="text-color-light">Data &amp; Analytics</strong>, and{' '}
+              <strong className="text-color-light">Web3.0 innovation</strong> so your web apps,
+              business apps, and operations become faster, smarter, and future-ready.
             </p>
             <a
               href="#services"

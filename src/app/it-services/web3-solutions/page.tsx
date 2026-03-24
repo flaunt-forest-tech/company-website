@@ -5,7 +5,7 @@ import ServicesSection from '@/components/it-services/services-section';
 
 export default function Web3SolutionsPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'WEB3.0 SOLUTIONS',
+    title: 'WEB3.0 & DECENTRALIZED SYSTEMS',
     breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
   };
   return (

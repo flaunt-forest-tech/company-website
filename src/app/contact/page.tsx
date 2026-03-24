@@ -222,8 +222,9 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Tell us where you are in your journey, and we will design a practical plan from Data &
-              Analytics to AI at scale.
+              Tell us your current systems and goals. We can help with web/app AI upgrades,
+              enterprise platform support, cross-system data integration, and end-to-end AI
+              implementation.
             </p>
           </div>
         </div>
@@ -303,6 +304,11 @@ function ContactSection() {
                     <option value="Data Foundation & Analytics">Data Foundation & Analytics</option>
                     <option value="AI Strategy & Roadmap">AI Strategy & Roadmap</option>
                     <option value="AI Agents & Automation">AI Agents & Automation</option>
+                    <option value="Web/App + AI Integration">Web/App + AI Integration</option>
+                    <option value="Enterprise Platform Support">Enterprise Platform Support</option>
+                    <option value="Cross-System Data Integration & Analytics">
+                      Cross-System Data Integration & Analytics
+                    </option>
                     <option value="Cloud & Infrastructure">Cloud & Infrastructure</option>
                     <option value="Web3.0 Solutions">Web3.0 Solutions</option>
                     <option value="Other">Other</option>

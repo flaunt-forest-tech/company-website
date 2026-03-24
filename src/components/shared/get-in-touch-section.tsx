@@ -18,15 +18,15 @@ const GetInTouchSection = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              LET&apos;S DESIGN YOUR AI-FIRST GROWTH STRATEGY
+              READY TO BUILD YOUR AI ADVANTAGE?
             </h2>
             <p
               className="custom-font-secondary text-4 custom-text-color-light-3 mb-0 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              We help you build a strong Data & Analytics foundation, then scale with intelligent
-              automation and AI so your business becomes truly AI-native.
+              Share your goals and we will map a practical path from data foundations to automation,
+              AI agents, and scalable AI execution.
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">
@@ -37,7 +37,7 @@ const GetInTouchSection = () => {
                 data-appear-animation="maskRight"
                 data-appear-animation-delay="900"
               >
-                GET STARTED NOW <i className="custom-arrow-icon ms-2" />
+                BOOK AI DISCOVERY CALL <i className="custom-arrow-icon ms-2" />
               </Link>
             </div>
           </div>

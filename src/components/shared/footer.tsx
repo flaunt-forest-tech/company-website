@@ -44,16 +44,16 @@ export default function Footer() {
             <h4 className="ls-0">USEFUL LINKS</h4>
             <ul className="list-unstyled">
               <li className="mb-1">
-                <Link href="/it-services">Our Services</Link>
+                <Link href="/it-services">AI Solutions Overview</Link>
               </li>
               <li className="mb-1">
-                <Link href="#">Payment Methods</Link>
+                <Link href="/it-services/data-security">Data &amp; Analytics</Link>
               </li>
               <li className="mb-1">
-                <Link href="/it-services">Services Guide</Link>
+                <Link href="/it-services/tech-support">AI Agents &amp; Agentic AI</Link>
               </li>
               <li>
-                <Link href="#">FAQs</Link>
+                <Link href="/contact">Book AI Discovery Call</Link>
               </li>
             </ul>
           </div>

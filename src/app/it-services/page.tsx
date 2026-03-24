@@ -10,7 +10,7 @@ import Link from 'next/link';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'AI SOLUTIONS',
+    title: 'TRANSFORMATION OVERVIEW',
     breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
   };
   return (
@@ -66,7 +66,7 @@ function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                AI-First Solutions for Modern Businesses
+                Transformation Roadmap for AI-Driven Growth
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">

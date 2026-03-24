@@ -24,6 +24,29 @@ const TRANSFORMATION_PATH = [
   },
 ];
 
+const WHY_CHOOSE_US = [
+  {
+    title: 'Business-First AI Delivery',
+    description:
+      'We start from outcomes, not hype. Every solution is tied to cost, speed, or growth impact.',
+  },
+  {
+    title: 'Data-To-AI Execution Model',
+    description:
+      'We build a strong analytics layer first, then scale automation and AI on top of it.',
+  },
+  {
+    title: 'Agentic Systems Expertise',
+    description:
+      'From workflow orchestration to decision support, we design autonomous systems that work in production.',
+  },
+  {
+    title: 'Future-Ready Technology Stack',
+    description:
+      'Cloud-native architecture, secure data pipelines, and Web3.0 capabilities for long-term innovation.',
+  },
+];
+
 const ServicesSection = () => {
   return (
     <section
@@ -63,6 +86,34 @@ const ServicesSection = () => {
                   <span className="text-color-primary font-weight-bold text-6 d-block mb-2">
                     {item.stage}
                   </span>
+                  <h4 className="font-weight-bold text-5 mb-3">{item.title}</h4>
+                  <p className="custom-text-size-1 mb-0">{item.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="row pt-2 pb-3">
+          <div className="col text-center">
+            <div className="overflow-hidden mb-2">
+              <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
+                WHY CLIENTS CHOOSE US
+              </span>
+            </div>
+            <div className="overflow-hidden mb-4">
+              <h3 className="text-color-dark font-weight-bold text-7 line-height-2 mb-0">
+                Built For Companies That Want To Move First
+              </h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="row pb-2">
+          {WHY_CHOOSE_US.map((item) => (
+            <div key={item.title} className="col-md-6 col-lg-3 mb-4">
+              <div className="card border-0 custom-box-shadow-1 h-100">
+                <div className="card-body p-4">
                   <h4 className="font-weight-bold text-5 mb-3">{item.title}</h4>
                   <p className="custom-text-size-1 mb-0">{item.description}</p>
                 </div>

@@ -96,9 +96,10 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We are an AI-first company, and IT is the infrastructure that supports execution. We
-              lead with Data & Analytics, then scale into AI solutions and intelligent automation so
-              organizations can become truly AI-native.
+              We modernize traditional IT with practical AI. From websites and apps with built-in AI
+              features to enterprise software support (including SAP-style environments), we help
+              teams connect data sources like POS systems and turn operations into intelligent,
+              scalable workflows.
             </p>
             <Link
               href="/about-us"

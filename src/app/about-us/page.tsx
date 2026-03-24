@@ -28,6 +28,7 @@ export default function AboutUSPage() {
         {/* leaves it for now and we can uncomment after we actual get the client
         <OurClients />
         <CountersSection /> */}
+        <IndustryUseCasesSection />
         <OurMission />
         <GetInTouchSection />
       </div>
@@ -71,7 +72,8 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We are an AI-first company, and IT is the infrastructure that supports execution.
+              We are an AI-first partner built on strong IT execution. We do not replace your
+              existing systems, we upgrade them.
             </p>
 
             <p
@@ -80,8 +82,10 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1300"
               data-plugin-options='{"accY": 200}'
             >
-              We help businesses build data-driven systems that power smarter decisions, enable
-              automation, and create the foundation for AI and intelligent workflows.
+              From web and app projects enhanced with AI, to enterprise software support teams
+              across complex environments, to cross-platform data integration for analytics and
+              automation, we help businesses move from traditional operations to intelligent
+              execution.
             </p>
           </div>
 
@@ -96,6 +100,71 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1500"
             />
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function IndustryUseCasesSection() {
+  const useCases = [
+    {
+      title: 'Retail & Commerce Intelligence',
+      points: [
+        'Integrate sales, inventory, and commerce channels into one decision layer.',
+        'Build dashboards for product performance, margin trends, and demand shifts.',
+        'Deploy AI models for forecasting, replenishment, and promotional optimization.',
+      ],
+    },
+    {
+      title: 'Manufacturing & Enterprise Operations',
+      points: [
+        'Provide dedicated support teams for mission-critical enterprise systems.',
+        'Stabilize operations while modernizing legacy workflows with automation.',
+        'Connect production, supply chain, and finance data for faster decision cycles.',
+      ],
+    },
+    {
+      title: 'Service Businesses & AI-Enabled Apps',
+      points: [
+        'Build web and mobile apps with embedded AI copilots and workflow assistants.',
+        'Automate customer support and internal operations with agentic AI flows.',
+        'Use unified data pipelines to improve service quality and growth planning.',
+      ],
+    },
+  ];
+
+  return (
+    <section className="section bg-color-transparent border-0 py-0 mt-0 mb-3">
+      <div className="container container-xl-custom">
+        <div className="row">
+          <div className="col text-center">
+            <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-2">
+              INDUSTRY USE CASES
+            </span>
+            <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-4">
+              How We Apply IT + AI In The Real World
+            </h2>
+          </div>
+        </div>
+
+        <div className="row">
+          {useCases.map((item) => (
+            <div key={item.title} className="col-md-6 col-lg-4 mb-4">
+              <div className="card border-0 custom-box-shadow-1 h-100 p-2">
+                <div className="card-body">
+                  <h4 className="font-weight-bold text-color-dark text-5 mb-3">{item.title}</h4>
+                  <ul className="custom-text-size-1 ps-3 mb-0">
+                    {item.points.map((point) => (
+                      <li key={point} className="pb-2">
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -245,12 +314,15 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR MISSION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Our mission is to help businesses become faster, smarter, and future-ready.
+                Our mission is to modernize real businesses by combining proven IT delivery with
+                practical AI execution.
               </p>
               <ul className="custom-text-size-1 ps-3 mb-0">
-                <li className="pb-2">Automate complex workflows</li>
-                <li className="pb-2">Make smarter decisions with data</li>
-                <li>Unlock new growth opportunities</li>
+                <li className="pb-2">Upgrade websites and apps with AI-powered capabilities</li>
+                <li className="pb-2">
+                  Support enterprise software operations across diverse systems
+                </li>
+                <li>Turn operational data into intelligent decisions and growth</li>
               </ul>
             </div>
           </div>

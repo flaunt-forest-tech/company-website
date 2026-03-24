@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const SERVICE_USE_CASES: Record<string, string[]> = {
-  'AI Solutions': [
+  'AI Integration Solutions': [
     'Executive copilots for faster strategic planning and decision support.',
     'Predictive models for demand, churn, and revenue optimization.',
     'Customer-facing AI experiences that improve response speed and conversion.',
@@ -15,17 +15,17 @@ const SERVICE_USE_CASES: Record<string, string[]> = {
     'Cross-tool orchestration for support, operations, and back-office execution.',
     'Decision automation with human-in-the-loop governance controls.',
   ],
-  'Data & Analytics': [
+  'Data Intelligence & Analytics': [
     'Leadership dashboards with real-time KPIs and business health visibility.',
     'Unified pipelines that connect sales, operations, and customer data.',
     'Analytics foundations that prepare teams for AI-native execution.',
   ],
-  'Cloud & Infrastructure': [
+  'Cloud, Platform & Infrastructure': [
     'Cloud modernization for AI workloads and scalable digital products.',
     'Reliability engineering to reduce downtime and protect performance.',
     'Security and governance baselines for compliant growth at scale.',
   ],
-  'Web3.0 Solutions': [
+  'Web3.0 & Decentralized Systems': [
     'Blockchain-based workflows for transparent records and trusted transactions.',
     'Smart contract systems that automate validation and execution logic.',
     'Decentralized applications for new ecosystem and platform business models.',
@@ -145,17 +145,17 @@ export default function ServicesSection() {
           </div>
         </div>
         <div className="row mb-5">
-          {(SERVICE_USE_CASES[mainService.title] || SERVICE_USE_CASES['AI Solutions']).map(
-            (item) => (
-              <div key={item} className="col-md-6 col-lg-4 mb-4">
-                <div className="card border-0 custom-box-shadow-1 h-100">
-                  <div className="card-body p-4">
-                    <p className="custom-text-size-1 mb-0">{item}</p>
-                  </div>
+          {(
+            SERVICE_USE_CASES[mainService.title] || SERVICE_USE_CASES['AI Integration Solutions']
+          ).map((item) => (
+            <div key={item} className="col-md-6 col-lg-4 mb-4">
+              <div className="card border-0 custom-box-shadow-1 h-100">
+                <div className="card-body p-4">
+                  <p className="custom-text-size-1 mb-0">{item}</p>
                 </div>
               </div>
-            )
-          )}
+            </div>
+          ))}
         </div>
 
         <div className="row">
