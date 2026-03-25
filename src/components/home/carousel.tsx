@@ -9,6 +9,7 @@ const Carousel: React.FC = () => {
         height="840"
         viewBox="0 0 481.54166 222.25"
         version="1.1"
+        aria-label="Build, modernize, and scale with AI services overview"
         style={{
           backgroundImage: 'url(/img/backgrounds/bg-full.jpg)',
           backgroundSize: 'cover',
@@ -45,7 +46,7 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              BUILD AN AI-FIRST BUSINESS THAT MOVES FASTER
+              BUILD, MODERNIZE, AND SCALE WITH AI
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
@@ -54,21 +55,20 @@ const Carousel: React.FC = () => {
             >
               We start from your existing <strong className="text-color-light">IT systems</strong>{' '}
               and upgrade them with <strong className="text-color-light">AI solutions</strong>,{' '}
+              <strong className="text-color-light">AI agents</strong>,{' '}
               <strong className="text-color-light">agentic AI</strong>,{' '}
               <strong className="text-color-light">Data &amp; Analytics</strong>, and{' '}
-              <strong className="text-color-light">Web3.0 innovation</strong> so your web apps,
-              business apps, and operations become faster, smarter, and future-ready.
+              <strong className="text-color-light">Web3.0 innovation</strong>. We also build new
+              websites and apps from scratch, so your digital products and operations become
+              faster, smarter, and future-ready.
             </p>
             <a
-              href="#services"
+              href="/ai-solutions"
               className="btn btn-secondary btn-outline text-color-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 appear-animation"
-              data-hash
-              data-hash-offset="0"
-              data-hash-offset-lg="90"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              START WITH DATA ASSESSMENT <i className="custom-arrow-icon ms-2"></i>
+              PLAN YOUR AI + DIGITAL ROADMAP <i className="custom-arrow-icon ms-2"></i>
             </a>
             <a
               href="/contact"

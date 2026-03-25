@@ -9,7 +9,7 @@ import { JOBS } from '@/constants/job';
 const CareersPage: React.FC = () => {
   const pageHeaderData: PageHeaderProps = {
     title: 'CAREERS',
-    breadcrumbs: [{ label: 'home', href: '/' }, { label: 'careers' }],
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Careers' }],
   };
   return (
     <div className="body">
@@ -44,13 +44,14 @@ function CareersSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0">
-                Joins Us In Your Greatest Professional Mission
+                Build The Future Of Digital And AI Solutions With Us
               </h2>
             </div>
             <p className="custom-text-size-1 text-center mb-5">
-              We are always on the lookout for passionate, skilled professionals who want to build
-              impactful technology. If you&apos;re eager to contribute to meaningful projects and
-              grow with a forward-thinking team, explore our open roles below.
+              We are hiring engineers, designers, and product builders who want to work on modern
+              web platforms, AI agents, agentic workflows, and end-to-end enterprise AI delivery.
+              If you are ready to solve real business problems and grow with a high-execution team,
+              explore our open roles below.
             </p>
           </div>
         </div>

@@ -41,16 +41,16 @@ export default function Footer() {
           </div>
 
           <div className="col-md-4 col-lg-2 mb-4 mb-lg-0">
-            <h4 className="ls-0">USEFUL LINKS</h4>
+            <h4 className="ls-0">QUICK LINKS</h4>
             <ul className="list-unstyled">
               <li className="mb-1">
-                <Link href="/it-services">AI Solutions Overview</Link>
+                <Link href="/ai-solutions">AI Solutions Overview</Link>
               </li>
               <li className="mb-1">
-                <Link href="/it-services/data-security">Data &amp; Analytics</Link>
+                <Link href="/it-services">Transformation Overview</Link>
               </li>
               <li className="mb-1">
-                <Link href="/it-services/tech-support">AI Agents &amp; Agentic AI</Link>
+                <Link href="/careers">Careers</Link>
               </li>
               <li>
                 <Link href="/contact">Book AI Discovery Call</Link>
@@ -85,17 +85,32 @@ export default function Footer() {
             <h4 className="ls-0">SOCIAL MEDIA</h4>
             <ul className="social-icons social-icons-clean custom-social-icons-icon-light">
               <li>
-                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.instagram.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our Instagram profile"
+                >
                   <i className="fab fa-instagram"></i>
                 </a>
               </li>
               <li>
-                <a href="https://x.com/flauntforest/" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://x.com/flauntforest/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our X profile"
+                >
                   <i className="fab fa-x-twitter"></i>
                 </a>
               </li>
               <li>
-                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.facebook.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our Facebook profile"
+                >
                   <i className="fab fa-facebook-f"></i>
                 </a>
               </li>

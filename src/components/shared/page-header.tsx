@@ -25,7 +25,11 @@ const PageHeader: React.FC<PageHeaderProps> = ({ title, breadcrumbs }) => (
             data-appear-animation-delay="400"
           >
             {breadcrumbs.map((crumb, idx) => (
-              <li key={idx} className={idx === breadcrumbs.length - 1 ? 'active' : undefined}>
+              <li
+                key={idx}
+                className={idx === breadcrumbs.length - 1 ? 'active' : undefined}
+                aria-current={idx === breadcrumbs.length - 1 ? 'page' : undefined}
+              >
                 {crumb.href && idx !== breadcrumbs.length - 1 ? (
                   <a href={crumb.href}>{crumb.label}</a>
                 ) : (

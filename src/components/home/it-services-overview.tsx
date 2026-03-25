@@ -89,17 +89,18 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We are not just an IT company
+              We build digital products and AI systems
             </h2>
             <p
               className="custom-text-size-1 pb-3 mb-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We modernize traditional IT with practical AI. From websites and apps with built-in AI
-              features to enterprise software support (including SAP-style environments), we help
-              teams connect data sources like POS systems and turn operations into intelligent,
-              scalable workflows.
+              We modernize traditional IT and create new digital products with practical AI. From
+              upgrading existing platforms to launching brand-new websites and apps, we combine AI
+              solutions, AI agents, and data intelligence to turn operations into intelligent,
+              scalable workflows across full-stack systems: frontend, backend, and database,
+              deployed on AWS, GCP, Azure, or hybrid cloud.
             </p>
             <Link
               href="/about-us"
