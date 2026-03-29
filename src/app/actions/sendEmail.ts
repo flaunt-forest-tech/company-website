@@ -75,6 +75,77 @@ function pickClientIp(forwardedFor: string | null, realIp: string | null): strin
   return 'unknown-ip';
 }
 
+function normalizeOrigin(value: string): string | null {
+  try {
+    const u = new URL(value);
+    return `${u.protocol}//${u.host}`;
+  } catch {
+    return null;
+  }
+}
+
+function getAllowedOrigins(): Set<string> {
+  const allowed = new Set<string>();
+
+  const explicitOrigins = process.env.ALLOWED_ORIGINS?.split(',') ?? [];
+  for (const origin of explicitOrigins) {
+    const normalized = normalizeOrigin(origin.trim());
+    if (normalized) allowed.add(normalized);
+  }
+
+  const publicSite = process.env.NEXT_PUBLIC_SITE_URL;
+  if (publicSite) {
+    const normalized = normalizeOrigin(publicSite);
+    if (normalized) allowed.add(normalized);
+  }
+
+  const vercelProd = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelProd) {
+    const normalized = normalizeOrigin(`https://${vercelProd}`);
+    if (normalized) allowed.add(normalized);
+  }
+
+  const vercelPreview = process.env.VERCEL_URL;
+  if (vercelPreview) {
+    const normalized = normalizeOrigin(`https://${vercelPreview}`);
+    if (normalized) allowed.add(normalized);
+  }
+
+  return allowed;
+}
+
+function isOriginAllowed(value: string | null, allowedOrigins: Set<string>): boolean {
+  if (!value) return false;
+  const normalized = normalizeOrigin(value);
+  if (!normalized) return false;
+  return allowedOrigins.has(normalized);
+}
+
+function validateRequestOrigin(
+  reqHeaders: Headers,
+  allowedOrigins: Set<string>
+): { valid: boolean; error?: string } {
+  if (process.env.NODE_ENV !== 'production') {
+    return { valid: true };
+  }
+
+  if (allowedOrigins.size === 0) {
+    return { valid: false, error: 'Origin validation not configured' };
+  }
+
+  const origin = reqHeaders.get('origin');
+  if (!isOriginAllowed(origin, allowedOrigins)) {
+    return { valid: false, error: 'Invalid origin' };
+  }
+
+  const referer = reqHeaders.get('referer');
+  if (referer && !isOriginAllowed(referer, allowedOrigins)) {
+    return { valid: false, error: 'Invalid referer' };
+  }
+
+  return { valid: true };
+}
+
 // Escape HTML to prevent XSS
 function escapeHtml(text: string): string {
   const map: Record<string, string> = {
@@ -175,6 +246,12 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
   }
 
   const requestHeaders = await headers();
+  const allowedOrigins = getAllowedOrigins();
+  const originValidation = validateRequestOrigin(requestHeaders, allowedOrigins);
+  if (!originValidation.valid) {
+    return { success: false, error: 'Invalid request source' };
+  }
+
   const clientIp = pickClientIp(
     requestHeaders.get('x-forwarded-for'),
     requestHeaders.get('x-real-ip')
@@ -219,7 +296,7 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
       html,
     });
     return { success: true, data };
-  } catch (error: unknown) {
+  } catch {
     // Log error but don't expose sensitive details to client
     console.error('Email send error: Failed to send email');
     return { success: false, error: 'Failed to send email. Please try again.' };

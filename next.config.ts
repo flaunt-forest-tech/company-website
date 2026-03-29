@@ -9,7 +9,9 @@ const nextConfig: NextConfig = {
       "object-src 'none'",
       "form-action 'self'",
       "script-src 'self' 'unsafe-inline'",
+      "script-src-attr 'none'",
       "style-src 'self' 'unsafe-inline'",
+      "style-src-attr 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
       "connect-src 'self' https:",
@@ -40,6 +42,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
           },
           {
             key: 'Content-Security-Policy',
