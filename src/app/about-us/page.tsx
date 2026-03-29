@@ -85,7 +85,9 @@ function WhoWeAreSection() {
               Our model is hands-on and delivery-led. We work across strategy, product, engineering,
               data, and cloud so clients can move from idea to working implementation with one
               accountable team. As a young company, we stay close to the latest tools while applying
-              governance, security, and responsible AI practices from day one.
+              governance, security, and responsible AI practices from day one. With deep experience
+              in AI implementation and cloud systems, we help businesses in Houston and beyond
+              modernize operations responsibly.
             </p>
           </div>
 

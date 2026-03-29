@@ -99,7 +99,8 @@ const ITServicesOverview: React.FC = () => {
               Founded in 2025 and headquartered in Houston, Texas, we help companies modernize
               existing systems with agentic AI, intelligent automation, and cloud delivery. Our
               approach is pragmatic, hands-on, and built to improve execution without adding
-              unnecessary complexity.
+              unnecessary complexity. With deep experience in AI implementation and cloud systems,
+              we help businesses in Houston and beyond modernize operations responsibly.
             </p>
             <Link
               href="/about-us"
