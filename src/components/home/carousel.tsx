@@ -46,21 +46,19 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              BUILD, MODERNIZE, AND SCALE WITH AI
+              ENTERPRISE AI TRANSFORMATION, FROM STRATEGY TO EXECUTION
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              We start from your existing <strong className="text-color-light">IT systems</strong>{' '}
-              and upgrade them with <strong className="text-color-light">AI solutions</strong>,{' '}
-              <strong className="text-color-light">AI agents</strong>,{' '}
-              <strong className="text-color-light">agentic AI</strong>,{' '}
-              <strong className="text-color-light">Data &amp; Analytics</strong>, and{' '}
-              <strong className="text-color-light">Web3.0 innovation</strong>. We also build new
-              websites and apps from scratch, so your digital products and operations become
-              faster, smarter, and future-ready.
+              <strong className="text-color-light">Upgrade existing systems</strong> with AI-powered
+              automation and analytics.{' '}
+              <strong className="text-color-light">Build new digital products</strong> with
+              production-grade architecture.{' '}
+              <strong className="text-color-light">Scale AI responsibly</strong> with governance
+              frameworks and industry expertise.
             </p>
             <a
               href="/ai-solutions"
