@@ -140,7 +140,7 @@ const TRUST_MESSAGE = {
     'As an agile AI solutions provider founded in Houston, we embed governance principles in every engagement.',
   body: 'We follow a governance-by-design approach from the start of each project, building access controls, auditability, guardrails, and decision accountability into the delivery process rather than adding them later.',
   support:
-    'We also help clients establish Responsible AI practices early so teams can reduce policy, operational, and compliance risk before systems scale.',
+    "We also help clients establish Responsible AI practices early so teams can reduce policy, operational, and compliance risk before systems scale, leveraging Houston's strengths in energy, healthcare, and manufacturing.",
 };
 
 const IDEAL_CLIENTS = [
@@ -453,6 +453,28 @@ export default function AISolutionsPage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section bg-color-transparent border-0 mt-0 mb-0 pt-2 pb-4">
+          <div className="container container-xl-custom">
+            <div className="row justify-content-center">
+              <div className="col-lg-10 text-center">
+                <h3 className="text-color-dark font-weight-bold text-6 line-height-2 mb-3">
+                  Ready for your first pilot project?
+                </h3>
+                <p className="custom-text-size-1 mb-4">
+                  Book a free AI Discovery Call. We specialize in quick-win Agentic AI
+                  implementations for early clients.
+                </p>
+                <Link
+                  href="/contact"
+                  className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
+                >
+                  BOOK A FREE AI DISCOVERY CALL <i className="custom-arrow-icon ms-2"></i>
+                </Link>
               </div>
             </div>
           </div>
