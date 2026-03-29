@@ -281,7 +281,7 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     <p><strong>Name:</strong> ${name}</p>
     <p><strong>Phone:</strong> ${phone}</p>
     <p><strong>Email:</strong> ${email}</p>
-    <p><strong>Consultation Goal:</strong> ${inquiryType}</p>
+    <p><strong>Project Focus:</strong> ${inquiryType}</p>
     <p><strong>Subject:</strong> ${subjectEscaped}</p>
     <hr/>
     <p>${messageEscaped}</p>

@@ -72,8 +72,12 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We are an AI-first partner built on strong IT execution. We do not just replace your
-              existing systems; we upgrade them while building new digital products where needed.
+              Founded in 2025 and headquartered in Houston, Texas, we are an emerging AI solutions
+              provider focused on Agentic AI, intelligent automation, and cloud integration. We help
+              businesses upgrade existing systems into AI-driven workflows through a pragmatic,
+              innovative, and responsible approach. While we are a young company, our team brings
+              substantial hands-on experience, works with the latest technologies, and applies
+              strong governance best practices from day one.
             </p>
 
             <p
@@ -82,10 +86,9 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1300"
               data-plugin-options='{"accY": 200}'
             >
-              From new website and app development to AI-enhanced product upgrades, from enterprise
-              software support across complex environments to cross-platform data integration, AI
-              agents, and agentic automation, we help businesses move from traditional operations to
-              intelligent execution.
+              From modernizing existing platforms to building new digital products, we combine
+              practical AI delivery, full-stack engineering, and governance-by-design to help teams
+              move from traditional operations to intelligent execution.
             </p>
           </div>
 
@@ -117,9 +120,9 @@ function IndustryUseCasesSection() {
       ],
     },
     {
-      title: 'Manufacturing & Enterprise Operations',
+      title: 'Manufacturing & Operations Systems',
       points: [
-        'Provide dedicated support teams for mission-critical enterprise systems.',
+        'Provide dedicated support teams for mission-critical business systems.',
         'Stabilize operations while modernizing legacy workflows with automation.',
         'Connect production, supply chain, and finance data for faster decision cycles.',
       ],
@@ -314,15 +317,15 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR MISSION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Our mission is to modernize real businesses by combining proven IT delivery with
-                practical AI execution, governance, and vertical industry expertise.
+                Our mission is to modernize real businesses by combining strong IT delivery with
+                practical AI execution, governance, and industry-informed implementation.
               </p>
               <ul className="custom-text-size-1 ps-3 mb-0">
                 <li className="pb-2">
                   Upgrade websites and apps with AI-powered capabilities and responsible governance
                 </li>
                 <li className="pb-2">
-                  Support enterprise software operations with deep vertical industry knowledge
+                  Support business-critical software operations with practical industry context
                 </li>
                 <li className="pb-2">
                   Engineer high-performance prompts and AI solutions for your domain
@@ -350,9 +353,9 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR VISION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                To become the trusted AI-first transformation partner for ambitious organizations,
-                turning data into intelligence with responsible AI governance and industry-leading
-                expertise.
+                To become a reliable AI-first transformation partner for ambitious companies and
+                teams, turning data into intelligence with responsible AI governance and practical
+                delivery expertise.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
                 We envision a future where data systems, automation, prompt-engineered AI, and
@@ -361,8 +364,8 @@ function OurMission() {
               </p>
               <p className="custom-text-size-1 mb-0">
                 Our focus is to help businesses move from traditional systems to AI-native
-                organizations with sustainable, high-impact innovation grounded in vertical industry
-                expertise.
+                operations with sustainable, high-impact innovation grounded in strong delivery
+                fundamentals and industry context.
               </p>
             </div>
           </div>
@@ -386,12 +389,12 @@ function OurMission() {
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR CAREERS</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
                 Join our team to build the future of AI-first business transformation through prompt
-                engineering, AI governance, and deep vertical industry expertise.
+                engineering, AI governance, and hands-on delivery across real business use cases.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
                 We seek passionate engineers, AI specialists, and data architects who can architect
-                responsible AI solutions, craft powerful prompts, and bring domain expertise to
-                transform industries.
+                responsible AI solutions, craft powerful prompts, and turn business requirements
+                into practical systems.
               </p>
               <Link
                 href="/careers"

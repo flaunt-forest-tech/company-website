@@ -34,8 +34,8 @@ const ITServicesOverview: React.FC = () => {
                     AI STRATEGY
                   </h4>
                   <p className="custom-font-secondary text-4 mb-3">
-                    We align AI with your business model to drive measurable outcomes: faster
-                    execution, lower operating cost, and stronger competitive advantage.
+                    We align AI with your business model to target practical gains: faster
+                    execution, lower operating cost, and better operational visibility.
                   </p>
                 </div>
               </div>
@@ -96,11 +96,12 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              We modernize traditional IT and create new digital products with practical AI. From
-              upgrading existing platforms to launching brand-new websites and apps, we combine AI
-              solutions, AI agents, and data intelligence to turn operations into intelligent,
-              scalable workflows across full-stack systems: frontend, backend, and database,
-              deployed on AWS, GCP, Azure, or hybrid cloud.
+              Founded in 2025 and headquartered in Houston, Texas, we are an emerging AI solutions
+              provider focused on Agentic AI, intelligent automation, and cloud integration. We help
+              businesses upgrade existing systems into AI-driven workflows through a pragmatic,
+              innovative, and responsible approach. While we are a young company, our team brings
+              substantial hands-on experience, works with the latest technologies, and applies
+              strong governance best practices from day one.
             </p>
             <Link
               href="/about-us"

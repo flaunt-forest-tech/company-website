@@ -215,7 +215,7 @@ function ContactSection() {
                 data-appear-animation="maskUp"
                 data-appear-animation-delay="500"
               >
-                Start Your AI Transformation
+                Tell Us What You Are Exploring
               </h2>
             </div>
             <p
@@ -223,10 +223,11 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Tell us about your current systems and goals. We can help with existing platform
-              upgrades, new website and app development, AI agents, enterprise platform support,
-              cross-system data integration, full-stack delivery (frontend, backend, database), and
-              end-to-end AI implementation on AWS, GCP, Azure, or hybrid cloud.
+              Tell us about your current systems, priorities, and constraints. We can help with
+              existing platform upgrades, new website and app development, AI agents,
+              business-critical platform support, cross-system data integration, full-stack delivery
+              (frontend, backend, database), and AI implementation on AWS, GCP, Azure, or hybrid
+              cloud.
             </p>
           </div>
         </div>
@@ -302,21 +303,21 @@ function ContactSection() {
                 </div>
                 <div className="form-group col-lg-6 mb-4">
                   <label htmlFor="inquiryType" className="visually-hidden">
-                    Consultation Goal
+                    Project Focus
                   </label>
                   <select
                     id="inquiryType"
                     required
-                    data-msg-required="Please choose your consultation goal."
+                    data-msg-required="Please choose your project focus."
                     className="form-control border-0 custom-box-shadow-1 py-3 px-4 h-auto text-3 text-color-dark"
                     defaultValue=""
                     {...register('inquiryType')}
                   >
                     <option value="" disabled>
-                      Consultation Goal
+                      Project Focus
                     </option>
                     <option value="Data Foundation & Analytics">Data Foundation & Analytics</option>
-                    <option value="AI Strategy & Roadmap">AI Strategy & Roadmap</option>
+                    <option value="AI Strategy & Next Steps">AI Strategy & Next Steps</option>
                     <option value="AI Agents & Automation">AI Agents & Automation</option>
                     <option value="Web/App + AI Integration">Web/App + AI Integration</option>
                     <option value="New Website / App Development">
@@ -325,7 +326,9 @@ function ContactSection() {
                     <option value="Full-Stack Engineering (Frontend/Backend/Database)">
                       Full-Stack Engineering (Frontend/Backend/Database)
                     </option>
-                    <option value="Enterprise Platform Support">Enterprise Platform Support</option>
+                    <option value="Business-Critical Platform Support">
+                      Business-Critical Platform Support
+                    </option>
                     <option value="Cloud Architecture (AWS/GCP/Azure)">
                       Cloud Architecture (AWS/GCP/Azure)
                     </option>

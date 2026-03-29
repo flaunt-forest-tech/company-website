@@ -70,8 +70,8 @@ function ServicesSection() {
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We help organizations modernize existing platforms and build new websites and apps
-              from scratch, then scale with automation, AI agents, AI solutions, and modern
+              We help companies and teams modernize existing platforms and build new websites and
+              apps from scratch, then scale with automation, AI agents, AI solutions, and modern
               infrastructure for long-term growth across frontend, backend, database, and
               AWS/GCP/Azure cloud environments.
             </p>

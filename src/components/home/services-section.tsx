@@ -73,7 +73,7 @@ const ServicesSection = () => {
             </div>
             <div className="overflow-hidden mb-5">
               <h2 className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0">
-                AI-First Services Built for Business Outcomes
+                AI-First Services Built for Practical Business Impact
               </h2>
             </div>
             <p className="custom-text-size-1 text-center mb-4">
@@ -103,7 +103,7 @@ const ServicesSection = () => {
           <div className="col text-center">
             <div className="overflow-hidden mb-2">
               <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
-                WHY CLIENTS CHOOSE US
+                HOW WE WORK
               </span>
             </div>
             <div className="overflow-hidden mb-3">
@@ -112,8 +112,8 @@ const ServicesSection = () => {
               </h3>
             </div>
             <p className="custom-text-size-1 mb-0">
-              Home gives you the overview. AI Solutions shows the full model, trust framework,
-              and implementation detail.
+              Home gives you the overview. AI Solutions shows the full model, trust framework, and
+              implementation detail.
             </p>
           </div>
         </div>
@@ -134,7 +134,7 @@ const ServicesSection = () => {
         <div className="row py-3">
           <div className="col text-center">
             <p className="custom-text-size-1 mb-3">
-              Want the full delivery model, case studies, trust framework, and FAQ?
+              Want the full delivery model, example use cases, trust framework, and FAQ?
             </p>
             <Link
               href="/ai-solutions"

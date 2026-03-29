@@ -53,7 +53,7 @@ export default function Footer() {
                 <Link href="/careers">Careers</Link>
               </li>
               <li>
-                <Link href="/contact">Book AI Discovery Call</Link>
+                <Link href="/contact">Contact Us</Link>
               </li>
             </ul>
           </div>

@@ -108,8 +108,8 @@ export default function ServicesSection() {
               turn business goals into measurable outcomes with full-stack execution.
             </p>
             <p className="custom-text-size-1 pb-2 mb-4">
-              We treat IT and cloud as the foundation, then build intelligent capabilities on top
-              so your operations can scale with confidence across frontend, backend, and database
+              We treat IT and cloud as the foundation, then build intelligent capabilities on top so
+              your operations can scale with confidence across frontend, backend, and database
               systems.
             </p>
             <p className="custom-text-size-1 pb-3 mb-4">
@@ -121,7 +121,7 @@ export default function ServicesSection() {
               href="/contact"
               className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
             >
-              BOOK A FULL-STACK AI CONSULTATION <i className="custom-arrow-icon ms-5" />
+              DISCUSS YOUR USE CASE <i className="custom-arrow-icon ms-5" />
             </a>
           </div>
         </div>
