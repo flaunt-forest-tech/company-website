@@ -12,9 +12,9 @@ const TRANSFORMATION_PATH = [
   },
   {
     stage: '02',
-    title: 'Intelligent Automation',
+    title: 'Agentic AI Workflows',
     description:
-      'Redesign critical workflows with automation and agentic logic to reduce manual effort and increase execution speed.',
+      'Redesign critical workflows with intelligent automation and agentic AI to reduce manual effort and increase execution speed.',
   },
   {
     stage: '03',
@@ -73,7 +73,7 @@ const ServicesSection = () => {
             </div>
             <div className="overflow-hidden mb-5">
               <h2 className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0">
-                AI-First Services Built for Business Outcomes
+                AI-First Services Built for Practical Business Impact
               </h2>
             </div>
             <p className="custom-text-size-1 text-center mb-4">
@@ -103,17 +103,17 @@ const ServicesSection = () => {
           <div className="col text-center">
             <div className="overflow-hidden mb-2">
               <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
-                WHY CLIENTS CHOOSE US
+                HOW WE WORK
               </span>
             </div>
             <div className="overflow-hidden mb-3">
               <h3 className="text-color-dark font-weight-bold text-7 line-height-2 mb-0">
-                Built For Companies That Want To Move First
+                Built For Teams That Need Clear Next Steps
               </h3>
             </div>
             <p className="custom-text-size-1 mb-0">
-              Home gives you the overview. AI Solutions shows the full model, trust framework,
-              and implementation detail.
+              Home gives you the high-level picture. AI Solutions goes deeper into use cases,
+              governance, and delivery structure.
             </p>
           </div>
         </div>
@@ -134,13 +134,13 @@ const ServicesSection = () => {
         <div className="row py-3">
           <div className="col text-center">
             <p className="custom-text-size-1 mb-3">
-              Want the full delivery model, case studies, trust framework, and FAQ?
+              Want the full delivery model, example use cases, trust framework, and FAQ?
             </p>
             <Link
               href="/ai-solutions"
               className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 me-2 mb-2"
             >
-              VIEW FULL AI SOLUTIONS PAGE <i className="custom-arrow-icon ms-2"></i>
+              EXPLORE AI SOLUTIONS <i className="custom-arrow-icon ms-2"></i>
             </Link>
           </div>
         </div>

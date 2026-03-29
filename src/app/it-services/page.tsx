@@ -10,8 +10,8 @@ import Link from 'next/link';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'TRANSFORMATION OVERVIEW',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Transformation Overview' }],
+    title: 'AI DELIVERY ROADMAP',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Delivery Roadmap' }],
   };
   return (
     <div className="body">
@@ -37,7 +37,7 @@ function ServicesSection() {
     {
       step: '2',
       title: '2. AUTOMATION ENGINEERING',
-      desc: 'Next, we transform workflows using intelligent automation and agentic systems so operations run faster with less manual overhead.',
+      desc: 'Next, we transform workflows using intelligent automation and agentic AI systems so operations run faster with less manual overhead.',
     },
     {
       step: '3',
@@ -66,12 +66,12 @@ function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                Transformation Roadmap for AI-Driven Growth
+                Delivery Roadmap for AI-Driven Growth
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We help organizations modernize existing platforms and build new websites and apps
-              from scratch, then scale with automation, AI agents, AI solutions, and modern
+              We help companies and teams modernize existing platforms and build new websites and
+              apps from scratch, then scale with agentic AI, intelligent automation, and modern
               infrastructure for long-term growth across frontend, backend, database, and
               AWS/GCP/Azure cloud environments.
             </p>

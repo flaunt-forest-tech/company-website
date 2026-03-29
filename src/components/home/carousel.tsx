@@ -46,7 +46,7 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              ENTERPRISE AI TRANSFORMATION, FROM STRATEGY TO EXECUTION
+              AI SOLUTIONS FOR GROWING AND ESTABLISHED COMPANIES
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
@@ -58,7 +58,7 @@ const Carousel: React.FC = () => {
               <strong className="text-color-light">Build new digital products</strong> with
               production-grade architecture.{' '}
               <strong className="text-color-light">Scale AI responsibly</strong> with governance
-              frameworks and industry expertise.
+              frameworks and industry-informed delivery.
             </p>
             <a
               href="/ai-solutions"
@@ -66,7 +66,7 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              PLAN YOUR AI + DIGITAL ROADMAP <i className="custom-arrow-icon ms-2"></i>
+              EXPLORE AI SOLUTIONS <i className="custom-arrow-icon ms-2"></i>
             </a>
             <a
               href="/contact"
@@ -74,7 +74,7 @@ const Carousel: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="850"
             >
-              BOOK AI DISCOVERY CALL <i className="custom-arrow-icon ms-2"></i>
+              START A CONVERSATION <i className="custom-arrow-icon ms-2"></i>
             </a>
           </div>
         </div>

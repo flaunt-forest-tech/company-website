@@ -44,16 +44,16 @@ export default function Footer() {
             <h4 className="ls-0">QUICK LINKS</h4>
             <ul className="list-unstyled">
               <li className="mb-1">
-                <Link href="/ai-solutions">AI Solutions Overview</Link>
+                <Link href="/ai-solutions">AI Solutions</Link>
               </li>
               <li className="mb-1">
-                <Link href="/it-services">Transformation Overview</Link>
+                <Link href="/it-services">AI Delivery Roadmap</Link>
               </li>
               <li className="mb-1">
                 <Link href="/careers">Careers</Link>
               </li>
               <li>
-                <Link href="/contact">Book AI Discovery Call</Link>
+                <Link href="/contact">Contact Us</Link>
               </li>
             </ul>
           </div>
@@ -82,18 +82,8 @@ export default function Footer() {
           </div>
 
           <div className="col-md-4 col-lg-2">
-            <h4 className="ls-0">SOCIAL MEDIA</h4>
+            <h4 className="ls-0">FOLLOW</h4>
             <ul className="social-icons social-icons-clean custom-social-icons-icon-light">
-              <li>
-                <a
-                  href="https://www.instagram.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Instagram profile"
-                >
-                  <i className="fab fa-instagram"></i>
-                </a>
-              </li>
               <li>
                 <a
                   href="https://x.com/flauntforest/"
@@ -102,16 +92,6 @@ export default function Footer() {
                   aria-label="Visit our X profile"
                 >
                   <i className="fab fa-x-twitter"></i>
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.facebook.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Facebook profile"
-                >
-                  <i className="fab fa-facebook-f"></i>
                 </a>
               </li>
             </ul>

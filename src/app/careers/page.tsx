@@ -27,9 +27,9 @@ const CareersPage: React.FC = () => {
 function TeamCultureSection() {
   const cultureValues = [
     {
-      title: 'Production-Grade Excellence',
+      title: 'Real Delivery Exposure',
       description:
-        'We build AI systems in production, not sandboxes. You will work on real enterprise deployments solving actual business problems at scale.',
+        'You will work on live builds, pilots, and production systems solving real business problems, not demo-only projects.',
     },
     {
       title: 'Continuous Learning',
@@ -37,9 +37,9 @@ function TeamCultureSection() {
         'Stay at the forefront of AI and full-stack engineering. Access to industry conferences, certifications, and internal technical seminars on LLMs, prompt engineering, and agentic systems.',
     },
     {
-      title: 'Vertical Industry Mastery',
+      title: 'Industry Exposure',
       description:
-        'Deep expertise in retail, manufacturing, financial services, and logistics. Work with domain experts to understand and solve industry-specific challenges.',
+        'Work across retail, manufacturing, financial services, and logistics use cases while learning how different industries adopt digital and AI systems.',
     },
     {
       title: 'Responsible AI by Default',
@@ -47,9 +47,9 @@ function TeamCultureSection() {
         'AI governance and ethical AI practices are not an afterthought. We architect responsible AI solutions with built-in guardrails and compliance.',
     },
     {
-      title: 'Career Acceleration',
+      title: 'Clear Growth Path',
       description:
-        'Engineer → Tech Lead → Architecture Partner pathway. Rapid growth for driven professionals. Lead delivery teams, mentor junior engineers, shape company direction.',
+        'Take on broader ownership as the team grows. Strong contributors can lead delivery work, mentor others, and help shape how we build.',
     },
     {
       title: 'Modern Tech Stack',
@@ -112,9 +112,9 @@ function CareersSection() {
             </div>
             <p className="custom-text-size-1 text-center mb-5">
               We are hiring engineers, designers, and product builders who want to work on modern
-              web platforms, AI agents, agentic workflows, and end-to-end enterprise AI delivery. If
-              you are ready to solve real business problems and grow with a high-execution team,
-              explore our open roles below.
+              web platforms, AI agents, agentic workflows, and end-to-end AI delivery. If you are
+              ready to solve real business problems and grow with an early-stage, high-execution
+              team, explore our open roles below.
             </p>
           </div>
         </div>

@@ -11,23 +11,23 @@ export const SERVICES = [
     detailsDescription: [
       'We help you identify, prioritize, and deploy AI use cases that directly improve revenue, cost efficiency, and execution speed.',
       'From internal copilots to customer-facing AI experiences, we integrate AI into your current stack and new digital products across frontend, backend, and database layers without disrupting operations.',
-      'The result is a practical AI roadmap, faster implementation, and stronger long-term returns from your technology investments.',
+      'The result is a practical AI roadmap, faster implementation, and a clearer path to long-term value from your technology investments.',
     ],
   },
   {
     icon: 'remove-monitor-access.svg',
-    title: 'AI Agents & Agentic AI',
+    title: 'Agentic AI Systems',
     description:
-      'Autonomous systems and dedicated support teams for workflows, enterprise tools, and operational decision-making across APIs and data systems.',
+      'Autonomous systems and dedicated support teams for workflows, business tools, and operational decision-making across APIs and data systems.',
     titleClass: 'text-color-dark',
     linkClass: 'text-color-primary',
     link: '/it-services/tech-support',
-    detailsTitle: 'Scale With Agentic AI Systems',
+    detailsTitle: 'Deploy Agentic AI Systems',
     detailsDescription: [
       'We build AI agents that can execute multi-step tasks, coordinate across tools, and support real-time decision workflows.',
       'By automating repetitive processes across operations, support, and back office functions, your teams gain speed and consistency at scale across full-stack systems.',
-      'We also provide software support teams for business-critical enterprise platforms across multiple industries.',
-      'Every agentic system is designed with governance, reliability, and business KPIs in mind so automation delivers trusted outcomes.',
+      'We also provide software support teams for business-critical platforms across multiple industries.',
+      'Every agentic system is designed with governance, reliability, and business KPIs in mind so automation delivers dependable operational value.',
     ],
   },
   {
@@ -37,12 +37,12 @@ export const SERVICES = [
     titleClass: 'text-color-primary',
     linkClass: 'text-color-dark',
     link: '/it-services/data-security',
-    detailsTitle: 'Build Decision Intelligence Across Your Organization',
+    detailsTitle: 'Build Decision Intelligence Across Your Business',
     detailsDescription: [
-      'We extract and unify data from commerce systems, operational tools, and enterprise platforms to create a reliable decision layer.',
+      'We extract and unify data from commerce systems, operational tools, and business platforms to create a reliable decision layer.',
       'We help businesses build data-driven systems that power smarter decisions, enable automation, and improve operational performance across frontend, backend, and database workflows.',
       'Your data foundation becomes the launchpad for AI adoption, intelligent workflows, and long-term growth.',
-      'This is how organizations move from analytics maturity to AI-native execution.',
+      'This is how teams move from analytics maturity to AI-native execution.',
     ],
   },
   {

@@ -11,22 +11,22 @@ const GetInTouchSection = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              Let’s Get in Touch
+              Let’s Talk
             </span>
             <h2
               className="text-color-light font-weight-extra-bold text-10 negative-ls-1 pe-3 mb-3 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              READY TO BUILD YOUR AI ADVANTAGE?
+              READY TO EXPLORE A PRACTICAL AI INITIATIVE?
             </h2>
             <p
               className="custom-font-secondary text-4 custom-text-color-light-3 mb-0 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Share your goals and we will map a practical path from data foundations to automation,
-              AI agents, and scalable AI execution.
+              Share your goals and constraints, and we will help map a practical next step across
+              data foundations, intelligent automation, agentic AI systems, and delivery.
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">
@@ -37,7 +37,7 @@ const GetInTouchSection = () => {
                 data-appear-animation="maskRight"
                 data-appear-animation-delay="900"
               >
-                BOOK AI DISCOVERY CALL <i className="custom-arrow-icon ms-2" />
+                TALK THROUGH YOUR USE CASE <i className="custom-arrow-icon ms-2" />
               </Link>
             </div>
           </div>
