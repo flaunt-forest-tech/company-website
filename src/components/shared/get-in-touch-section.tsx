@@ -26,7 +26,7 @@ const GetInTouchSection = () => {
               data-appear-animation-delay="700"
             >
               Share your goals and constraints, and we will help map a practical next step across
-              data foundations, automation, AI agents, and delivery.
+              data foundations, intelligent automation, agentic AI systems, and delivery.
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">
@@ -37,7 +37,7 @@ const GetInTouchSection = () => {
                 data-appear-animation="maskRight"
                 data-appear-animation-delay="900"
               >
-                START THE CONVERSATION <i className="custom-arrow-icon ms-2" />
+                TALK THROUGH YOUR USE CASE <i className="custom-arrow-icon ms-2" />
               </Link>
             </div>
           </div>

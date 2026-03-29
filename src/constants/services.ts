@@ -16,13 +16,13 @@ export const SERVICES = [
   },
   {
     icon: 'remove-monitor-access.svg',
-    title: 'AI Agents & Agentic AI',
+    title: 'Agentic AI Systems',
     description:
       'Autonomous systems and dedicated support teams for workflows, business tools, and operational decision-making across APIs and data systems.',
     titleClass: 'text-color-dark',
     linkClass: 'text-color-primary',
     link: '/it-services/tech-support',
-    detailsTitle: 'Scale With Agentic AI Systems',
+    detailsTitle: 'Deploy Agentic AI Systems',
     detailsDescription: [
       'We build AI agents that can execute multi-step tasks, coordinate across tools, and support real-time decision workflows.',
       'By automating repetitive processes across operations, support, and back office functions, your teams gain speed and consistency at scale across full-stack systems.',

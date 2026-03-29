@@ -64,12 +64,12 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                           <ul className="dropdown-menu">
                             <li>
                               <Link className="nav-link" href="/ai-solutions">
-                                AI Solutions Overview
+                                AI Solutions
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services">
-                                Transformation Overview
+                                AI Delivery Roadmap
                               </Link>
                             </li>
                             <li>
@@ -79,7 +79,7 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/tech-support">
-                                AI Agents &amp; Agentic AI
+                                Agentic AI Systems
                               </Link>
                             </li>
                             <li>

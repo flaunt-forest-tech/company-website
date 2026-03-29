@@ -458,34 +458,6 @@ export default function AISolutionsPage() {
           </div>
         </section>
 
-        <section className="section bg-color-transparent border-0 mt-0 mb-0 pt-2 pb-4">
-          <div className="container container-xl-custom">
-            <div className="row justify-content-center">
-              <div className="col-lg-10 text-center">
-                <h3 className="text-color-dark font-weight-bold text-6 line-height-2 mb-3">
-                  Ready To Explore Your Next AI Initiative?
-                </h3>
-                <p className="custom-text-size-1 mb-4">
-                  Tell us your goals and constraints. We will help outline practical next steps your
-                  team can execute across product, engineering, and cloud.
-                </p>
-                <Link
-                  href="/contact"
-                  className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
-                >
-                  DISCUSS YOUR USE CASE <i className="custom-arrow-icon ms-2"></i>
-                </Link>
-                <Link
-                  href="/contact"
-                  className="btn btn-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 ms-2 mt-2 mt-sm-0"
-                >
-                  START THE CONVERSATION <i className="custom-arrow-icon ms-2"></i>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <GetInTouchSection />
       </div>
       <Footer />

@@ -10,7 +10,7 @@ const SERVICE_USE_CASES: Record<string, string[]> = {
     'AI features embedded into full-stack web and app products across frontend, backend, and database layers.',
     'Predictive models for demand, churn, and revenue optimization across business-critical systems.',
   ],
-  'AI Agents & Agentic AI': [
+  'Agentic AI Systems': [
     'Autonomous agents handling multi-step internal workflows end-to-end.',
     'Cross-tool orchestration for support, operations, and back-office execution across API and database workflows.',
     'Decision automation with human-in-the-loop governance controls.',

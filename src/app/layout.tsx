@@ -17,9 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Flaunt Forest Tech | AI Solutions, Agentic AI, Data & Web3.0',
+  title: 'Flaunt Forest Tech | Agentic AI, Automation & Cloud Delivery',
   description:
-    'AI-first technology partner delivering AI solutions, AI agents, agentic AI, full-stack website and app development (frontend, backend, database), AWS/GCP/Azure cloud infrastructure, Data & Analytics, and Web3.0 systems for growing teams, private companies, established businesses, and selected larger organizations.',
+    'Houston-based technology partner delivering agentic AI systems, intelligent automation, full-stack product development, data foundations, and AWS/GCP/Azure cloud delivery for growing teams, private companies, established businesses, and selected larger organizations.',
 };
 
 export default function RootLayout({

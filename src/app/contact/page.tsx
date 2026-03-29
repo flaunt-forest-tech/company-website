@@ -224,7 +224,7 @@ function ContactSection() {
               data-appear-animation-delay="700"
             >
               Tell us about your current systems, priorities, and constraints. We can help with
-              existing platform upgrades, new website and app development, AI agents,
+              existing platform upgrades, new website and app development, agentic AI systems,
               business-critical platform support, cross-system data integration, full-stack delivery
               (frontend, backend, database), and AI implementation on AWS, GCP, Azure, or hybrid
               cloud.

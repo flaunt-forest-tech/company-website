@@ -48,7 +48,7 @@ const ITServicesOverview: React.FC = () => {
                   <Image
                     src="/img/generic-2.jpg"
                     className="card-img-top rounded-0 img-fluid"
-                    alt="Agentic Automation"
+                    alt="Agentic AI Systems"
                     width={600}
                     height={400}
                     style={{ width: '100%', height: 'auto' }}
@@ -56,11 +56,11 @@ const ITServicesOverview: React.FC = () => {
                   />
                   <div className="card-body pt-4">
                     <h4 className="custom-heading-bar custom-heading-bar-right font-weight-bold text-color-dark text-end text-5">
-                      AGENTIC AUTOMATION
+                      AGENTIC AI SYSTEMS
                     </h4>
                     <p className="text-end custom-font-secondary text-4 ps-4 ms-3 mb-3">
-                      We build AI agents that automate workflows, support decision-making, and keep
-                      critical operations moving without bottlenecks.
+                      We build agentic AI systems that automate workflows, support decision-making,
+                      and keep critical operations moving without bottlenecks.
                     </p>
                   </div>
                 </div>
@@ -89,19 +89,17 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We build digital products and AI systems
+              We help teams turn operations into AI-enabled systems
             </h2>
             <p
               className="custom-text-size-1 pb-3 mb-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Founded in 2025 and headquartered in Houston, Texas, we are an emerging AI solutions
-              provider focused on Agentic AI, intelligent automation, and cloud integration. We help
-              businesses upgrade existing systems into AI-driven workflows through a pragmatic,
-              innovative, and responsible approach. While we are a young company, our team brings
-              substantial hands-on experience, works with the latest technologies, and applies
-              strong governance best practices from day one.
+              Founded in 2025 and headquartered in Houston, Texas, we help companies modernize
+              existing systems with agentic AI, intelligent automation, and cloud delivery. Our
+              approach is pragmatic, hands-on, and built to improve execution without adding
+              unnecessary complexity.
             </p>
             <Link
               href="/about-us"
@@ -109,7 +107,7 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1300"
             >
-              Find Out More <i className="custom-arrow-icon ms-2"></i>
+              Learn How We Work <i className="custom-arrow-icon ms-2"></i>
             </Link>
           </div>
         </div>
