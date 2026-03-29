@@ -24,6 +24,69 @@ const CareersPage: React.FC = () => {
   );
 };
 
+function TeamCultureSection() {
+  const cultureValues = [
+    {
+      title: 'Production-Grade Excellence',
+      description:
+        'We build AI systems in production, not sandboxes. You will work on real enterprise deployments solving actual business problems at scale.',
+    },
+    {
+      title: 'Continuous Learning',
+      description:
+        'Stay at the forefront of AI and full-stack engineering. Access to industry conferences, certifications, and internal technical seminars on LLMs, prompt engineering, and agentic systems.',
+    },
+    {
+      title: 'Vertical Industry Mastery',
+      description:
+        'Deep expertise in retail, manufacturing, financial services, and logistics. Work with domain experts to understand and solve industry-specific challenges.',
+    },
+    {
+      title: 'Responsible AI by Default',
+      description:
+        'AI governance and ethical AI practices are not an afterthought. We architect responsible AI solutions with built-in guardrails and compliance.',
+    },
+    {
+      title: 'Career Acceleration',
+      description:
+        'Engineer → Tech Lead → Architecture Partner pathway. Rapid growth for driven professionals. Lead delivery teams, mentor junior engineers, shape company direction.',
+    },
+    {
+      title: 'Modern Tech Stack',
+      description:
+        'Work with cutting-edge tools: TypeScript, Next.js, Python, LLMs, Multi-Agent Systems, AWS/GCP/Azure, LangChain, RAG systems, and modern DevOps practices.',
+    },
+  ];
+
+  return (
+    <section className="section bg-color-transparent border-0 mt-0 mb-0 pt-0">
+      <div className="container container-xl-custom">
+        <div className="row justify-content-center mb-5">
+          <div className="col-lg-10 text-center">
+            <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-2">
+              WHY JOIN FLAUNT FOREST TECH
+            </span>
+            <h3 className="text-color-dark font-weight-bold text-7 line-height-2 mb-0">
+              Work on Problems That Matter, With People Who Care
+            </h3>
+          </div>
+        </div>
+
+        <div className="row row-gutter-sm pb-5">
+          {cultureValues.map((value, idx) => (
+            <div key={idx} className="col-md-6 col-lg-4 mb-4">
+              <div className="card border-0 custom-box-shadow-1 h-100 p-4">
+                <h4 className="font-weight-bold text-color-dark text-5 mb-3">{value.title}</h4>
+                <p className="custom-text-size-1 text-color-grey mb-0">{value.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CareersSection() {
   return (
     <section
@@ -49,14 +112,16 @@ function CareersSection() {
             </div>
             <p className="custom-text-size-1 text-center mb-5">
               We are hiring engineers, designers, and product builders who want to work on modern
-              web platforms, AI agents, agentic workflows, and end-to-end enterprise AI delivery.
-              If you are ready to solve real business problems and grow with a high-execution team,
+              web platforms, AI agents, agentic workflows, and end-to-end enterprise AI delivery. If
+              you are ready to solve real business problems and grow with a high-execution team,
               explore our open roles below.
             </p>
           </div>
         </div>
 
-        <div className="row justify-content-center">
+        <TeamCultureSection />
+
+        <div className="row justify-content-center mt-3 pt-1">
           <div className="col-md-10 col-lg-9 col-xl-8">
             <div className="accordion accordion-modern without-bg" id="accordion11">
               {JOBS.map((job) => (

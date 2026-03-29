@@ -84,8 +84,8 @@ function WhoWeAreSection() {
             >
               From new website and app development to AI-enhanced product upgrades, from enterprise
               software support across complex environments to cross-platform data integration, AI
-              agents, and agentic automation, we help businesses move from traditional operations
-              to intelligent execution.
+              agents, and agentic automation, we help businesses move from traditional operations to
+              intelligent execution.
             </p>
           </div>
 
@@ -315,12 +315,17 @@ function OurMission() {
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR MISSION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
                 Our mission is to modernize real businesses by combining proven IT delivery with
-                practical AI execution.
+                practical AI execution, governance, and vertical industry expertise.
               </p>
               <ul className="custom-text-size-1 ps-3 mb-0">
-                <li className="pb-2">Upgrade websites and apps with AI-powered capabilities</li>
                 <li className="pb-2">
-                  Support enterprise software operations across diverse systems
+                  Upgrade websites and apps with AI-powered capabilities and responsible governance
+                </li>
+                <li className="pb-2">
+                  Support enterprise software operations with deep vertical industry knowledge
+                </li>
+                <li className="pb-2">
+                  Engineer high-performance prompts and AI solutions for your domain
                 </li>
                 <li>Turn operational data into intelligent decisions and growth</li>
               </ul>
@@ -346,15 +351,18 @@ function OurMission() {
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR VISION</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
                 To become the trusted AI-first transformation partner for ambitious organizations,
-                turning data into intelligence and intelligence into measurable business growth.
+                turning data into intelligence with responsible AI governance and industry-leading
+                expertise.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We envision a future where data systems, automation, and AI are deeply integrated
-                into daily operations, helping teams decide faster and execute with precision.
+                We envision a future where data systems, automation, prompt-engineered AI, and
+                responsible governance are deeply integrated into daily operations, helping teams
+                decide faster and execute with precision across vertical industries.
               </p>
               <p className="custom-text-size-1 mb-0">
                 Our focus is to help businesses move from traditional systems to AI-native
-                organizations with sustainable, high-impact innovation.
+                organizations with sustainable, high-impact innovation grounded in vertical industry
+                expertise.
               </p>
             </div>
           </div>
@@ -377,12 +385,13 @@ function OurMission() {
               />
               <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR CAREERS</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Join our team to help build the future of AI-first business transformation through
-                data, automation, and intelligent systems.
+                Join our team to build the future of AI-first business transformation through prompt
+                engineering, AI governance, and deep vertical industry expertise.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We offer an environment where your expertise in analytics, AI, cloud, and product
-                engineering can create real impact for clients in the digital era.
+                We seek passionate engineers, AI specialists, and data architects who can architect
+                responsible AI solutions, craft powerful prompts, and bring domain expertise to
+                transform industries.
               </p>
               <Link
                 href="/careers"

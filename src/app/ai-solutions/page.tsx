@@ -7,9 +7,9 @@ import Link from 'next/link';
 
 const CAPABILITIES = [
   {
-    title: 'Modernize Existing Platforms',
+    title: 'Modernize Existing Platforms with AI',
     description:
-      'Upgrade your current website, app, and internal systems with practical AI features, automation, and analytics.',
+      'Upgrade your current website, app, and internal systems with practical AI features, automation, AI governance frameworks, and analytics.',
   },
   {
     title: 'Build New Web & App Products',
@@ -24,12 +24,17 @@ const CAPABILITIES = [
   {
     title: 'Deploy AI Agents & Agentic Workflows',
     description:
-      'Design autonomous, multi-step systems that coordinate tools, execute tasks, and improve operational speed.',
+      'Design autonomous, multi-step systems that coordinate tools, execute tasks, and improve operational speed with governance-by-design.',
   },
   {
-    title: 'Deliver End-to-End AI Solutions',
+    title: 'Prompt Engineering & AI Strategy',
     description:
-      'From data strategy and integration to implementation and optimization, we deliver full AI execution, not just prototypes.',
+      'Develop high-performance prompts, fine-tune models for your domain, and build AI strategies aligned with your business goals and vertical industry needs.',
+  },
+  {
+    title: 'Vertical Industry Expertise',
+    description:
+      'Leverage deep expertise in retail, manufacturing, services, and enterprise operations to deliver solutions tailored to your industrys unique challenges and opportunities.',
   },
 ];
 
@@ -56,16 +61,46 @@ const DELIVERY_MODEL = [
 
 const OUTCOME_CASES = [
   {
-    title: 'Operations Automation Program',
-    result: 'Reduced manual workflow effort by 37% in 10 weeks.',
+    industry: 'Retail & Commerce',
+    title: 'Inventory Optimization & Sales Forecasting',
+    result:
+      'Reduced inventory carrying costs by 31% and improved forecast accuracy to 94% with AI demand prediction model.',
+    tech: 'Python, TensorFlow, AWS SageMaker',
   },
   {
-    title: 'AI Customer Support Upgrade',
-    result: 'Improved first-response time by 46% and increased CSAT by 18%.',
+    industry: 'Manufacturing',
+    title: 'Predictive Maintenance System',
+    result:
+      'Reduced unplanned downtime by 45% and maintenance costs by 28% with real-time equipment monitoring and failure prediction.',
+    tech: 'IoT, ML Pipelines, Apache Spark, AWS Lambda',
   },
   {
-    title: 'Full-Stack Product Launch',
-    result: 'Delivered MVP in 7 weeks across frontend, backend, and database.',
+    industry: 'Financial Services',
+    title: 'Regulatory Compliance Automation',
+    result:
+      'Cut compliance review time from 3 weeks to 2 days using AI-powered document analysis and risk classification.',
+    tech: 'NLP, LLM Fine-tuning, Vector DB, GCP Vertex AI',
+  },
+  {
+    industry: 'Enterprise Operations',
+    title: 'Agentic Workflow Automation',
+    result:
+      'Automated 65% of invoice processing and expense approval workflows, reducing manual effort from 40 hours/week to 8 hours/week.',
+    tech: 'Multi-Agent Systems, LangChain, Document AI, Cloud Run',
+  },
+  {
+    industry: 'SaaS / Tech',
+    title: 'AI-Powered Customer Support Platform',
+    result:
+      'Improved first-response time by 78% and customer satisfaction score by 23 points with AI copilot and agentic workflows.',
+    tech: 'Next.js, TypeScript, OpenAI API, Embeddings, Pinecone',
+  },
+  {
+    industry: 'Logistics & Supply Chain',
+    title: 'Route Optimization & Demand Prediction',
+    result:
+      'Optimized delivery routes using AI models to reduce logistics costs and improve delivery time predictability across regional networks.',
+    tech: 'Route Optimization APIs, ML Pipelines, AWS SageMaker, Python',
   },
 ];
 
@@ -79,8 +114,10 @@ const FULL_STACK_SCOPE = [
 const TRUST_FOUNDATIONS = [
   'Security-by-Design delivery model',
   'RBAC and role-based access control',
+  'AI governance frameworks and guardrails',
   'Audit logs and operational traceability',
   'Data governance for AI and analytics workflows',
+  'Responsible AI practices and compliance',
 ];
 
 const IDEAL_CLIENTS = [
@@ -217,7 +254,9 @@ export default function AISolutionsPage() {
                 <span className="badge bg-color-dark text-color-light px-4 py-2 text-2">AZURE</span>
               </div>
               <div className="col-auto mb-2">
-                <span className="badge bg-color-dark text-color-light px-4 py-2 text-2">HYBRID CLOUD</span>
+                <span className="badge bg-color-dark text-color-light px-4 py-2 text-2">
+                  HYBRID CLOUD
+                </span>
               </div>
             </div>
           </div>
@@ -263,11 +302,18 @@ export default function AISolutionsPage() {
             </div>
             <div className="row pb-2">
               {OUTCOME_CASES.map((item) => (
-                <div key={item.title} className="col-md-6 col-lg-4 mb-4">
+                <div key={item.title} className="col-md-6 col-lg-6 mb-4">
                   <div className="card border-0 custom-box-shadow-1 h-100">
                     <div className="card-body p-4">
+                      <span className="badge bg-light text-primary font-weight-bold text-3 mb-3 p-2">
+                        {item.industry}
+                      </span>
                       <h4 className="font-weight-bold text-5 mb-3">{item.title}</h4>
-                      <p className="custom-text-size-1 mb-0">{item.result}</p>
+                      <p className="custom-text-size-1 mb-3">{item.result}</p>
+                      <hr className="my-3" />
+                      <p className="custom-text-size-1 text-color-grey mb-0">
+                        <strong>Tech Stack:</strong> {item.tech}
+                      </p>
                     </div>
                   </div>
                 </div>
