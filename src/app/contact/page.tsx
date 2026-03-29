@@ -17,6 +17,7 @@ export type ContactFormInputs = {
   inquiryType: string;
   subject: string;
   message: string;
+  honeypot?: string;
 };
 
 export default function ContactPage() {
@@ -183,7 +184,7 @@ function ContactSection() {
       setStatus('success');
     } else {
       setStatus('error');
-      console.error('Error sending email:', response.error);
+      console.error('Form submission error');
     }
   };
 
@@ -223,10 +224,9 @@ function ContactSection() {
               data-appear-animation-delay="700"
             >
               Tell us about your current systems and goals. We can help with existing platform
-              upgrades,
-              new website and app development, AI agents, enterprise platform support,
-              cross-system data integration, full-stack delivery (frontend, backend, database),
-              and end-to-end AI implementation on AWS, GCP, Azure, or hybrid cloud.
+              upgrades, new website and app development, AI agents, enterprise platform support,
+              cross-system data integration, full-stack delivery (frontend, backend, database), and
+              end-to-end AI implementation on AWS, GCP, Azure, or hybrid cloud.
             </p>
           </div>
         </div>
@@ -374,6 +374,16 @@ function ContactSection() {
                   ></textarea>
                 </div>
               </div>
+
+              {/* Honeypot field - hidden from real users */}
+              <input
+                type="text"
+                {...register('honeypot')}
+                style={{ display: 'none' }}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+              />
 
               <div className="row">
                 <div className="form-group col mb-0">
