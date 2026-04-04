@@ -304,7 +304,8 @@ export default async function AdminDashboardPage() {
       : pipelineReadinessScore >= 60
         ? 'Growing'
         : 'Setup phase';
-  const alertInbox = process.env.CONTACT_TO_EMAIL || 'flauntforesttech@gmail.com';
+  const alertInbox =
+    process.env.LEAD_ALERT_TO_EMAIL || process.env.CONTACT_TO_EMAIL || 'flauntforesttech@gmail.com';
   const alertChannelStatus = process.env.LEAD_ALERT_WEBHOOK_URL ? 'Email + webhook' : alertInbox;
   const todayConversionRate =
     today.totalViews > 0 ? ((today.contactSubmissions / today.totalViews) * 100).toFixed(1) : '0.0';

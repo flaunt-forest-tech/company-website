@@ -11,7 +11,8 @@ import { ContactFormInputs } from '../contact/page';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const emailFrom = process.env.RESEND_FROM_EMAIL || 'Acme <onboarding@resend.dev>';
-const emailTo = process.env.CONTACT_TO_EMAIL || 'flauntforesttech@gmail.com';
+const contactEmailTo = process.env.CONTACT_TO_EMAIL || 'sales@flauntforest.com';
+const leadAlertEmailTo = process.env.LEAD_ALERT_TO_EMAIL || 'flauntforesttech@gmail.com';
 
 // In-memory fallback when Redis is not configured.
 const requestLog = new Map<string, number[]>();
@@ -320,9 +321,11 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
   `;
 
   try {
+    const recipients = Array.from(new Set([contactEmailTo, leadAlertEmailTo]));
+
     const data = await resend.emails.send({
       from: emailFrom,
-      to: [emailTo],
+      to: recipients,
       replyTo: senderEmail,
       subject: subject,
       html,
