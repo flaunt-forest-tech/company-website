@@ -271,6 +271,10 @@ function renderInfoTip(text: string) {
   );
 }
 
+function sumLabelValues(items: AnalyticsLabelStat[]): number {
+  return items.reduce((sum, item) => sum + item.value, 0);
+}
+
 export default async function AdminDashboardPage() {
   await requireAdminAccess();
 
@@ -311,6 +315,88 @@ export default async function AdminDashboardPage() {
     today.totalViews > 0 ? ((today.contactSubmissions / today.totalViews) * 100).toFixed(1) : '0.0';
   const chartPoints = getChartPoints(snapshot.recentDays);
   const pieSlices = getPieSlices(snapshot.topSourcesLast14Days);
+  const totalCtaClicks = sumLabelValues(snapshot.topCtaClicksLast14Days);
+  const contactPageViews =
+    snapshot.topPagesLast14Days.find((page) => page.path === '/contact')?.views ?? 0;
+  const likelyAccounts = snapshot.companyBreakdownLast14Days.slice(0, 5).map((company, index) => {
+    const score = Math.min(
+      96,
+      48 +
+        company.value * 10 +
+        (index === 0 ? 10 : 0) +
+        (snapshot.contactSubmissionsLast14Days > 0 ? 8 : 0)
+    );
+    const status = score >= 80 ? 'Hot' : score >= 65 ? 'Warm' : 'New';
+
+    return {
+      name: company.label,
+      signalCount: company.value,
+      status,
+      score,
+      region: snapshot.locationBreakdownLast14Days[index]?.label ?? topLocation,
+      page:
+        snapshot.topLeadPagesLast14Days[index]?.label ??
+        snapshot.topPagesLast14Days[index]?.path ??
+        '/',
+    };
+  });
+  const sourceComparison = snapshot.topSourcesLast14Days.slice(0, 5).map((source) => {
+    const trafficShare = total14DayViews > 0 ? (source.value / total14DayViews) * 100 : 0;
+    const estimatedLeads = (source.value * snapshot.conversionRateLast14Days) / 100;
+    const priority =
+      estimatedLeads >= 3 || trafficShare >= 20 ? 'Scale' : estimatedLeads >= 1 ? 'Watch' : 'Test';
+
+    return {
+      ...source,
+      trafficShare,
+      estimatedLeads,
+      priority,
+    };
+  });
+  const funnelSteps = [
+    {
+      label: 'All visits',
+      value: total14DayViews,
+      helper: 'People who reached the site',
+    },
+    {
+      label: 'CTA clicks',
+      value: totalCtaClicks,
+      helper: 'Visitors who clicked a tracked action',
+    },
+    {
+      label: 'Contact page',
+      value: contactPageViews,
+      helper: 'Visits to the contact page',
+    },
+    {
+      label: 'Leads captured',
+      value: snapshot.contactSubmissionsLast14Days,
+      helper: 'Successful contact submissions',
+    },
+  ];
+  const highIntentSignals = [
+    {
+      label: 'Best company signal',
+      value: topCompanySignal,
+      note: 'Good target for follow-up',
+    },
+    {
+      label: 'Best converting page',
+      value: topLeadPage,
+      note: 'Where form intent is strongest',
+    },
+    {
+      label: 'Campaign to push',
+      value: topCampaign,
+      note: 'Most promising tagged traffic',
+    },
+    {
+      label: 'Fastest next step',
+      value: `Email ${alertInbox}`,
+      note: 'Check the inbox for new leads',
+    },
+  ];
 
   return (
     <div style={pageStyle}>
@@ -463,6 +549,55 @@ export default async function AdminDashboardPage() {
             </section>
           ))}
         </div>
+
+        <section style={{ ...cardStyle, marginBottom: '18px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginBottom: '14px',
+            }}
+          >
+            <div>
+              <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>
+                High-intent queue
+              </p>
+              <h2 style={{ margin: 0, fontSize: '24px' }}>Who deserves follow-up first</h2>
+            </div>
+            <div style={{ color: '#7dd3fc', fontWeight: 700 }}>
+              {likelyAccounts.filter((account) => account.status === 'Hot').length} hot account
+              signals
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '12px',
+            }}
+          >
+            {highIntentSignals.map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  borderRadius: '14px',
+                  padding: '14px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '8px' }}>
+                  {item.label}
+                </div>
+                <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>{item.value}</strong>
+                <div style={{ color: '#7dd3fc', marginTop: '8px' }}>{item.note}</div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <div
           style={{
@@ -760,6 +895,139 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
+            gridTemplateColumns: '1.1fr 1fr',
+            gap: '16px',
+            marginBottom: '18px',
+          }}
+        >
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Acquisition funnel</p>
+              {renderInfoTip(
+                'This turns your traffic into a simple pipeline view: visit → click → contact → lead.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Where the drop-off happens</h2>
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {funnelSteps.map((step, index) => {
+                const previousValue = funnelSteps[index - 1]?.value ?? step.value;
+                const stepRate = previousValue > 0 ? (step.value / previousValue) * 100 : 100;
+
+                return (
+                  <div key={step.label}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        alignItems: 'center',
+                        marginBottom: '6px',
+                      }}
+                    >
+                      <div>
+                        <div style={{ color: '#dbe7fb', fontWeight: 700 }}>{step.label}</div>
+                        <div style={{ color: '#93a8c9', fontSize: '13px' }}>{step.helper}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ color: '#8fb6ff', fontWeight: 800 }}>
+                          {formatCompactNumber(step.value)}
+                        </div>
+                        <div style={{ color: '#93a8c9', fontSize: '12px' }}>
+                          {stepRate.toFixed(0)}%
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        height: '10px',
+                        borderRadius: '999px',
+                        background: 'rgba(30, 41, 59, 0.9)',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${Math.max(stepRate, 10)}%`,
+                          height: '100%',
+                          borderRadius: '999px',
+                          background: `linear-gradient(90deg, ${chartColors[index % chartColors.length]}, #93c5fd)`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Channel comparison</p>
+              {renderInfoTip(
+                'Priority is based on traffic share and your current lead conversion rate, so you can decide where to push harder.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Which channels deserve more budget</h2>
+            {sourceComparison.length === 0 ? (
+              <p style={{ margin: 0, color: '#9fb0cd' }}>
+                Channel performance will appear after more tracked visits.
+              </p>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#dbe7fb' }}>
+                  <thead>
+                    <tr style={{ color: '#93a8c9', textAlign: 'left' }}>
+                      <th style={{ padding: '0 0 10px' }}>Channel</th>
+                      <th style={{ padding: '0 0 10px' }}>Visits</th>
+                      <th style={{ padding: '0 0 10px' }}>Share</th>
+                      <th style={{ padding: '0 0 10px' }}>Lead potential</th>
+                      <th style={{ padding: '0 0 10px' }}>Priority</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sourceComparison.map((row) => (
+                      <tr key={row.label} style={{ borderTop: '1px solid rgba(148,163,184,0.08)' }}>
+                        <td style={{ padding: '10px 0', fontWeight: 700 }}>{row.label}</td>
+                        <td style={{ padding: '10px 0' }}>{row.value}</td>
+                        <td style={{ padding: '10px 0' }}>{row.trafficShare.toFixed(0)}%</td>
+                        <td style={{ padding: '10px 0' }}>{row.estimatedLeads.toFixed(1)}</td>
+                        <td style={{ padding: '10px 0' }}>
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              padding: '4px 8px',
+                              borderRadius: '999px',
+                              background:
+                                row.priority === 'Scale'
+                                  ? 'rgba(52,211,153,0.12)'
+                                  : row.priority === 'Watch'
+                                    ? 'rgba(96,165,250,0.12)'
+                                    : 'rgba(245,158,11,0.12)',
+                              color:
+                                row.priority === 'Scale'
+                                  ? '#86efac'
+                                  : row.priority === 'Watch'
+                                    ? '#93c5fd'
+                                    : '#fcd34d',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                            }}
+                          >
+                            {row.priority}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: '16px',
             marginBottom: '18px',
@@ -1014,6 +1282,144 @@ export default async function AdminDashboardPage() {
                   <span style={{ color: '#dbe7fb', lineHeight: 1.6 }}>{item}</span>
                 </div>
               ))}
+            </div>
+          </section>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1.1fr 1fr',
+            gap: '16px',
+            marginBottom: '18px',
+          }}
+        >
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Potential customers</p>
+              {renderInfoTip(
+                'These are likely accounts inferred from company signals, business email domains, and repeated interest patterns.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Likely accounts to follow up</h2>
+            {likelyAccounts.length === 0 ? (
+              <p style={{ margin: 0, color: '#9fb0cd' }}>
+                Once business traffic or company-backed leads appear, the watchlist will populate
+                here.
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gap: '10px' }}>
+                {likelyAccounts.map((account) => (
+                  <div
+                    key={account.name}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1.2fr auto',
+                      gap: '12px',
+                      alignItems: 'center',
+                      padding: '12px',
+                      borderRadius: '14px',
+                      background: 'rgba(12, 22, 40, 0.9)',
+                      border: '1px solid rgba(148,163,184,0.08)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700, wordBreak: 'break-word' }}>
+                        {account.name}
+                      </div>
+                      <div style={{ color: '#93a8c9', fontSize: '13px', marginTop: '4px' }}>
+                        {account.region} · {account.page} · {account.signalCount} signal
+                        {account.signalCount === 1 ? '' : 's'}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ color: '#8fb6ff', fontWeight: 800 }}>{account.score}/100</div>
+                      <div
+                        style={{
+                          display: 'inline-block',
+                          marginTop: '4px',
+                          padding: '4px 8px',
+                          borderRadius: '999px',
+                          background:
+                            account.status === 'Hot'
+                              ? 'rgba(52,211,153,0.12)'
+                              : account.status === 'Warm'
+                                ? 'rgba(96,165,250,0.12)'
+                                : 'rgba(148,163,184,0.12)',
+                          color:
+                            account.status === 'Hot'
+                              ? '#86efac'
+                              : account.status === 'Warm'
+                                ? '#93c5fd'
+                                : '#cbd5e1',
+                          fontSize: '12px',
+                          fontWeight: 700,
+                        }}
+                      >
+                        {account.status}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Lead timeline</p>
+              {renderInfoTip(
+                'A quick read on the last few days of lead activity, best source signals, and where follow-up attention should go.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Recent lead timeline</h2>
+            <div style={{ display: 'grid', gap: '10px' }}>
+              {snapshot.recentDays
+                .slice(-7)
+                .reverse()
+                .map((day) => (
+                  <div
+                    key={day.date}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'auto 1fr auto',
+                      gap: '12px',
+                      alignItems: 'start',
+                      padding: '12px',
+                      borderRadius: '14px',
+                      background: 'rgba(12, 22, 40, 0.9)',
+                      border: '1px solid rgba(148,163,184,0.08)',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: '10px',
+                        height: '10px',
+                        marginTop: '6px',
+                        borderRadius: '50%',
+                        background: day.contactSubmissions > 0 ? '#34d399' : '#60a5fa',
+                      }}
+                    />
+                    <div>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700 }}>
+                        {formatDate(day.date)}
+                      </div>
+                      <div style={{ color: '#93a8c9', fontSize: '13px', lineHeight: 1.6 }}>
+                        {day.contactSubmissions > 0
+                          ? `${day.contactSubmissions} lead(s) captured from ${day.sources[0]?.label ?? 'Direct'} traffic.`
+                          : `${day.totalViews} visits and ${day.ctaClicks[0]?.value ?? 0} CTA signal(s) from ${day.sources[0]?.label ?? 'Direct'}.`}
+                      </div>
+                      <div style={{ color: '#7dd3fc', fontSize: '13px', marginTop: '4px' }}>
+                        {day.companies[0]?.label ??
+                          day.inquiryTypes[0]?.label ??
+                          'No explicit company signal yet'}
+                      </div>
+                    </div>
+                    <div style={{ color: '#8fb6ff', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      {day.contactSubmissions > 0 ? 'Follow up' : 'Nurture'}
+                    </div>
+                  </div>
+                ))}
             </div>
           </section>
         </div>
