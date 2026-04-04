@@ -508,10 +508,18 @@ export default async function AdminDashboardPage() {
                 />
                 Internal analytics dashboard
               </div>
-              <h1 style={{ margin: '0 0 8px', fontSize: '38px', lineHeight: 1.1 }}>
+              <h1
+                style={{
+                  margin: '0 0 8px',
+                  fontSize: '38px',
+                  lineHeight: 1.1,
+                  color: '#f8fbff',
+                  textShadow: '0 1px 2px rgba(2, 6, 23, 0.35)',
+                }}
+              >
                 Company traffic cockpit
               </h1>
-              <p style={{ margin: 0, color: '#a9bbdb', lineHeight: 1.7 }}>
+              <p style={{ margin: 0, color: '#d9e6fb', lineHeight: 1.7 }}>
                 Signed in as <strong>{getAdminUsername()}</strong> · Updated{' '}
                 {formatDateTime(snapshot.generatedAt)}
               </p>
@@ -638,7 +646,7 @@ export default async function AdminDashboardPage() {
           >
             <div>
               <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Lead board</p>
-              <h2 style={{ margin: 0, fontSize: '24px' }}>Priority follow-up</h2>
+              <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>Priority follow-up</h2>
             </div>
             <div style={{ color: '#7dd3fc', fontWeight: 700 }}>
               {likelyAccounts.filter((account) => account.status === 'Hot').length} hot account
@@ -697,7 +705,7 @@ export default async function AdminDashboardPage() {
                 <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>
                   Traffic trend
                 </p>
-                <h2 style={{ margin: 0, fontSize: '24px' }}>Last 14 days</h2>
+                <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>Last 14 days</h2>
               </div>
               <p style={{ margin: 0, color: '#9fb0cd' }}>Views per day, updated automatically</p>
             </div>
@@ -784,7 +792,9 @@ export default async function AdminDashboardPage() {
 
           <section style={cardStyle}>
             <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Traffic sources</p>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Where visitors came from</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
+              Where visitors came from
+            </h2>
 
             <div style={{ display: 'grid', justifyItems: 'center', gap: '16px' }}>
               <div
@@ -873,7 +883,7 @@ export default async function AdminDashboardPage() {
         >
           <section style={cardStyle}>
             <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Page performance</p>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Most visited pages</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Most visited pages</h2>
             {renderTopPageBars(
               snapshot.topPagesLast14Days,
               'Traffic data will appear here after the first visits.'
@@ -884,7 +894,9 @@ export default async function AdminDashboardPage() {
             <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>
               Visitor intelligence
             </p>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Devices, regions & company signals</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
+              Devices, regions & company signals
+            </h2>
 
             <div style={{ display: 'grid', gap: '18px' }}>
               <div>
@@ -985,7 +997,9 @@ export default async function AdminDashboardPage() {
                 'This turns your traffic into a simple pipeline view: visit → click → contact → lead.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Where the drop-off happens</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
+              Where the drop-off happens
+            </h2>
             <div style={{ display: 'grid', gap: '12px' }}>
               {funnelSteps.map((step, index) => {
                 const previousValue = funnelSteps[index - 1]?.value ?? step.value;
@@ -1045,7 +1059,7 @@ export default async function AdminDashboardPage() {
                 'Priority is based on traffic share and your current lead conversion rate, so you can decide where to push harder.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Channel efficiency</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Channel efficiency</h2>
             {sourceComparison.length === 0 ? (
               <p style={{ margin: 0, color: '#9fb0cd' }}>
                 Channel performance will appear after more tracked visits.
@@ -1103,7 +1117,9 @@ export default async function AdminDashboardPage() {
                 'UTM parameters help identify which traffic source, campaign, or channel brought a visitor to the site.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Campaign attribution</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
+              Campaign attribution
+            </h2>
             <div
               style={{
                 display: 'grid',
@@ -1171,7 +1187,7 @@ export default async function AdminDashboardPage() {
                 'CTA means Call To Action — buttons or links such as Contact Us, Get Started, or Send Message that prompt the visitor to take the next step.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Intent drivers</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Intent drivers</h2>
 
             <div
               style={{
@@ -1240,7 +1256,7 @@ export default async function AdminDashboardPage() {
                 'Use this section to decide who to retarget, which region to prioritize, and where to focus outreach next.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Action plan</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Action plan</h2>
 
             <div
               style={{
@@ -1361,7 +1377,7 @@ export default async function AdminDashboardPage() {
                 'These are likely accounts inferred from company signals, business email domains, and repeated interest patterns.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Account watchlist</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Account watchlist</h2>
             {likelyAccounts.length === 0 ? (
               <p style={{ margin: 0, color: '#9fb0cd' }}>
                 Once business traffic or company-backed leads appear, the watchlist will populate
@@ -1434,7 +1450,7 @@ export default async function AdminDashboardPage() {
                 'A quick read on the last few days of lead activity, best source signals, and where follow-up attention should go.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Lead timeline</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Lead timeline</h2>
             <div style={{ display: 'grid', gap: '10px' }}>
               {snapshot.recentDays
                 .slice(-7)
@@ -1491,7 +1507,7 @@ export default async function AdminDashboardPage() {
 
         <section style={cardStyle}>
           <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Operations</p>
-          <h2 style={{ marginTop: 0, fontSize: '24px' }}>Daily feed</h2>
+          <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Daily feed</h2>
           <div style={{ display: 'grid', gap: '8px' }}>
             <div
               style={{
