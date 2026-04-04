@@ -58,6 +58,7 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
 
   const params = (await searchParams) ?? {};
   const hasError = params.error === '1';
+  const hasExpired = params.expired === '1';
   const configured = isAdminConfigured();
 
   return (
@@ -81,6 +82,20 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
           >
             Set <code>ADMIN_DASHBOARD_USERNAME</code> and <code>ADMIN_DASHBOARD_PASSWORD</code> in
             your environment before using this page.
+          </div>
+        ) : null}
+
+        {hasExpired ? (
+          <div
+            style={{
+              marginBottom: '16px',
+              padding: '12px 14px',
+              borderRadius: '10px',
+              background: '#eff6ff',
+              color: '#1d4ed8',
+            }}
+          >
+            Your admin session was signed out after 30 minutes of inactivity.
           </div>
         ) : null}
 
