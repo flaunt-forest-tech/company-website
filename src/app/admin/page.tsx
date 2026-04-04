@@ -32,6 +32,14 @@ const cardStyle: CSSProperties = {
   backdropFilter: 'blur(10px)',
 };
 
+const metricCardStyle: CSSProperties = {
+  ...cardStyle,
+  minHeight: '152px',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+};
+
 const chartColors = ['#60a5fa', '#34d399', '#f59e0b', '#f472b6', '#a78bfa'];
 
 type ChartPoint = {
@@ -253,20 +261,24 @@ function renderInfoTip(text: string) {
       title={text}
       aria-label={text}
       style={{
-        display: 'inline-grid',
-        placeItems: 'center',
-        width: '18px',
-        height: '18px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '20px',
+        height: '20px',
         borderRadius: '50%',
+        border: '1px solid rgba(96, 165, 250, 0.2)',
         background: 'rgba(59, 130, 246, 0.16)',
         color: '#8fb6ff',
-        fontSize: '11px',
+        fontSize: '12px',
+        lineHeight: 1,
         fontWeight: 800,
         cursor: 'help',
         flexShrink: 0,
+        transform: 'translateY(-1px)',
       }}
     >
-      i
+      ?
     </span>
   );
 }
@@ -489,9 +501,10 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
             gap: '14px',
             marginBottom: '18px',
+            alignItems: 'stretch',
           }}
         >
           {[
@@ -528,9 +541,15 @@ export default async function AdminDashboardPage() {
               tip: 'Smooths out daily noise and gives a better benchmark for whether your marketing activity is trending up or down.',
             },
           ].map((metric) => (
-            <section key={metric.label} style={cardStyle}>
+            <section key={metric.label} style={metricCardStyle}>
               <div
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  marginBottom: '10px',
+                }}
               >
                 <p style={{ margin: 0, color: '#93a8c9' }}>{metric.label}</p>
                 {renderInfoTip(metric.tip)}
@@ -575,8 +594,9 @@ export default async function AdminDashboardPage() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
               gap: '12px',
+              alignItems: 'stretch',
             }}
           >
             {highIntentSignals.map((item) => (
@@ -602,9 +622,10 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.6fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '16px',
             marginBottom: '18px',
+            alignItems: 'stretch',
           }}
         >
           <section style={{ ...cardStyle, overflow: 'hidden' }}>
@@ -789,9 +810,10 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.2fr 0.9fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '16px',
             marginBottom: '18px',
+            alignItems: 'stretch',
           }}
         >
           <section style={cardStyle}>
@@ -895,9 +917,10 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '16px',
             marginBottom: '18px',
+            alignItems: 'stretch',
           }}
         >
           <section style={cardStyle}>
@@ -1289,9 +1312,10 @@ export default async function AdminDashboardPage() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1.1fr 1fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '16px',
             marginBottom: '18px',
+            alignItems: 'stretch',
           }}
         >
           <section style={cardStyle}>
