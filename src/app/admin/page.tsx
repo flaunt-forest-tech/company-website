@@ -625,11 +625,13 @@ export default async function AdminDashboardPage() {
                   fontSize: '30px',
                   lineHeight: 1.2,
                   wordBreak: 'break-word',
+                  color: '#f8fbff',
+                  textShadow: '0 1px 2px rgba(2, 6, 23, 0.28)',
                 }}
               >
                 {metric.value}
               </h2>
-              <p style={{ margin: 0, color: '#7dd3fc' }}>{metric.note}</p>
+              <p style={{ margin: 0, color: '#bfe0ff' }}>{metric.note}</p>
             </section>
           ))}
         </div>
@@ -676,7 +678,7 @@ export default async function AdminDashboardPage() {
                   {item.label}
                 </div>
                 <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>{item.value}</strong>
-                <div style={{ color: '#7dd3fc', marginTop: '8px' }}>{item.note}</div>
+                <div style={{ color: '#cfe5ff', marginTop: '8px' }}>{item.note}</div>
               </div>
             ))}
           </div>
@@ -1278,7 +1280,7 @@ export default async function AdminDashboardPage() {
                   Pipeline score
                 </div>
                 <strong style={{ fontSize: '24px' }}>{pipelineReadinessScore}/100</strong>
-                <div style={{ color: '#7dd3fc', marginTop: '6px' }}>{pipelineReadinessLabel}</div>
+                <div style={{ color: '#cfe5ff', marginTop: '6px' }}>{pipelineReadinessLabel}</div>
               </div>
               <div
                 style={{
@@ -1294,7 +1296,7 @@ export default async function AdminDashboardPage() {
                 <strong style={{ fontSize: '20px', wordBreak: 'break-word' }}>
                   {alertChannelStatus}
                 </strong>
-                <div style={{ color: '#7dd3fc', marginTop: '6px' }}>
+                <div style={{ color: '#cfe5ff', marginTop: '6px' }}>
                   {process.env.LEAD_ALERT_WEBHOOK_URL
                     ? `Primary inbox: ${alertInbox}. Webhook alerts are also active.`
                     : `New lead emails will go directly to ${alertInbox}.`}
