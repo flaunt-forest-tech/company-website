@@ -24,6 +24,12 @@ For Redis (optional):
 - `REDIS_URL` or `REDIS_HOST` + `REDIS_PORT`
 - `REDIS_TLS_INSECURE_SKIP_VERIFY` (optional, default secure behavior is certificate verification on)
 
+For the private analytics dashboard:
+
+- `ADMIN_DASHBOARD_USERNAME` (optional, defaults to `admin`)
+- `ADMIN_DASHBOARD_PASSWORD` (required to sign in)
+- `ADMIN_DASHBOARD_SECRET` (optional extra salt for the session cookie)
+
 ### Required request headers
 
 - `POST /webhooks/gmail/push` must include header `x-webhook-secret: <WEBHOOK_SECRET>` when secret is configured.
@@ -38,6 +44,8 @@ For Redis (optional):
 
 - Keep `NODE_ENV=production` in production so strict secret requirements are enforced.
 - Do not set `REDIS_TLS_INSECURE_SKIP_VERIFY=true` unless you explicitly accept insecure TLS verification.
+- Use `REDIS_URL` in production if you want analytics data to persist across redeploys.
+- Access the internal traffic dashboard at `/admin/login` after setting the admin credentials above.
 
 ## Vercel Production Checklist
 

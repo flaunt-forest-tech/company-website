@@ -150,8 +150,14 @@ const PROCESSED_FILE = path.join(STORE_DIR, 'gmail-processed.json');
 let redisClient: ReturnType<typeof createClient> | null = null;
 let redisConnected = false;
 
+function normalizeRedisUrl(value: string): string {
+  const trimmedValue = value.trim();
+  if (/^redis(s)?:\/\//i.test(trimmedValue)) return trimmedValue;
+  return `redis://${trimmedValue}`;
+}
+
 function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) return process.env.REDIS_URL;
+  if (process.env.REDIS_URL) return normalizeRedisUrl(process.env.REDIS_URL);
   const host = process.env.REDIS_HOST;
   const port = process.env.REDIS_PORT ?? '6379';
   if (host) return `redis://${host}:${port}`;
@@ -195,7 +201,9 @@ async function ensureRedis() {
 
   redisClient = client;
   redisConnected = true;
-  console.log(`Connected to Redis${skipTlsVerification ? ' with insecure TLS verification disabled' : ''}`);
+  console.log(
+    `Connected to Redis${skipTlsVerification ? ' with insecure TLS verification disabled' : ''}`
+  );
   return redisClient;
 }
 

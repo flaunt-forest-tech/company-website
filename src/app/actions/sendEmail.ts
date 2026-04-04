@@ -3,6 +3,9 @@
 import { headers } from 'next/headers';
 import { createClient } from 'redis';
 import { Resend } from 'resend';
+
+import { trackConversion } from '@/lib/analytics';
+
 import { ContactFormInputs } from '../contact/page';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -18,8 +21,14 @@ const RATE_LIMIT_PREFIX = 'rate:contact';
 let redisClient: ReturnType<typeof createClient> | null = null;
 let redisConnected = false;
 
+function normalizeRedisUrl(value: string): string {
+  const trimmedValue = value.trim();
+  if (/^redis(s)?:\/\//i.test(trimmedValue)) return trimmedValue;
+  return `redis://${trimmedValue}`;
+}
+
 function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) return process.env.REDIS_URL;
+  if (process.env.REDIS_URL) return normalizeRedisUrl(process.env.REDIS_URL);
   const host = process.env.REDIS_HOST;
   const port = process.env.REDIS_PORT ?? '6379';
   if (host) return `redis://${host}:${port}`;
@@ -295,6 +304,17 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
       subject: subject,
       html,
     });
+
+    await trackConversion({
+      type: 'contact-form',
+      inquiryType: formData.inquiryType,
+      email: senderEmail,
+      sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+      utmSource: formData.utmSource,
+      utmMedium: formData.utmMedium,
+      utmCampaign: formData.utmCampaign,
+    });
+
     return { success: true, data };
   } catch {
     // Log error but don't expose sensitive details to client

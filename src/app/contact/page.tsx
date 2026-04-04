@@ -6,7 +6,7 @@ import PageHeader, { PageHeaderProps } from '@/components/shared/page-header';
 import Image from 'next/image';
 import { CONTACT } from '@/constants/contact';
 // import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { sendEmail } from '../actions/sendEmail';
 
@@ -18,6 +18,10 @@ export type ContactFormInputs = {
   subject: string;
   message: string;
   honeypot?: string;
+  sourcePage?: string;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
 };
 
 export default function ContactPage() {
@@ -176,7 +180,30 @@ function LocationSection() {
 
 function ContactSection() {
   const [status, setStatus] = useState<'success' | 'error' | null>(null);
-  const { register, handleSubmit } = useForm<ContactFormInputs>();
+  const { register, handleSubmit, setValue } = useForm<ContactFormInputs>();
+
+  useEffect(() => {
+    setValue('sourcePage', window.location.pathname);
+
+    try {
+      const stored = window.sessionStorage.getItem('fft_utm_attribution');
+      if (!stored) {
+        return;
+      }
+
+      const utm = JSON.parse(stored) as {
+        utmSource?: string;
+        utmMedium?: string;
+        utmCampaign?: string;
+      };
+
+      setValue('utmSource', utm.utmSource ?? '');
+      setValue('utmMedium', utm.utmMedium ?? '');
+      setValue('utmCampaign', utm.utmCampaign ?? '');
+    } catch {
+      // Ignore analytics-only field issues.
+    }
+  }, [setValue]);
 
   const onSubmit: SubmitHandler<ContactFormInputs> = async (data) => {
     const response = await sendEmail(data);
@@ -387,11 +414,16 @@ function ContactSection() {
                 autoComplete="off"
                 aria-hidden="true"
               />
+              <input type="hidden" {...register('sourcePage')} />
+              <input type="hidden" {...register('utmSource')} />
+              <input type="hidden" {...register('utmMedium')} />
+              <input type="hidden" {...register('utmCampaign')} />
 
               <div className="row">
                 <div className="form-group col mb-0">
                   <button
                     type="submit"
+                    data-analytics-label="Contact form submit"
                     className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
                     data-loading-text="Loading..."
                   >
