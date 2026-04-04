@@ -423,7 +423,7 @@ export default async function AdminDashboardPage() {
       helper: 'People who reached the site',
     },
     {
-      label: 'CTA clicks（按钮点击）',
+      label: 'CTA clicks',
       value: totalCtaClicks,
       helper: 'Visitors who clicked a tracked action',
     },
@@ -1100,10 +1100,10 @@ export default async function AdminDashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Campaign intelligence</p>
               {renderInfoTip(
-                'UTM 是网址后面加的追踪参数，用来判断客户是从哪个渠道、哪个活动进来的。These numbers come from utm_source, utm_medium, and utm_campaign tags.'
+                'UTM parameters help identify which traffic source, campaign, or channel brought a visitor to the site.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Campaign attribution（渠道来源标记）</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Campaign attribution</h2>
             <div
               style={{
                 display: 'grid',
@@ -1145,7 +1145,7 @@ export default async function AdminDashboardPage() {
             <div style={{ display: 'grid', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
-                  UTM sources（客户来源渠道）
+                  UTM sources
                 </h3>
                 {renderLabelBars(
                   snapshot.utmSourceBreakdownLast14Days,
@@ -1168,10 +1168,10 @@ export default async function AdminDashboardPage() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Conversion path</p>
               {renderInfoTip(
-                'CTA 就是 Call To Action，意思是引导客户去点击的按钮，比如 Contact Us、Get Started、Send Message。'
+                'CTA means Call To Action — buttons or links such as Contact Us, Get Started, or Send Message that prompt the visitor to take the next step.'
               )}
             </div>
-            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Intent drivers（意向动作）</h2>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>Intent drivers</h2>
 
             <div
               style={{
@@ -1190,7 +1190,7 @@ export default async function AdminDashboardPage() {
                 }}
               >
                 <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
-                  Strongest CTA（最常被点的按钮）
+                  Strongest CTA
                 </div>
                 <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>
                   {strongestCta}
@@ -1214,7 +1214,7 @@ export default async function AdminDashboardPage() {
             <div style={{ display: 'grid', gap: '16px' }}>
               <div>
                 <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
-                  Most clicked CTAs（按钮点击排行）
+                  Most clicked CTAs
                 </h3>
                 {renderLabelBars(
                   snapshot.topCtaClicksLast14Days,
