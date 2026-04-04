@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 type UTMValues = {
@@ -24,11 +24,11 @@ function readStoredUTM(): UTMValues {
   }
 }
 
-function getUTMFromSearch(searchParams: URLSearchParams | ReadonlyURLSearchParams): UTMValues {
+function getUTMFromSearch(searchParams: { get(name: string): string | null } | null): UTMValues {
   return {
-    utmSource: searchParams.get('utm_source') ?? undefined,
-    utmMedium: searchParams.get('utm_medium') ?? undefined,
-    utmCampaign: searchParams.get('utm_campaign') ?? undefined,
+    utmSource: searchParams?.get('utm_source') ?? undefined,
+    utmMedium: searchParams?.get('utm_medium') ?? undefined,
+    utmCampaign: searchParams?.get('utm_campaign') ?? undefined,
   };
 }
 
@@ -63,7 +63,7 @@ function postAnalytics(payload: Record<string, unknown>) {
   });
 }
 
-export default function AnalyticsTracker() {
+function AnalyticsTrackerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -126,4 +126,12 @@ export default function AnalyticsTracker() {
   }, [pathname, searchParams]);
 
   return null;
+}
+
+export default function AnalyticsTracker() {
+  return (
+    <Suspense fallback={null}>
+      <AnalyticsTrackerInner />
+    </Suspense>
+  );
 }

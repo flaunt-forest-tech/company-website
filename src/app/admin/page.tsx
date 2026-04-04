@@ -247,6 +247,30 @@ function renderLabelBars(items: AnalyticsLabelStat[], emptyMessage: string) {
   );
 }
 
+function renderInfoTip(text: string) {
+  return (
+    <span
+      title={text}
+      aria-label={text}
+      style={{
+        display: 'inline-grid',
+        placeItems: 'center',
+        width: '18px',
+        height: '18px',
+        borderRadius: '50%',
+        background: 'rgba(59, 130, 246, 0.16)',
+        color: '#8fb6ff',
+        fontSize: '11px',
+        fontWeight: 800,
+        cursor: 'help',
+        flexShrink: 0,
+      }}
+    >
+      i
+    </span>
+  );
+}
+
 export default async function AdminDashboardPage() {
   await requireAdminAccess();
 
@@ -261,6 +285,27 @@ export default async function AdminDashboardPage() {
   const topSource = snapshot.topSourcesLast14Days[0]?.label ?? 'Direct';
   const topLocation = snapshot.locationBreakdownLast14Days[0]?.label ?? 'Location pending';
   const topCompanySignal = snapshot.companyBreakdownLast14Days[0]?.label ?? 'No company signal yet';
+  const topTaggedSource = snapshot.utmSourceBreakdownLast14Days[0]?.label ?? 'No UTM source yet';
+  const topCampaign = snapshot.campaignBreakdownLast14Days[0]?.label ?? 'No tagged campaign yet';
+  const topLeadPage = snapshot.topLeadPagesLast14Days[0]?.label ?? 'Awaiting attributed leads';
+  const strongestCta = snapshot.topCtaClicksLast14Days[0]?.label ?? 'Awaiting CTA clicks';
+  const pipelineReadinessScore = Math.min(
+    100,
+    30 +
+      Math.min(snapshot.contactSubmissionsLast14Days * 8, 24) +
+      (snapshot.utmSourceBreakdownLast14Days.length > 0 ? 12 : 0) +
+      (snapshot.topCtaClicksLast14Days.length > 0 ? 10 : 0) +
+      (snapshot.companyBreakdownLast14Days.length > 0 ? 12 : 0) +
+      (snapshot.topLeadPagesLast14Days.length > 0 ? 12 : 0)
+  );
+  const pipelineReadinessLabel =
+    pipelineReadinessScore >= 80
+      ? 'Hot pipeline'
+      : pipelineReadinessScore >= 60
+        ? 'Growing'
+        : 'Setup phase';
+  const alertInbox = process.env.CONTACT_TO_EMAIL || 'flauntforesttech@gmail.com';
+  const alertChannelStatus = process.env.LEAD_ALERT_WEBHOOK_URL ? 'Email + webhook' : alertInbox;
   const todayConversionRate =
     today.totalViews > 0 ? ((today.contactSubmissions / today.totalViews) * 100).toFixed(1) : '0.0';
   const chartPoints = getChartPoints(snapshot.recentDays);
@@ -367,16 +412,19 @@ export default async function AdminDashboardPage() {
               label: "Today's page views",
               value: formatCompactNumber(today.totalViews),
               note: getChangeLabel(today.totalViews, yesterday?.totalViews ?? 0),
+              tip: 'How many tracked pages were viewed today. Use this to spot traffic spikes after posts, ads, or outreach.',
             },
             {
               label: 'Unique visitors',
               value: formatCompactNumber(today.uniqueVisitors),
               note: `${avgPagesPerVisitor} pages per visitor`,
+              tip: 'Estimated unique people based on IP and browser fingerprint. Helpful for separating repeat browsing from new traffic.',
             },
             {
               label: 'Contact submissions',
               value: formatCompactNumber(today.contactSubmissions),
               note: `${todayConversionRate}% of today's visits converted`,
+              tip: 'Leads captured through the contact form. This is the closest thing to pipeline created from the website.',
             },
             {
               label: 'Top acquisition source',
@@ -384,15 +432,22 @@ export default async function AdminDashboardPage() {
               note: snapshot.topSourcesLast14Days[0]
                 ? `${topLocation} is the strongest region signal`
                 : 'Waiting for traffic data',
+              tip: 'Shows the strongest traffic source in the last 14 days so you know which channel is actually sending people.',
             },
             {
               label: '14-day average',
               value: formatCompactNumber(averageDailyViews),
               note: `${topCompanySignal} is the strongest company signal`,
+              tip: 'Smooths out daily noise and gives a better benchmark for whether your marketing activity is trending up or down.',
             },
           ].map((metric) => (
             <section key={metric.label} style={cardStyle}>
-              <p style={{ margin: '0 0 10px', color: '#93a8c9' }}>{metric.label}</p>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}
+              >
+                <p style={{ margin: 0, color: '#93a8c9' }}>{metric.label}</p>
+                {renderInfoTip(metric.tip)}
+              </div>
               <h2
                 style={{
                   margin: '0 0 8px',
@@ -697,6 +752,267 @@ export default async function AdminDashboardPage() {
                   </strong>
                 </div>
               </div>
+            </div>
+          </section>
+        </div>
+
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '16px',
+            marginBottom: '18px',
+          }}
+        >
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Campaign intelligence</p>
+              {renderInfoTip(
+                'These numbers come from utm_source, utm_medium, and utm_campaign tags. Add those tags to ads, social posts, email newsletters, and partner links.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>
+              Tagged traffic that can become pipeline
+            </h2>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '10px',
+                marginBottom: '16px',
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Top tagged source
+                </div>
+                <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>
+                  {topTaggedSource}
+                </strong>
+              </div>
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Top campaign
+                </div>
+                <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>{topCampaign}</strong>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
+                  UTM sources
+                </h3>
+                {renderLabelBars(
+                  snapshot.utmSourceBreakdownLast14Days,
+                  'Start tagging your ads and social links with utm_source to see channel quality here.'
+                )}
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
+                  Campaign names
+                </h3>
+                {renderLabelBars(
+                  snapshot.campaignBreakdownLast14Days,
+                  'Campaign-level visibility will appear once links include utm_campaign values.'
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Conversion path</p>
+              {renderInfoTip(
+                'This shows which buttons people click before becoming leads, and which pages are producing the contact submissions.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>
+              CTAs and pages that drive contact intent
+            </h2>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '10px',
+                marginBottom: '16px',
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Strongest CTA
+                </div>
+                <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>
+                  {strongestCta}
+                </strong>
+              </div>
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Top lead page
+                </div>
+                <strong style={{ fontSize: '18px', wordBreak: 'break-word' }}>{topLeadPage}</strong>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
+                  Most clicked CTAs
+                </h3>
+                {renderLabelBars(
+                  snapshot.topCtaClicksLast14Days,
+                  'CTA click insight will appear after visitors start using the site buttons and contact links.'
+                )}
+              </div>
+              <div>
+                <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
+                  Pages creating leads
+                </h3>
+                {renderLabelBars(
+                  snapshot.topLeadPagesLast14Days,
+                  'Lead source pages will populate after tracked form submissions come through.'
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section style={cardStyle}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Follow-up playbook</p>
+              {renderInfoTip(
+                'Use this section to decide who to retarget, which region to prioritize, and where to focus outreach next.'
+              )}
+            </div>
+            <h2 style={{ marginTop: 0, fontSize: '24px' }}>What to do with the traffic</h2>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                gap: '10px',
+                marginBottom: '14px',
+              }}
+            >
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Pipeline score
+                </div>
+                <strong style={{ fontSize: '24px' }}>{pipelineReadinessScore}/100</strong>
+                <div style={{ color: '#7dd3fc', marginTop: '6px' }}>{pipelineReadinessLabel}</div>
+              </div>
+              <div
+                style={{
+                  borderRadius: '14px',
+                  padding: '12px',
+                  background: 'rgba(12, 22, 40, 0.9)',
+                  border: '1px solid rgba(148,163,184,0.08)',
+                }}
+              >
+                <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '6px' }}>
+                  Alert channel
+                </div>
+                <strong style={{ fontSize: '20px', wordBreak: 'break-word' }}>
+                  {alertChannelStatus}
+                </strong>
+                <div style={{ color: '#7dd3fc', marginTop: '6px' }}>
+                  {process.env.LEAD_ALERT_WEBHOOK_URL
+                    ? `Primary inbox: ${alertInbox}. Webhook alerts are also active.`
+                    : `New lead emails will go directly to ${alertInbox}.`}
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                height: '10px',
+                borderRadius: '999px',
+                background: 'rgba(30, 41, 59, 0.9)',
+                overflow: 'hidden',
+                marginBottom: '14px',
+              }}
+            >
+              <div
+                style={{
+                  width: `${Math.max(pipelineReadinessScore, 10)}%`,
+                  height: '100%',
+                  borderRadius: '999px',
+                  background: 'linear-gradient(90deg, #34d399, #60a5fa)',
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gap: '12px' }}>
+              {[
+                `Double down on ${topSource} because it is currently your strongest traffic source.`,
+                `Run tighter offers around ${topCampaign} and ${topTaggedSource} so you can attribute real pipeline back to campaigns.`,
+                `Prioritize follow-up around ${topCompanySignal} and ${topLeadPage} when you see repeat business signals or lead-form activity.`,
+              ].map((item, index) => (
+                <div
+                  key={item}
+                  style={{
+                    display: 'flex',
+                    gap: '10px',
+                    alignItems: 'flex-start',
+                    padding: '12px',
+                    borderRadius: '14px',
+                    background: 'rgba(12, 22, 40, 0.9)',
+                    border: '1px solid rgba(148,163,184,0.08)',
+                  }}
+                >
+                  <span
+                    style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      display: 'inline-grid',
+                      placeItems: 'center',
+                      background: 'rgba(59,130,246,0.16)',
+                      color: chartColors[index % chartColors.length],
+                      fontWeight: 800,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {index + 1}
+                  </span>
+                  <span style={{ color: '#dbe7fb', lineHeight: 1.6 }}>{item}</span>
+                </div>
+              ))}
             </div>
           </section>
         </div>

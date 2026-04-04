@@ -5,12 +5,13 @@ import { createClient } from 'redis';
 import { Resend } from 'resend';
 
 import { trackConversion } from '@/lib/analytics';
+import { getLeadScore, getLeadTemperature, sendLeadAlert } from '@/lib/lead-alerts';
 
 import { ContactFormInputs } from '../contact/page';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const emailFrom = process.env.RESEND_FROM_EMAIL || 'Acme <onboarding@resend.dev>';
-const emailTo = process.env.CONTACT_TO_EMAIL || 'sales@flauntforest.com';
+const emailTo = process.env.CONTACT_TO_EMAIL || 'flauntforesttech@gmail.com';
 
 // In-memory fallback when Redis is not configured.
 const requestLog = new Map<string, number[]>();
@@ -285,6 +286,25 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
   const inquiryType = escapeHtml(formData.inquiryType.trim());
   const messageEscaped = escapeHtml(formData.message.trim()).replace(/\n/g, '<br/>');
   const subjectEscaped = escapeHtml(formData.subject.trim());
+  const sourcePage = escapeHtml(
+    (formData.sourcePage || requestHeaders.get('referer') || 'Unknown').trim()
+  );
+  const utmSource = escapeHtml((formData.utmSource || 'direct').trim());
+  const utmMedium = escapeHtml((formData.utmMedium || 'none').trim());
+  const utmCampaign = escapeHtml((formData.utmCampaign || 'none').trim());
+  const leadScore = getLeadScore({
+    name: formData.name,
+    email: senderEmail,
+    phone: formData.phone,
+    inquiryType: formData.inquiryType,
+    subject: formData.subject,
+    message: formData.message,
+    sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+    utmSource: formData.utmSource,
+    utmMedium: formData.utmMedium,
+    utmCampaign: formData.utmCampaign,
+  });
+  const leadTemperature = getLeadTemperature(leadScore);
   const subject = `[${inquiryType}] ${subjectEscaped} | ${name}`;
   const html = `
     <p><strong>Name:</strong> ${name}</p>
@@ -292,6 +312,9 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Project Focus:</strong> ${inquiryType}</p>
     <p><strong>Subject:</strong> ${subjectEscaped}</p>
+    <p><strong>Lead Score:</strong> ${leadScore}/100 (${leadTemperature})</p>
+    <p><strong>Source Page:</strong> ${sourcePage}</p>
+    <p><strong>UTM:</strong> ${utmSource} / ${utmMedium} / ${utmCampaign}</p>
     <hr/>
     <p>${messageEscaped}</p>
   `;
@@ -309,6 +332,19 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
       type: 'contact-form',
       inquiryType: formData.inquiryType,
       email: senderEmail,
+      sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+      utmSource: formData.utmSource,
+      utmMedium: formData.utmMedium,
+      utmCampaign: formData.utmCampaign,
+    });
+
+    await sendLeadAlert({
+      name: formData.name,
+      email: senderEmail,
+      phone: formData.phone,
+      inquiryType: formData.inquiryType,
+      subject: formData.subject,
+      message: formData.message,
       sourcePage: formData.sourcePage || requestHeaders.get('referer'),
       utmSource: formData.utmSource,
       utmMedium: formData.utmMedium,
