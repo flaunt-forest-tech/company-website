@@ -14,8 +14,8 @@ export const dynamic = 'force-dynamic';
 const pageStyle: CSSProperties = {
   minHeight: '100vh',
   background:
-    'radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 0 28%), linear-gradient(135deg, #081225 0%, #0b1730 52%, #09111f 100%)',
-  color: '#e5eefc',
+    'radial-gradient(circle at top left, rgba(96,165,250,0.16), transparent 0 28%), linear-gradient(135deg, #0b1730 0%, #102042 52%, #0a1730 100%)',
+  color: '#f4f8ff',
   padding: '32px 18px 40px',
 };
 
@@ -25,11 +25,11 @@ const shellStyle: CSSProperties = {
 };
 
 const cardStyle: CSSProperties = {
-  background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.88))',
-  border: '1px solid rgba(148, 163, 184, 0.16)',
+  background: 'linear-gradient(180deg, rgba(18, 31, 56, 0.96), rgba(16, 27, 49, 0.92))',
+  border: '1px solid rgba(148, 163, 184, 0.22)',
   borderRadius: '20px',
   padding: '18px',
-  boxShadow: '0 20px 45px rgba(2, 6, 23, 0.25)',
+  boxShadow: '0 20px 45px rgba(2, 6, 23, 0.28)',
   backdropFilter: 'blur(10px)',
 };
 
@@ -47,9 +47,9 @@ const statusChipStyle: CSSProperties = {
   gap: '8px',
   padding: '6px 10px',
   borderRadius: '999px',
-  border: '1px solid rgba(148, 163, 184, 0.12)',
-  background: 'rgba(15, 23, 42, 0.55)',
-  color: '#cfe0ff',
+  border: '1px solid rgba(148, 163, 184, 0.18)',
+  background: 'rgba(15, 23, 42, 0.72)',
+  color: '#eef4ff',
   fontSize: '12px',
   fontWeight: 700,
 };
@@ -804,7 +804,7 @@ export default async function AdminDashboardPage() {
                     borderRadius: '50%',
                     display: 'grid',
                     placeItems: 'center',
-                    background: '#0b1324',
+                    background: '#132544',
                     textAlign: 'center',
                     padding: '10px',
                   }}
