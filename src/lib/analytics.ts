@@ -1,6 +1,7 @@
 import 'server-only';
 
 import crypto from 'node:crypto';
+import dns from 'node:dns/promises';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
@@ -47,6 +48,11 @@ export type AnalyticsVisitorRecord = {
   source: string;
   location: string | null;
   company: string | null;
+  hostname: string | null;
+  isp: string | null;
+  networkAsn: string | null;
+  networkType: string | null;
+  networkService: string | null;
   device: string;
   utmSource: string | null;
   utmCampaign: string | null;
@@ -89,6 +95,11 @@ type FileAnalyticsVisitorRecord = {
   source?: string;
   location?: string | null;
   company?: string | null;
+  hostname?: string | null;
+  isp?: string | null;
+  networkAsn?: string | null;
+  networkType?: string | null;
+  networkService?: string | null;
   device?: string;
   utmSource?: string | null;
   utmCampaign?: string | null;
@@ -100,6 +111,18 @@ type FileAnalyticsVisitorRecord = {
   conversionCount: number;
   pages: Record<string, number>;
   recentPages: string[];
+};
+
+type CachedIpIntelligence = {
+  ipAddress: string;
+  hostname?: string | null;
+  isp?: string | null;
+  networkAsn?: string | null;
+  company?: string | null;
+  networkType?: string | null;
+  networkService?: string | null;
+  fetchedAt: string;
+  source: 'headers' | 'ipwho.is';
 };
 
 type FileAnalyticsStore = {
@@ -122,11 +145,21 @@ type FileAnalyticsStore = {
     }
   >;
   visitors?: Record<string, FileAnalyticsVisitorRecord>;
+  ipIntel?: Record<string, CachedIpIntelligence>;
 };
 
 const ANALYTICS_STORE_PATH = path.join(process.cwd(), 'data', 'analytics-store.json');
 const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 120;
 const RECENT_VISITOR_FETCH_LIMIT = 80;
+const HOSTNAME_LOOKUP_TIMEOUT_MS = 1200;
+const ANALYTICS_TIME_ZONE = 'America/Chicago';
+const hostnameCache = new Map<string, string | null>();
+const analyticsDateKeyFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: ANALYTICS_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
 function normalizePath(pathname: string): string | null {
   const cleanPath = pathname.split('?')[0]?.trim() || '/';
@@ -150,7 +183,12 @@ function normalizePath(pathname: string): string | null {
 }
 
 function getDateKey(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  const parts = analyticsDateKeyFormatter.formatToParts(date);
+  const year = parts.find((part) => part.type === 'year')?.value ?? '0000';
+  const month = parts.find((part) => part.type === 'month')?.value ?? '01';
+  const day = parts.find((part) => part.type === 'day')?.value ?? '01';
+
+  return `${year}-${month}-${day}`;
 }
 
 function sortPages(pageMap: Record<string, number>): AnalyticsPageStat[] {
@@ -278,6 +316,480 @@ function normalizeCompanyLabel(value?: string | null): string | null {
   return cleaned.slice(0, 100);
 }
 
+function normalizeIspLabel(value?: string | null): string | null {
+  const cleaned = value
+    ?.replace(/\s+/g, ' ')
+    .replace(/^AS\d+\s*/i, '')
+    .trim();
+
+  if (!cleaned || /unknown|private|reserved|localhost|public email provider/i.test(cleaned)) {
+    return null;
+  }
+
+  if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(cleaned) && !cleaned.includes(' ')) {
+    return null;
+  }
+
+  return cleaned.slice(0, 120);
+}
+
+function normalizeHostnameLabel(value?: string | null): string | null {
+  const cleaned = value?.trim().replace(/\.$/, '').toLowerCase();
+
+  if (!cleaned || /unknown|localhost/i.test(cleaned)) {
+    return null;
+  }
+
+  if (/^(\d{1,3}\.){3}\d{1,3}$/i.test(cleaned) || /^[0-9a-f:]+$/i.test(cleaned)) {
+    return null;
+  }
+
+  return cleaned.slice(0, 140);
+}
+
+function isPublicLookupIpAddress(value?: string | null): boolean {
+  const normalized = value?.trim().toLowerCase();
+
+  if (!normalized || normalized.includes('localhost') || normalized.includes('(dev)')) {
+    return false;
+  }
+
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(normalized)) {
+    const [a, b] = normalized.split('.').map(Number);
+
+    if (
+      a === 10 ||
+      a === 127 ||
+      a === 0 ||
+      (a === 169 && b === 254) ||
+      (a === 192 && b === 168) ||
+      (a === 172 && b >= 16 && b <= 31)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  if (normalized.includes(':')) {
+    return !(
+      normalized === '::1' ||
+      normalized.startsWith('fe80:') ||
+      normalized.startsWith('fc') ||
+      normalized.startsWith('fd')
+    );
+  }
+
+  return false;
+}
+
+async function resolveHostnameFromIp(value?: string | null): Promise<string | null> {
+  const ipAddress = value?.trim();
+
+  if (!ipAddress || !isPublicLookupIpAddress(ipAddress)) {
+    return null;
+  }
+
+  if (hostnameCache.has(ipAddress)) {
+    return hostnameCache.get(ipAddress) ?? null;
+  }
+
+  try {
+    const result = await Promise.race([
+      dns.reverse(ipAddress),
+      new Promise<null>((resolve) => {
+        setTimeout(() => resolve(null), HOSTNAME_LOOKUP_TIMEOUT_MS);
+      }),
+    ]);
+    const hostname = normalizeHostnameLabel(Array.isArray(result) ? result[0] : null);
+    hostnameCache.set(ipAddress, hostname);
+    return hostname;
+  } catch {
+    hostnameCache.set(ipAddress, null);
+    return null;
+  }
+}
+
+function getIpIntelCacheKey(ipAddress: string): string {
+  return `analytics:ip-intel:${ipAddress}`;
+}
+
+function parseCachedIpIntelligence(rawValue: string | null): CachedIpIntelligence | null {
+  if (!rawValue) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue) as Partial<CachedIpIntelligence>;
+
+    if (!parsed || typeof parsed !== 'object' || typeof parsed.ipAddress !== 'string') {
+      return null;
+    }
+
+    return {
+      ipAddress: parsed.ipAddress,
+      hostname: normalizeHostnameLabel(parsed.hostname),
+      isp: normalizeIspLabel(parsed.isp),
+      networkAsn: normalizeAsnLabel(parsed.networkAsn),
+      company: normalizeCompanyLabel(parsed.company),
+      networkType: parsed.networkType?.trim() || null,
+      networkService: parsed.networkService?.trim() || null,
+      fetchedAt: parsed.fetchedAt || new Date(0).toISOString(),
+      source: parsed.source === 'ipwho.is' ? 'ipwho.is' : 'headers',
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function loadCachedIpIntelligence(
+  ipAddress: string,
+  redis?: SharedRedisClient | null,
+  store?: FileAnalyticsStore | null
+): Promise<CachedIpIntelligence | null> {
+  if (redis) {
+    try {
+      const rawValue = await redis.get(getIpIntelCacheKey(ipAddress));
+      const parsed = parseCachedIpIntelligence(rawValue);
+
+      if (parsed) {
+        return parsed;
+      }
+    } catch {
+      // Ignore cache read issues and continue.
+    }
+  }
+
+  const cached = store?.ipIntel?.[ipAddress];
+
+  return cached
+    ? {
+        ...cached,
+        hostname: normalizeHostnameLabel(cached.hostname),
+        isp: normalizeIspLabel(cached.isp),
+        networkAsn: normalizeAsnLabel(cached.networkAsn),
+        company: normalizeCompanyLabel(cached.company),
+        networkType: cached.networkType?.trim() || null,
+        networkService: cached.networkService?.trim() || null,
+      }
+    : null;
+}
+
+async function saveCachedIpIntelligence(
+  intel: CachedIpIntelligence,
+  redis?: SharedRedisClient | null,
+  store?: FileAnalyticsStore | null
+): Promise<boolean> {
+  let updatedStore = false;
+
+  if (redis) {
+    try {
+      await redis.setEx(
+        getIpIntelCacheKey(intel.ipAddress),
+        ANALYTICS_TTL_SECONDS,
+        JSON.stringify(intel)
+      );
+    } catch {
+      // Ignore cache write issues and continue.
+    }
+  }
+
+  if (store) {
+    store.ipIntel ??= {};
+    const existing = store.ipIntel[intel.ipAddress];
+    const hasChanged =
+      !existing ||
+      existing.hostname !== intel.hostname ||
+      existing.isp !== intel.isp ||
+      existing.networkAsn !== intel.networkAsn ||
+      existing.company !== intel.company ||
+      existing.networkType !== intel.networkType ||
+      existing.networkService !== intel.networkService ||
+      existing.source !== intel.source;
+
+    if (hasChanged) {
+      store.ipIntel[intel.ipAddress] = intel;
+      updatedStore = true;
+    }
+  }
+
+  return updatedStore;
+}
+
+type EnrichedNetworkMetadata = {
+  hostnameLabel: string | null;
+  ispLabel: string | null;
+  networkAsn: string | null;
+  companyLabel: string | null;
+  networkType: string | null;
+  networkService: string | null;
+  cacheUpdated: boolean;
+};
+
+async function fetchIpIntelligenceFromProvider(
+  ipAddress: string,
+  userAgent?: string | null
+): Promise<CachedIpIntelligence | null> {
+  try {
+    const response = await Promise.race([
+      fetch(`https://ipwho.is/${encodeURIComponent(ipAddress)}`, {
+        headers: { accept: 'application/json' },
+        cache: 'no-store',
+      }),
+      new Promise<Response | null>((resolve) => {
+        setTimeout(() => resolve(null), HOSTNAME_LOOKUP_TIMEOUT_MS + 1300);
+      }),
+    ]);
+
+    if (!response) {
+      return null;
+    }
+
+    const payload = (await response.json()) as {
+      success?: boolean;
+      ip?: string;
+      connection?: {
+        isp?: string | null;
+        org?: string | null;
+        asn?: string | number | null;
+        domain?: string | null;
+        type?: string | null;
+      };
+      hostname?: string | null;
+    };
+
+    if (payload.success === false) {
+      return null;
+    }
+
+    const hostname =
+      normalizeHostnameLabel(payload.connection?.domain ?? payload.hostname) ??
+      (await resolveHostnameFromIp(ipAddress));
+    const isp = normalizeIspLabel(payload.connection?.isp ?? payload.connection?.org);
+    const networkAsn = normalizeAsnLabel(
+      typeof payload.connection?.asn === 'number'
+        ? String(payload.connection.asn)
+        : payload.connection?.asn
+    );
+    const providerSummary = [
+      payload.connection?.type,
+      payload.connection?.isp,
+      payload.connection?.org,
+      hostname,
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const derived = deriveNetworkProfile(
+      providerSummary || isp || payload.connection?.org,
+      userAgent
+    );
+
+    return {
+      ipAddress,
+      hostname,
+      isp,
+      networkAsn,
+      company: normalizeCompanyLabel(payload.connection?.org) ?? derived.companyLabel,
+      networkType: derived.networkType,
+      networkService: derived.networkService,
+      fetchedAt: new Date().toISOString(),
+      source: 'ipwho.is',
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function enrichNetworkMetadata(input: {
+  ipAddress?: string | null;
+  hostname?: string | null;
+  isp?: string | null;
+  networkAsn?: string | null;
+  company?: string | null;
+  userAgent?: string | null;
+  redis?: SharedRedisClient | null;
+  store?: FileAnalyticsStore | null;
+}): Promise<EnrichedNetworkMetadata> {
+  const normalizedIp = normalizeIpAddress(input.ipAddress);
+  const cached = normalizedIp
+    ? await loadCachedIpIntelligence(normalizedIp, input.redis, input.store)
+    : null;
+
+  let hostnameLabel =
+    normalizeHostnameLabel(input.hostname) ??
+    normalizeHostnameLabel(cached?.hostname) ??
+    (normalizedIp ? await resolveHostnameFromIp(normalizedIp) : null);
+  let ispLabel = normalizeIspLabel(input.isp ?? cached?.isp ?? input.company ?? cached?.company);
+  let asnLabel = normalizeAsnLabel(input.networkAsn ?? cached?.networkAsn);
+  let companyLabel = normalizeCompanyLabel(input.company) ?? normalizeCompanyLabel(cached?.company);
+  let networkType = cached?.networkType?.trim() || null;
+  let networkService = cached?.networkService?.trim() || null;
+  let cacheUpdated = false;
+
+  if (normalizedIp && (!cached || !hostnameLabel || !ispLabel || !asnLabel || !networkService)) {
+    const fetched = await fetchIpIntelligenceFromProvider(normalizedIp, input.userAgent);
+
+    if (fetched) {
+      hostnameLabel = hostnameLabel ?? fetched.hostname ?? null;
+      ispLabel = ispLabel ?? fetched.isp ?? null;
+      asnLabel = asnLabel ?? fetched.networkAsn ?? null;
+      companyLabel = companyLabel ?? fetched.company ?? null;
+      networkType = networkType ?? fetched.networkType ?? null;
+      networkService = networkService ?? fetched.networkService ?? null;
+      cacheUpdated =
+        (await saveCachedIpIntelligence(fetched, input.redis, input.store)) || cacheUpdated;
+    }
+  }
+
+  const derived = deriveNetworkProfile(
+    [ispLabel, companyLabel, hostnameLabel, networkService, networkType].filter(Boolean).join(' '),
+    input.userAgent
+  );
+
+  companyLabel = companyLabel ?? derived.companyLabel;
+  networkType = networkType ?? derived.networkType;
+  networkService = networkService ?? derived.networkService;
+
+  if (
+    normalizedIp &&
+    (hostnameLabel || ispLabel || asnLabel || companyLabel || networkType || networkService)
+  ) {
+    cacheUpdated =
+      (await saveCachedIpIntelligence(
+        {
+          ipAddress: normalizedIp,
+          hostname: hostnameLabel,
+          isp: ispLabel,
+          networkAsn: asnLabel,
+          company: companyLabel,
+          networkType,
+          networkService,
+          fetchedAt: cached?.fetchedAt ?? new Date().toISOString(),
+          source: cached?.source ?? 'headers',
+        },
+        input.redis,
+        input.store
+      )) || cacheUpdated;
+  }
+
+  return {
+    hostnameLabel,
+    ispLabel,
+    networkAsn: asnLabel,
+    companyLabel,
+    networkType,
+    networkService,
+    cacheUpdated,
+  };
+}
+
+function normalizeAsnLabel(value?: string | null): string | null {
+  const normalized = value?.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  const digits = normalized.replace(/^AS/i, '');
+  return /^\d{1,10}$/.test(digits) ? `AS${digits}` : null;
+}
+
+type DerivedNetworkProfile = {
+  companyLabel: string | null;
+  networkType: string | null;
+  networkService: string | null;
+};
+
+function deriveNetworkProfile(
+  provider?: string | null,
+  userAgent?: string | null
+): DerivedNetworkProfile {
+  const ispLabel = normalizeIspLabel(provider);
+  const agent = userAgent?.toLowerCase() ?? '';
+
+  if (!ispLabel) {
+    return {
+      companyLabel: null,
+      networkType: null,
+      networkService: null,
+    };
+  }
+
+  if (/bot|spider|crawl|slurp|bingpreview|facebookexternalhit|linkedinbot/i.test(agent)) {
+    return {
+      companyLabel: null,
+      networkType: 'Bot / automation',
+      networkService: 'Crawler or automation network',
+    };
+  }
+
+  if (
+    /amazon|aws|google cloud|google llc|microsoft|azure|digitalocean|linode|cloudflare|fastly|akamai|vercel|netlify|render|fly\.io|oracle|alibaba|tencent|ovh|hetzner|vultr|scaleway/i.test(
+      ispLabel
+    )
+  ) {
+    return {
+      companyLabel: null,
+      networkType: 'Cloud / hosting',
+      networkService: 'Cloud platform or CDN',
+    };
+  }
+
+  if (
+    /university|college|school|district|isd|education|government|gov\b|county|city of|state of|hospital|health|medical|library|k12|\.edu\b/i.test(
+      ispLabel
+    )
+  ) {
+    return {
+      companyLabel: ispLabel,
+      networkType: 'Organization / institution',
+      networkService: 'Institutional network',
+    };
+  }
+
+  if (
+    /comcast|xfinity|spectrum|charter|cox|frontier|centurylink|lumen|shaw|rogers|bell canada|optimum|suddenlink|broadband|cable|fiber|dsl/i.test(
+      ispLabel
+    )
+  ) {
+    return {
+      companyLabel: null,
+      networkType: 'Personal / residential',
+      networkService: 'Residential ISP',
+    };
+  }
+
+  if (
+    /wireless|mobile|cellular|lte|5g|4g|carrier|telecom|communications|telefonica|vodafone|orange|t-mobile|tmobile|verizon|sprint|airtel|jio/i.test(
+      ispLabel
+    )
+  ) {
+    return {
+      companyLabel: null,
+      networkType: 'Carrier / shared network',
+      networkService: 'Mobile carrier or telecom',
+    };
+  }
+
+  if (
+    /\b(inc|llc|ltd|corp|corporation|company|group|systems|solutions|partners|consulting|holdings|ventures|technology|technologies|tech|studio|labs|bank|insurance|financial|manufacturing|logistics|construction|energy|healthcare)\b/i.test(
+      ispLabel
+    )
+  ) {
+    return {
+      companyLabel: ispLabel,
+      networkType: 'Company / business',
+      networkService: 'Business network',
+    };
+  }
+
+  return {
+    companyLabel: null,
+    networkType: 'Other / shared network',
+    networkService: 'Mixed or unknown service',
+  };
+}
+
 function inferCompanyFromEmail(email?: string | null): string | null {
   const domain = email?.split('@')[1]?.trim().toLowerCase();
 
@@ -401,6 +913,11 @@ type VisitorUpdateInput = {
   sourceLabel?: string | null;
   locationLabel?: string | null;
   companyLabel?: string | null;
+  hostnameLabel?: string | null;
+  ispLabel?: string | null;
+  networkAsn?: string | null;
+  networkType?: string | null;
+  networkService?: string | null;
   deviceLabel?: string | null;
   utmSourceLabel?: string | null;
   campaignLabel?: string | null;
@@ -426,6 +943,11 @@ function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdate
       source: input.sourceLabel ?? 'Direct',
       location: input.locationLabel ?? null,
       company: input.companyLabel ?? null,
+      hostname: input.hostnameLabel ?? null,
+      isp: input.ispLabel ?? null,
+      networkAsn: input.networkAsn ?? null,
+      networkType: input.networkType ?? null,
+      networkService: input.networkService ?? null,
       device: input.deviceLabel ?? 'Unknown',
       utmSource: input.utmSourceLabel ?? null,
       utmCampaign: input.campaignLabel ?? null,
@@ -444,6 +966,11 @@ function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdate
   record.source = input.sourceLabel ?? record.source ?? 'Direct';
   record.location = input.locationLabel ?? record.location ?? null;
   record.company = input.companyLabel ?? record.company ?? null;
+  record.hostname = input.hostnameLabel ?? record.hostname ?? null;
+  record.isp = input.ispLabel ?? record.isp ?? null;
+  record.networkAsn = input.networkAsn ?? record.networkAsn ?? null;
+  record.networkType = input.networkType ?? record.networkType ?? null;
+  record.networkService = input.networkService ?? record.networkService ?? null;
   record.device = input.deviceLabel ?? record.device ?? 'Unknown';
   record.utmSource = input.utmSourceLabel ?? record.utmSource ?? null;
   record.utmCampaign = input.campaignLabel ?? record.utmCampaign ?? null;
@@ -491,6 +1018,14 @@ async function getRecentVisitorsFromRedis(
 
       const pageMap = toNumberMap(pageMapRaw);
       const recentPages = Array.from(new Set(recentPathsRaw.filter(Boolean))).slice(0, 6);
+      const networkInfo = await enrichNetworkMetadata({
+        ipAddress: recordRaw.ipAddress || null,
+        hostname: recordRaw.hostname || null,
+        isp: recordRaw.isp || null,
+        networkAsn: recordRaw.networkAsn || null,
+        company: recordRaw.company || null,
+        redis,
+      });
 
       return {
         id: recordRaw.id || visitorId,
@@ -499,7 +1034,12 @@ async function getRecentVisitorsFromRedis(
         lastSeenAt: recordRaw.lastSeenAt || new Date().toISOString(),
         source: recordRaw.source || 'Direct',
         location: recordRaw.location || null,
-        company: recordRaw.company || null,
+        company: networkInfo.companyLabel,
+        hostname: networkInfo.hostnameLabel,
+        isp: networkInfo.ispLabel,
+        networkAsn: networkInfo.networkAsn,
+        networkType: networkInfo.networkType,
+        networkService: networkInfo.networkService,
         device: recordRaw.device || 'Unknown',
         utmSource: recordRaw.utmSource || null,
         utmCampaign: recordRaw.utmCampaign || null,
@@ -520,39 +1060,65 @@ async function getRecentVisitorsFromRedis(
   return visitors.filter((visitor): visitor is AnalyticsVisitorRecord => Boolean(visitor));
 }
 
-function getRecentVisitorsFromFile(
+async function getRecentVisitorsFromFile(
   store: FileAnalyticsStore,
   days: number,
   limit = RECENT_VISITOR_FETCH_LIMIT
-): AnalyticsVisitorRecord[] {
+): Promise<AnalyticsVisitorRecord[]> {
   const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
+  let storeNeedsWrite = false;
 
-  return Object.values(store.visitors ?? {})
-    .filter((visitor) => new Date(visitor.lastSeenAt).getTime() >= cutoffTime)
-    .sort(
-      (left, right) => new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime()
-    )
-    .slice(0, limit)
-    .map((visitor) => ({
-      id: visitor.id,
-      ipAddress: visitor.ipAddress ?? null,
-      firstSeenAt: visitor.firstSeenAt,
-      lastSeenAt: visitor.lastSeenAt,
-      source: visitor.source ?? 'Direct',
-      location: visitor.location ?? null,
-      company: visitor.company ?? null,
-      device: visitor.device ?? 'Unknown',
-      utmSource: visitor.utmSource ?? null,
-      utmCampaign: visitor.utmCampaign ?? null,
-      lastInquiryType: visitor.lastInquiryType ?? null,
-      contactName: visitor.contactName ?? null,
-      contactEmail: visitor.contactEmail ?? null,
-      contactPhone: visitor.contactPhone ?? null,
-      viewCount: visitor.viewCount ?? 0,
-      conversionCount: visitor.conversionCount ?? 0,
-      pages: sortPages(visitor.pages ?? {}),
-      recentPages: (visitor.recentPages ?? []).slice(0, 6),
-    }));
+  const visitors = await Promise.all(
+    Object.values(store.visitors ?? {})
+      .filter((visitor) => new Date(visitor.lastSeenAt).getTime() >= cutoffTime)
+      .sort(
+        (left, right) => new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime()
+      )
+      .slice(0, limit)
+      .map(async (visitor) => {
+        const networkInfo = await enrichNetworkMetadata({
+          ipAddress: visitor.ipAddress ?? null,
+          hostname: visitor.hostname ?? null,
+          isp: visitor.isp ?? null,
+          networkAsn: visitor.networkAsn ?? null,
+          company: visitor.company ?? null,
+          store,
+        });
+        storeNeedsWrite = storeNeedsWrite || networkInfo.cacheUpdated;
+
+        return {
+          id: visitor.id,
+          ipAddress: visitor.ipAddress ?? null,
+          firstSeenAt: visitor.firstSeenAt,
+          lastSeenAt: visitor.lastSeenAt,
+          source: visitor.source ?? 'Direct',
+          location: visitor.location ?? null,
+          company: networkInfo.companyLabel,
+          hostname: networkInfo.hostnameLabel,
+          isp: networkInfo.ispLabel,
+          networkAsn: networkInfo.networkAsn,
+          networkType: networkInfo.networkType,
+          networkService: networkInfo.networkService,
+          device: visitor.device ?? 'Unknown',
+          utmSource: visitor.utmSource ?? null,
+          utmCampaign: visitor.utmCampaign ?? null,
+          lastInquiryType: visitor.lastInquiryType ?? null,
+          contactName: visitor.contactName ?? null,
+          contactEmail: visitor.contactEmail ?? null,
+          contactPhone: visitor.contactPhone ?? null,
+          viewCount: visitor.viewCount ?? 0,
+          conversionCount: visitor.conversionCount ?? 0,
+          pages: sortPages(visitor.pages ?? {}),
+          recentPages: (visitor.recentPages ?? []).slice(0, 6),
+        } satisfies AnalyticsVisitorRecord;
+      })
+  );
+
+  if (storeNeedsWrite) {
+    await writeFileStore(store);
+  }
+
+  return visitors;
 }
 
 function createEmptyDay(date: string): AnalyticsDayStat {
@@ -608,6 +1174,9 @@ export async function trackPageView(input: {
   referrer?: string | null;
   location?: string | null;
   company?: string | null;
+  hostname?: string | null;
+  networkProvider?: string | null;
+  networkAsn?: string | null;
   utmSource?: string | null;
   utmMedium?: string | null;
   utmCampaign?: string | null;
@@ -626,11 +1195,25 @@ export async function trackPageView(input: {
     normalizeVisitorToken(input.visitorId) ?? buildVisitorId(normalizedIp, input.userAgent);
   const sourceLabel = normalizeSource(input.referrer);
   const locationLabel = normalizeLocationLabel(input.location);
-  const companyLabel = normalizeCompanyLabel(input.company);
   const utmSourceLabel = normalizeUtmValue(input.utmSource);
   const campaignLabel = buildCampaignLabel(input);
   const deviceLabel = detectDeviceType(input.userAgent);
   const redis = await getSharedRedisClient();
+  const networkInfo = await enrichNetworkMetadata({
+    ipAddress: normalizedIp,
+    hostname: input.hostname,
+    isp: input.networkProvider,
+    networkAsn: input.networkAsn,
+    company: input.company,
+    userAgent: input.userAgent,
+    redis,
+  });
+  const hostnameLabel = networkInfo.hostnameLabel;
+  const ispLabel = networkInfo.ispLabel;
+  const networkAsn = networkInfo.networkAsn;
+  const companyLabel = networkInfo.companyLabel;
+  const networkType = networkInfo.networkType;
+  const networkService = networkInfo.networkService;
 
   if (redis) {
     const totalsKey = `analytics:totals:${dateKey}`;
@@ -665,6 +1248,26 @@ export async function trackPageView(input: {
 
       if (companyLabel) {
         visitorMetadata.company = companyLabel;
+      }
+
+      if (hostnameLabel) {
+        visitorMetadata.hostname = hostnameLabel;
+      }
+
+      if (ispLabel) {
+        visitorMetadata.isp = ispLabel;
+      }
+
+      if (networkAsn) {
+        visitorMetadata.networkAsn = networkAsn;
+      }
+
+      if (networkType) {
+        visitorMetadata.networkType = networkType;
+      }
+
+      if (networkService) {
+        visitorMetadata.networkService = networkService;
       }
 
       if (utmSourceLabel) {
@@ -793,6 +1396,11 @@ export async function trackPageView(input: {
     sourceLabel,
     locationLabel,
     companyLabel,
+    hostnameLabel,
+    ispLabel,
+    networkAsn,
+    networkType,
+    networkService,
     deviceLabel,
     utmSourceLabel,
     campaignLabel,
@@ -1289,7 +1897,7 @@ export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot
     0
   );
   const totalViewsLast14Days = dayStats.reduce((sum, day) => sum + day.totalViews, 0);
-  const recentVisitors = getRecentVisitorsFromFile(store, days);
+  const recentVisitors = await getRecentVisitorsFromFile(store, days);
 
   return {
     generatedAt: new Date().toISOString(),
