@@ -2647,14 +2647,55 @@ export default async function AdminDashboardPage({
                         const orderedRecentPages = selectedVisitor.recentPages
                           .slice(0, 10)
                           .reverse();
+                        const networkIntelRows = [
+                          {
+                            label: 'IP address',
+                            value: selectedVisitor.ipAddress ?? 'Not available',
+                          },
+                          {
+                            label: 'Hostname',
+                            value: selectedVisitor.hostname ?? 'Not resolved yet',
+                          },
+                          {
+                            label: 'ISP',
+                            value: selectedVisitor.isp ?? 'Not available',
+                          },
+                          {
+                            label: 'ASN',
+                            value: selectedVisitor.networkAsn ?? 'Not available',
+                          },
+                          {
+                            label: 'Services',
+                            value: selectedVisitor.networkService ?? 'None detected',
+                          },
+                          {
+                            label: 'Profile guess',
+                            value: selectedVisitor.networkType ?? 'Not enough data yet',
+                          },
+                          {
+                            label: 'Organization',
+                            value:
+                              hasCompanySignal(selectedVisitor) && selectedVisitor.company
+                                ? selectedVisitor.company
+                                : 'No confirmed company signal yet',
+                          },
+                          {
+                            label: 'Location',
+                            value: selectedVisitor.location ?? 'Location pending',
+                          },
+                          {
+                            label: 'Source',
+                            value: selectedVisitor.source,
+                          },
+                          {
+                            label: 'Last seen',
+                            value: formatDateTime(selectedVisitor.lastSeenAt),
+                          },
+                        ];
                         const detailCards = [
                           {
                             label: 'Identity',
                             value: identity.label,
-                          },
-                          {
-                            label: 'IP address',
-                            value: selectedVisitor.ipAddress ?? 'Not available',
                           },
                           {
                             label: 'Observed span',
@@ -2663,37 +2704,7 @@ export default async function AdminDashboardPage({
                               selectedVisitor.lastSeenAt
                             ),
                           },
-                          {
-                            label: 'Hostname',
-                            value: selectedVisitor.hostname ?? 'Not resolved yet',
-                          },
-                          {
-                            label: 'Organization hint',
-                            value:
-                              hasCompanySignal(selectedVisitor) && selectedVisitor.company
-                                ? selectedVisitor.company
-                                : 'No confirmed company signal yet',
-                          },
-                          {
-                            label: 'ISP / ASN',
-                            value: selectedVisitor.isp
-                              ? `${selectedVisitor.isp}${selectedVisitor.networkAsn ? ` · ${selectedVisitor.networkAsn}` : ''}`
-                              : 'Not available',
-                          },
-                          {
-                            label: 'Profile guess',
-                            value: selectedVisitor.networkType ?? 'Not enough data yet',
-                          },
-                          {
-                            label: 'Services',
-                            value: selectedVisitor.networkService ?? 'None detected',
-                          },
-                          { label: 'Source', value: selectedVisitor.source },
                           { label: 'Device', value: selectedVisitor.device },
-                          {
-                            label: 'Location',
-                            value: selectedVisitor.location ?? 'Location pending',
-                          },
                           {
                             label: 'Campaign',
                             value: getVisitorCampaignLabel(selectedVisitor),
@@ -2751,6 +2762,59 @@ export default async function AdminDashboardPage({
                                 hasKnownContact(selectedVisitor)
                                   ? renderPill('Lead captured', 'green')
                                   : renderPill('Watching', 'blue')}
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                marginBottom: '12px',
+                                padding: '14px',
+                                borderRadius: '14px',
+                                background:
+                                  'linear-gradient(180deg, rgba(17, 34, 64, 0.96), rgba(11, 23, 43, 0.92))',
+                                border: '1px solid rgba(96,165,250,0.18)',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  color: '#f8fbff',
+                                  fontWeight: 700,
+                                  marginBottom: '10px',
+                                }}
+                              >
+                                Network intelligence
+                              </div>
+                              <div style={{ display: 'grid', gap: '6px' }}>
+                                {networkIntelRows.map((item, index) => (
+                                  <div
+                                    key={`${selectedVisitor.id}-network-${item.label}`}
+                                    style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '120px minmax(0, 1fr)',
+                                      gap: '10px',
+                                      alignItems: 'start',
+                                      padding: '6px 0',
+                                      borderBottom:
+                                        index === networkIntelRows.length - 1
+                                          ? 'none'
+                                          : '1px solid rgba(148,163,184,0.08)',
+                                    }}
+                                  >
+                                    <div style={{ color: '#8fb6ff', fontSize: '12px' }}>
+                                      {item.label}:
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: '#f8fbff',
+                                        fontSize: '13px',
+                                        lineHeight: 1.6,
+                                        wordBreak: 'break-word',
+                                      }}
+                                    >
+                                      {item.value}
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
 
