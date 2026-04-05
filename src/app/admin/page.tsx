@@ -84,6 +84,7 @@ type PieSlice = {
 };
 
 type SearchParamsRecord = Record<string, string | string[] | undefined>;
+type ProspectSegment = 'all' | 'hot' | 'returning' | 'reachable';
 
 function getSearchParamValue(value: string | string[] | undefined): string {
   return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
@@ -177,6 +178,14 @@ function getVisitorIntentSummary(score: number): {
 }
 
 function getVisitorDisplayName(visitor: AnalyticsVisitorRecord): string {
+  if (visitor.contactName && visitor.company) {
+    return `${visitor.contactName} · ${visitor.company}`;
+  }
+
+  if (visitor.contactName) {
+    return visitor.contactName;
+  }
+
   if (visitor.company) {
     return visitor.company;
   }
@@ -186,6 +195,54 @@ function getVisitorDisplayName(visitor: AnalyticsVisitorRecord): string {
   }
 
   return `Visitor ${visitor.id.slice(0, 8)}`;
+}
+
+function hasKnownContact(visitor: AnalyticsVisitorRecord): boolean {
+  return Boolean(visitor.contactEmail || visitor.contactPhone);
+}
+
+function getVisitorIdentityStatus(visitor: AnalyticsVisitorRecord): {
+  label: string;
+  tone: 'green' | 'blue' | 'amber' | 'slate';
+} {
+  if (hasKnownContact(visitor)) {
+    return { label: 'Known lead', tone: 'green' };
+  }
+
+  if (visitor.company) {
+    return { label: 'Likely company', tone: 'blue' };
+  }
+
+  if (visitor.ipAddress) {
+    return { label: 'Network match', tone: 'amber' };
+  }
+
+  return { label: 'Anonymous', tone: 'slate' };
+}
+
+function isHotProspect(visitor: AnalyticsVisitorRecord): boolean {
+  return (
+    hasKnownContact(visitor) || visitor.conversionCount > 0 || getVisitorIntentScore(visitor) >= 75
+  );
+}
+
+function matchesProspectSegment(
+  visitor: AnalyticsVisitorRecord,
+  segment: ProspectSegment
+): boolean {
+  if (segment === 'hot') {
+    return isHotProspect(visitor);
+  }
+
+  if (segment === 'returning') {
+    return isReturningVisitor(visitor);
+  }
+
+  if (segment === 'reachable') {
+    return hasKnownContact(visitor);
+  }
+
+  return true;
 }
 
 function getVisitorCampaignLabel(visitor: AnalyticsVisitorRecord): string {
@@ -243,6 +300,9 @@ function matchesVisitorQuery(visitor: AnalyticsVisitorRecord, query: string): bo
     visitor.id,
     visitor.ipAddress ?? '',
     visitor.company ?? '',
+    visitor.contactName ?? '',
+    visitor.contactEmail ?? '',
+    visitor.contactPhone ?? '',
     visitor.source,
     visitor.location ?? '',
     visitor.device,
@@ -263,7 +323,8 @@ function buildAdminVisitorHref(params: {
   source?: string;
   visitor?: string;
   day?: string;
-  section?: 'visitor-journeys' | 'daily-feed';
+  prospectSegment?: ProspectSegment;
+  section?: 'visitor-journeys' | 'daily-feed' | 'ai-scout';
 }): string {
   const nextParams = new URLSearchParams();
 
@@ -281,6 +342,10 @@ function buildAdminVisitorHref(params: {
 
   if (params.day?.trim()) {
     nextParams.set('day', params.day.trim());
+  }
+
+  if (params.prospectSegment && params.prospectSegment !== 'all') {
+    nextParams.set('prospect', params.prospectSegment);
   }
 
   const queryString = nextParams.toString();
@@ -545,6 +610,15 @@ export default async function AdminDashboardPage({
   const activeSourceFilter = getSearchParamValue(resolvedSearchParams.source).trim() || 'all';
   const activeVisitorId = getSearchParamValue(resolvedSearchParams.visitor).trim();
   const activeDayParam = getSearchParamValue(resolvedSearchParams.day).trim();
+  const activeProspectParam = getSearchParamValue(resolvedSearchParams.prospect)
+    .trim()
+    .toLowerCase();
+  const activeProspectSegment: ProspectSegment =
+    activeProspectParam === 'hot' ||
+    activeProspectParam === 'returning' ||
+    activeProspectParam === 'reachable'
+      ? activeProspectParam
+      : 'all';
 
   const snapshot = await getAnalyticsSnapshot();
   const today = snapshot.today;
@@ -646,8 +720,65 @@ export default async function AdminDashboardPage({
     filteredVisitors.find((visitor) => visitor.id === activeVisitorId) ??
     filteredVisitors[0] ??
     null;
+  const identifiedCompanyCount = snapshot.recentVisitors.filter((visitor) =>
+    Boolean(visitor.company)
+  ).length;
+  const knownContactCount = snapshot.recentVisitors.filter((visitor) =>
+    hasKnownContact(visitor)
+  ).length;
+  const engagedVisitorCount = snapshot.recentVisitors.filter(
+    (visitor) => visitor.viewCount >= 2 || visitor.pages.length >= 2
+  ).length;
+  const serviceInterestCount = snapshot.recentVisitors.filter((visitor) =>
+    visitor.pages.some(
+      (page) =>
+        page.path.startsWith('/it-services') ||
+        page.path.startsWith('/ai-solutions') ||
+        page.path.startsWith('/about-us')
+    )
+  ).length;
+  const contactIntentCount = snapshot.recentVisitors.filter(
+    (visitor) =>
+      visitor.recentPages.includes('/contact') ||
+      visitor.pages.some((page) => page.path === '/contact')
+  ).length;
 
-  const aiScout = buildProspectScout(filteredVisitors);
+  const aiScoutOverview = buildProspectScout(filteredVisitors);
+  const scoutVisitors = filteredVisitors.filter((visitor) =>
+    matchesProspectSegment(visitor, activeProspectSegment)
+  );
+  const aiScout = buildProspectScout(scoutVisitors);
+  const activeProspectLabel =
+    activeProspectSegment === 'hot'
+      ? 'Hot prospects'
+      : activeProspectSegment === 'returning'
+        ? 'Returning visitors'
+        : activeProspectSegment === 'reachable'
+          ? 'Reachable leads'
+          : 'All prospects';
+  const prospectStatCards = [
+    {
+      key: 'hot' as const,
+      label: 'Hot',
+      count: aiScoutOverview.hotCount,
+      note: 'Fast follow-up',
+      tone: 'green' as const,
+    },
+    {
+      key: 'returning' as const,
+      label: 'Returning',
+      count: aiScoutOverview.returningCount,
+      note: 'Repeat visitors',
+      tone: 'blue' as const,
+    },
+    {
+      key: 'reachable' as const,
+      label: 'Reachable',
+      count: aiScoutOverview.reachableCount,
+      note: 'Email / phone on file',
+      tone: 'amber' as const,
+    },
+  ];
 
   const sourceComparison = snapshot.topSourcesLast14Days.slice(0, 5).map((source) => {
     const trafficShare = total14DayViews > 0 ? (source.value / total14DayViews) * 100 : 0;
@@ -666,22 +797,37 @@ export default async function AdminDashboardPage({
     {
       label: 'All visits',
       value: total14DayViews,
-      helper: 'People who reached the site',
+      helper: 'Every tracked page view across the site',
+    },
+    {
+      label: 'Engaged visitors',
+      value: engagedVisitorCount,
+      helper: 'People who viewed 2+ pages or kept exploring',
+    },
+    {
+      label: 'Service interest',
+      value: serviceInterestCount,
+      helper: 'Visitors who checked solutions or service pages',
     },
     {
       label: 'CTA clicks',
       value: totalCtaClicks,
-      helper: 'Visitors who clicked a tracked action',
+      helper: 'Tracked button or link actions',
     },
     {
-      label: 'Contact page',
-      value: contactPageViews,
-      helper: 'Visits to the contact page',
+      label: 'Contact intent',
+      value: contactIntentCount,
+      helper: 'Visitors who reached the contact path',
     },
     {
       label: 'Leads captured',
       value: snapshot.contactSubmissionsLast14Days,
       helper: 'Successful contact submissions',
+    },
+    {
+      label: 'Reachable contacts',
+      value: knownContactCount,
+      helper: 'Visitors with an email or phone now on file',
     },
   ];
   const highIntentSignals = [
@@ -691,19 +837,22 @@ export default async function AdminDashboardPage({
       note: 'Good target for follow-up',
     },
     {
-      label: 'Best converting page',
-      value: topLeadPage,
-      note: 'Where form intent is strongest',
+      label: 'Reachable contacts',
+      value: `${knownContactCount} known`,
+      note:
+        knownContactCount > 0
+          ? 'Email or phone has been captured from a lead form'
+          : 'No direct contact details have been captured yet',
+    },
+    {
+      label: 'Identified companies',
+      value: formatCompactNumber(identifiedCompanyCount),
+      note: 'Best-effort matching from company and business email signals',
     },
     {
       label: 'Campaign to push',
       value: topCampaign,
       note: 'Most promising tagged traffic',
-    },
-    {
-      label: 'Fastest next step',
-      value: `Email ${alertInbox}`,
-      note: 'Check the inbox for new leads',
     },
   ];
 
@@ -930,7 +1079,10 @@ export default async function AdminDashboardPage({
           </div>
         </section>
 
-        <section style={{ ...cardStyle, marginBottom: '18px' }}>
+        <section
+          id="ai-scout"
+          style={{ ...cardStyle, marginBottom: '18px', scrollMarginTop: '24px' }}
+        >
           <div
             style={{
               display: 'flex',
@@ -938,6 +1090,7 @@ export default async function AdminDashboardPage({
               gap: '12px',
               flexWrap: 'wrap',
               marginBottom: '14px',
+              alignItems: 'flex-start',
             }}
           >
             <div>
@@ -947,10 +1100,101 @@ export default async function AdminDashboardPage({
               <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>
                 Likely customers for {formatDate(selectedDay.date)}
               </h2>
+              <p style={{ margin: '8px 0 0', color: '#9fb0cd', fontSize: '13px' }}>
+                Showing <strong style={{ color: '#dbe7fb' }}>{activeProspectLabel}</strong>
+              </p>
             </div>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              {renderPill(`${aiScout.hotCount} hot`, aiScout.hotCount > 0 ? 'green' : 'slate')}
-              {renderPill(`${aiScout.returningCount} returning`, 'blue')}
+
+            <div style={{ display: 'grid', gap: '8px', minWidth: 'min(100%, 420px)' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, minmax(110px, 1fr))',
+                  gap: '10px',
+                }}
+              >
+                {prospectStatCards.map((stat) => {
+                  const isActive = activeProspectSegment === stat.key;
+                  const accent =
+                    stat.tone === 'green'
+                      ? '#34d399'
+                      : stat.tone === 'amber'
+                        ? '#f59e0b'
+                        : '#60a5fa';
+
+                  return (
+                    <Link
+                      key={stat.key}
+                      href={buildAdminVisitorHref({
+                        visitorQuery: activeVisitorQuery,
+                        source: activeSourceFilter,
+                        day: activeDay,
+                        prospectSegment: stat.key,
+                        section: 'ai-scout',
+                      })}
+                      scroll={false}
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <div
+                        style={{
+                          minHeight: '96px',
+                          display: 'grid',
+                          alignContent: 'center',
+                          gap: '4px',
+                          padding: '12px 14px',
+                          borderRadius: '18px',
+                          background: isActive
+                            ? `linear-gradient(180deg, ${accent}22, rgba(15, 23, 42, 0.96))`
+                            : 'linear-gradient(180deg, rgba(17, 28, 49, 0.95), rgba(12, 22, 40, 0.92))',
+                          border: isActive
+                            ? `1px solid ${accent}88`
+                            : '1px solid rgba(148,163,184,0.14)',
+                          boxShadow: isActive
+                            ? `0 12px 26px ${accent}22`
+                            : '0 10px 22px rgba(2, 6, 23, 0.18)',
+                          textAlign: 'center',
+                          transition: 'all 160ms ease',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ color: '#f8fbff', fontSize: '28px', fontWeight: 800 }}>
+                          {stat.count}
+                        </div>
+                        <div style={{ color: isActive ? '#f8fbff' : '#dbe7fb', fontWeight: 700 }}>
+                          {stat.label}
+                        </div>
+                        <div style={{ color: '#93a8c9', fontSize: '12px' }}>{stat.note}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {activeProspectSegment !== 'all' ? (
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Link
+                    href={buildAdminVisitorHref({
+                      visitorQuery: activeVisitorQuery,
+                      source: activeSourceFilter,
+                      day: activeDay,
+                      section: 'ai-scout',
+                    })}
+                    scroll={false}
+                    style={{
+                      textDecoration: 'none',
+                      padding: '6px 10px',
+                      borderRadius: '999px',
+                      border: '1px solid rgba(148,163,184,0.16)',
+                      background: 'rgba(15, 23, 42, 0.8)',
+                      color: '#dbe7fb',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Show all
+                  </Link>
+                </div>
+              ) : null}
             </div>
           </div>
 
@@ -984,8 +1228,10 @@ export default async function AdminDashboardPage({
               </div>
 
               {aiScout.items.length === 0 ? (
-                <p style={{ margin: 0, color: '#9fb0cd' }}>
-                  The scout will rank likely prospects once more visitor behavior comes in.
+                <p style={{ margin: 0, color: '#9fb0cd', lineHeight: 1.7 }}>
+                  {activeProspectSegment === 'all'
+                    ? 'The scout will rank likely prospects once more visitor behavior comes in.'
+                    : `No ${activeProspectLabel.toLowerCase()} matched this day yet. Try another chip or switch days.`}
                 </p>
               ) : (
                 <div
@@ -1022,9 +1268,40 @@ export default async function AdminDashboardPage({
                               : 'blue'
                         )}
                       </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '6px',
+                          flexWrap: 'wrap',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        {renderPill(
+                          item.contactState,
+                          item.contactState === 'Known contact'
+                            ? 'green'
+                            : item.contactState === 'Likely company account'
+                              ? 'blue'
+                              : item.contactState === 'Network-level match'
+                                ? 'amber'
+                                : 'slate'
+                        )}
+                        {renderPill(item.outreachChannel, 'blue')}
+                      </div>
                       <p style={{ margin: '0 0 8px', color: '#cfe5ff', lineHeight: 1.6 }}>
                         {item.summary}
                       </p>
+                      <div
+                        style={{
+                          color: '#93a8c9',
+                          fontSize: '13px',
+                          lineHeight: 1.6,
+                          marginBottom: '8px',
+                        }}
+                      >
+                        Suggested opener:{' '}
+                        <strong style={{ color: '#dbe7fb' }}>{item.suggestedMessage}</strong>
+                      </div>
                       <div style={{ color: '#93a8c9', fontSize: '13px' }}>
                         Next step: <strong style={{ color: '#dbe7fb' }}>{item.nextAction}</strong>
                       </div>
@@ -1053,9 +1330,10 @@ export default async function AdminDashboardPage({
                 Why these visitors matter
               </div>
               {aiScout.items.length === 0 ? (
-                <p style={{ margin: 0, color: '#9fb0cd' }}>
-                  Once visitors start exploring more of the site, the scout will explain the
-                  strongest signals here.
+                <p style={{ margin: 0, color: '#9fb0cd', lineHeight: 1.7 }}>
+                  {activeProspectSegment === 'all'
+                    ? 'Once visitors start exploring more of the site, the scout will explain the strongest signals here.'
+                    : `No detailed signal breakdown is available for the current ${activeProspectLabel.toLowerCase()} filter yet.`}
                 </p>
               ) : (
                 <div
@@ -1404,7 +1682,7 @@ export default async function AdminDashboardPage({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
               <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Acquisition funnel</p>
               {renderInfoTip(
-                'This turns your traffic into a simple pipeline view: visit → click → contact → lead.'
+                'This turns anonymous traffic into a clearer pipeline: visit → engaged research → contact intent → reachable lead.'
               )}
             </div>
             <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
@@ -1413,7 +1691,10 @@ export default async function AdminDashboardPage({
             <div style={{ display: 'grid', gap: '12px' }}>
               {funnelSteps.map((step, index) => {
                 const previousValue = funnelSteps[index - 1]?.value ?? step.value;
-                const stepRate = previousValue > 0 ? (step.value / previousValue) * 100 : 100;
+                const stepRate = Math.min(
+                  100,
+                  previousValue > 0 ? (step.value / previousValue) * 100 : 100
+                );
 
                 return (
                   <div key={step.label}>
@@ -1449,7 +1730,7 @@ export default async function AdminDashboardPage({
                     >
                       <div
                         style={{
-                          width: `${Math.max(stepRate, 10)}%`,
+                          width: `${Math.min(100, Math.max(stepRate, 10))}%`,
                           height: '100%',
                           borderRadius: '999px',
                           background: `linear-gradient(90deg, ${chartColors[index % chartColors.length]}, #93c5fd)`,
@@ -2018,7 +2299,7 @@ export default async function AdminDashboardPage({
                     type="text"
                     name="visitorQuery"
                     defaultValue={activeVisitorQuery}
-                    placeholder="Search IP, company, page, source..."
+                    placeholder="Search name, email, phone, IP, company..."
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -2128,9 +2409,16 @@ export default async function AdminDashboardPage({
                       const intent = getVisitorIntentSummary(intentScore);
                       const returning = isReturningVisitor(visitor);
                       const isSelected = selectedVisitor?.id === visitor.id;
-                      const isPriority = visitor.conversionCount > 0 || intentScore >= 75;
+                      const hasContact = hasKnownContact(visitor);
+                      const identity = getVisitorIdentityStatus(visitor);
+                      const isPriority =
+                        hasContact || visitor.conversionCount > 0 || intentScore >= 75;
                       const visitorStatus =
-                        visitor.conversionCount > 0 ? 'Lead' : returning ? 'Returning' : 'New';
+                        hasContact || visitor.conversionCount > 0
+                          ? 'Lead'
+                          : returning
+                            ? 'Returning'
+                            : 'New';
                       const visitorTone =
                         visitor.conversionCount > 0 ? 'green' : returning ? 'blue' : 'slate';
                       const journeyPreview = visitor.recentPages.slice(0, 4).reverse().join(' → ');
@@ -2181,6 +2469,7 @@ export default async function AdminDashboardPage({
                                   {getVisitorDisplayName(visitor)}
                                 </strong>
                                 {renderPill(visitorStatus, visitorTone)}
+                                {renderPill(identity.label, identity.tone)}
                                 {renderPill(`${intent.label} · ${intentScore}/100`, intent.tone)}
                                 {isPriority ? renderPill('Priority', 'amber') : null}
                               </div>
@@ -2190,11 +2479,13 @@ export default async function AdminDashboardPage({
                               </div>
 
                               <div style={{ color: '#cfe5ff', fontSize: '13px', marginTop: '6px' }}>
-                                {visitor.company
-                                  ? `Company hint: ${visitor.company}`
-                                  : visitor.lastInquiryType
-                                    ? `Interest: ${visitor.lastInquiryType}`
-                                    : 'No company hint yet'}
+                                {visitor.contactEmail || visitor.contactPhone
+                                  ? `Direct contact: ${[visitor.contactEmail, visitor.contactPhone].filter(Boolean).join(' · ')}`
+                                  : visitor.company
+                                    ? `Company hint: ${visitor.company}`
+                                    : visitor.lastInquiryType
+                                      ? `Interest: ${visitor.lastInquiryType}`
+                                      : 'No company hint yet'}
                                 {visitor.ipAddress ? ` · IP ${visitor.ipAddress}` : ''}
                               </div>
 
@@ -2251,10 +2542,15 @@ export default async function AdminDashboardPage({
                       (() => {
                         const intentScore = getVisitorIntentScore(selectedVisitor);
                         const intent = getVisitorIntentSummary(intentScore);
+                        const identity = getVisitorIdentityStatus(selectedVisitor);
                         const orderedRecentPages = selectedVisitor.recentPages
                           .slice(0, 10)
                           .reverse();
                         const detailCards = [
+                          {
+                            label: 'Identity',
+                            value: identity.label,
+                          },
                           {
                             label: 'IP / network',
                             value: selectedVisitor.ipAddress ?? 'Not available',
@@ -2273,6 +2569,15 @@ export default async function AdminDashboardPage({
                             label: 'Interest',
                             value: selectedVisitor.lastInquiryType ?? 'Not captured yet',
                           },
+                          ...(selectedVisitor.contactName
+                            ? [{ label: 'Contact name', value: selectedVisitor.contactName }]
+                            : []),
+                          ...(selectedVisitor.contactEmail
+                            ? [{ label: 'Email', value: selectedVisitor.contactEmail }]
+                            : []),
+                          ...(selectedVisitor.contactPhone
+                            ? [{ label: 'Phone', value: selectedVisitor.contactPhone }]
+                            : []),
                         ];
 
                         return (
@@ -2308,7 +2613,9 @@ export default async function AdminDashboardPage({
                               </div>
                               <div style={{ display: 'grid', gap: '6px', justifyItems: 'end' }}>
                                 {renderPill(`${intent.label} · ${intentScore}/100`, intent.tone)}
-                                {selectedVisitor.conversionCount > 0
+                                {renderPill(identity.label, identity.tone)}
+                                {selectedVisitor.conversionCount > 0 ||
+                                hasKnownContact(selectedVisitor)
                                   ? renderPill('Lead captured', 'green')
                                   : renderPill('Watching', 'blue')}
                               </div>
@@ -2348,6 +2655,29 @@ export default async function AdminDashboardPage({
                                   </div>
                                 </div>
                               ))}
+                            </div>
+
+                            <div
+                              style={{
+                                marginBottom: '12px',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                background: 'rgba(15, 23, 42, 0.72)',
+                                border: '1px solid rgba(148,163,184,0.1)',
+                              }}
+                            >
+                              <div
+                                style={{ color: '#f8fbff', fontWeight: 700, marginBottom: '8px' }}
+                              >
+                                Best follow-up route
+                              </div>
+                              <div style={{ color: '#cfe5ff', fontSize: '13px', lineHeight: 1.7 }}>
+                                {selectedVisitor.contactEmail || selectedVisitor.contactPhone
+                                  ? `Reach out directly${selectedVisitor.contactEmail ? ` via ${selectedVisitor.contactEmail}` : ''}${selectedVisitor.contactPhone ? `${selectedVisitor.contactEmail ? ' or' : ' via'} ${selectedVisitor.contactPhone}` : ''}.`
+                                  : selectedVisitor.company
+                                    ? `Research ${selectedVisitor.company} and use LinkedIn, the company website, or a tailored email intro based on the pages viewed.`
+                                    : 'No direct contact details yet — use stronger CTA offers or retargeting until the visitor identifies themselves.'}
+                              </div>
                             </div>
 
                             <div

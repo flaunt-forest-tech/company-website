@@ -12,6 +12,9 @@ export type ProspectScoutItem = {
   summary: string;
   reasons: string[];
   nextAction: string;
+  contactState: string;
+  outreachChannel: string;
+  suggestedMessage: string;
 };
 
 export type ProspectScoutSnapshot = {
@@ -20,6 +23,7 @@ export type ProspectScoutSnapshot = {
   actionLabel: string;
   hotCount: number;
   returningCount: number;
+  reachableCount: number;
   items: ProspectScoutItem[];
 };
 
@@ -37,11 +41,21 @@ function getProspectScore(visitor: AnalyticsVisitorRecord): number {
       (visitor.recentPages.includes('/contact') ? 14 : 0) +
       (visitor.company ? 10 : 0) +
       (visitor.lastInquiryType ? 8 : 0) +
+      (visitor.contactEmail ? 16 : 0) +
+      (visitor.contactPhone ? 12 : 0) +
       (spanMinutes >= 10 ? 8 : 0)
   );
 }
 
 function getDisplayName(visitor: AnalyticsVisitorRecord): string {
+  if (visitor.contactName && visitor.company) {
+    return `${visitor.contactName} · ${visitor.company}`;
+  }
+
+  if (visitor.contactName) {
+    return visitor.contactName;
+  }
+
   if (visitor.company) {
     return visitor.company;
   }
@@ -53,6 +67,22 @@ function getDisplayName(visitor: AnalyticsVisitorRecord): string {
   return `Visitor ${visitor.id.slice(0, 8)}`;
 }
 
+function getContactState(visitor: AnalyticsVisitorRecord): string {
+  if (visitor.contactEmail || visitor.contactPhone) {
+    return 'Known contact';
+  }
+
+  if (visitor.company) {
+    return 'Likely company account';
+  }
+
+  if (visitor.ipAddress) {
+    return 'Network-level match';
+  }
+
+  return 'Anonymous visitor';
+}
+
 function buildReasons(visitor: AnalyticsVisitorRecord, score: number): string[] {
   const reasons: string[] = [];
 
@@ -60,6 +90,14 @@ function buildReasons(visitor: AnalyticsVisitorRecord, score: number): string[] 
     reasons.push(
       `${visitor.conversionCount} lead submission${visitor.conversionCount === 1 ? '' : 's'}`
     );
+  }
+
+  if (visitor.contactEmail) {
+    reasons.push(`Email captured: ${visitor.contactEmail}`);
+  }
+
+  if (visitor.contactPhone) {
+    reasons.push(`Phone captured: ${visitor.contactPhone}`);
   }
 
   if (visitor.viewCount >= 4) {
@@ -86,15 +124,15 @@ function buildReasons(visitor: AnalyticsVisitorRecord, score: number): string[] 
     reasons.push(score >= 35 ? 'Repeated browsing pattern' : 'Early-stage site exploration');
   }
 
-  return reasons.slice(0, 4);
+  return reasons.slice(0, 5);
 }
 
 function getPriority(score: number, visitor: AnalyticsVisitorRecord): ProspectScoutPriority {
-  if (visitor.conversionCount > 0 || score >= 75) {
+  if (visitor.conversionCount > 0 || visitor.contactEmail || visitor.contactPhone || score >= 75) {
     return 'Hot';
   }
 
-  if (score >= 45 || visitor.viewCount >= 3) {
+  if (score >= 45 || visitor.viewCount >= 3 || Boolean(visitor.company)) {
     return 'Warm';
   }
 
@@ -104,6 +142,10 @@ function getPriority(score: number, visitor: AnalyticsVisitorRecord): ProspectSc
 function buildSummary(visitor: AnalyticsVisitorRecord, priority: ProspectScoutPriority): string {
   const companyText = visitor.company ? ` from ${visitor.company}` : '';
   const sourceText = visitor.source ? ` via ${visitor.source}` : '';
+
+  if (visitor.contactEmail || visitor.contactPhone) {
+    return `Known lead${companyText}${sourceText} can now be followed up directly without waiting for more anonymous activity.`;
+  }
 
   if (priority === 'Hot') {
     return `Returning prospect${companyText}${sourceText} is showing clear buying intent and should be followed up quickly.`;
@@ -116,9 +158,32 @@ function buildSummary(visitor: AnalyticsVisitorRecord, priority: ProspectScoutPr
   return `Early-stage visitor${sourceText} is still researching and should stay in the watchlist.`;
 }
 
+function buildOutreachChannel(
+  visitor: AnalyticsVisitorRecord,
+  priority: ProspectScoutPriority
+): string {
+  if (visitor.contactPhone) {
+    return 'Call / WhatsApp';
+  }
+
+  if (visitor.contactEmail) {
+    return 'Personalized email';
+  }
+
+  if (visitor.company) {
+    return 'LinkedIn / company outreach';
+  }
+
+  return priority === 'Warm' ? 'Retargeting + CTA' : 'Watch only';
+}
+
 function buildNextAction(visitor: AnalyticsVisitorRecord, priority: ProspectScoutPriority): string {
-  if (visitor.conversionCount > 0) {
-    return 'Reply fast with a tailored discovery call invite.';
+  if (visitor.contactPhone) {
+    return 'Call within one business day and reference the pages they explored.';
+  }
+
+  if (visitor.contactEmail) {
+    return 'Send a tailored email with a discovery-call link and one relevant case study.';
   }
 
   if (visitor.recentPages.includes('/contact')) {
@@ -136,6 +201,26 @@ function buildNextAction(visitor: AnalyticsVisitorRecord, priority: ProspectScou
   return 'Monitor for another return visit before outbound follow-up.';
 }
 
+function buildSuggestedMessage(
+  visitor: AnalyticsVisitorRecord,
+  priority: ProspectScoutPriority
+): string {
+  const firstName = visitor.contactName?.split(' ')[0] ?? 'there';
+  const interest = visitor.lastInquiryType ?? visitor.pages[0]?.path ?? 'your project';
+
+  if (visitor.contactEmail || visitor.contactPhone) {
+    return `Hi ${firstName}, thanks for checking our ${interest} work. Happy to share a quick plan or hop on a short call this week.`;
+  }
+
+  if (visitor.company) {
+    return `Reach out to ${visitor.company} with a short intro, one proof point, and a call invite tied to ${interest}.`;
+  }
+
+  return priority === 'Warm'
+    ? `Retarget this visitor with a case study and a stronger “book a call” CTA around ${interest}.`
+    : 'Keep observing, then re-engage once they return or hit the contact page.';
+}
+
 export function buildProspectScout(visitors: AnalyticsVisitorRecord[]): ProspectScoutSnapshot {
   const items = visitors
     .map((visitor) => {
@@ -150,6 +235,9 @@ export function buildProspectScout(visitors: AnalyticsVisitorRecord[]): Prospect
         summary: buildSummary(visitor, priority),
         reasons: buildReasons(visitor, score),
         nextAction: buildNextAction(visitor, priority),
+        contactState: getContactState(visitor),
+        outreachChannel: buildOutreachChannel(visitor, priority),
+        suggestedMessage: buildSuggestedMessage(visitor, priority),
       } satisfies ProspectScoutItem;
     })
     .sort((left, right) => right.score - left.score)
@@ -158,6 +246,9 @@ export function buildProspectScout(visitors: AnalyticsVisitorRecord[]): Prospect
   const hotCount = items.filter((item) => item.priority === 'Hot').length;
   const returningCount = visitors.filter(
     (visitor) => visitor.viewCount >= 4 || visitor.pages.length >= 3 || visitor.conversionCount > 0
+  ).length;
+  const reachableCount = visitors.filter((visitor) =>
+    Boolean(visitor.contactEmail || visitor.contactPhone)
   ).length;
   const leadItem = items[0];
 
@@ -174,6 +265,7 @@ export function buildProspectScout(visitors: AnalyticsVisitorRecord[]): Prospect
     actionLabel: leadItem?.nextAction ?? 'Keep monitoring the dashboard for fresh activity.',
     hotCount,
     returningCount,
+    reachableCount,
     items,
   };
 }

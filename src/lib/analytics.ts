@@ -51,6 +51,9 @@ export type AnalyticsVisitorRecord = {
   utmSource: string | null;
   utmCampaign: string | null;
   lastInquiryType: string | null;
+  contactName: string | null;
+  contactEmail: string | null;
+  contactPhone: string | null;
   viewCount: number;
   conversionCount: number;
   pages: AnalyticsPageStat[];
@@ -90,6 +93,9 @@ type FileAnalyticsVisitorRecord = {
   utmSource?: string | null;
   utmCampaign?: string | null;
   lastInquiryType?: string | null;
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   viewCount: number;
   conversionCount: number;
   pages: Record<string, number>;
@@ -369,6 +375,23 @@ function normalizeIpAddress(value?: string | null): string | null {
   return formatClientIpLabel(value);
 }
 
+function normalizeContactName(value?: string | null): string | null {
+  const normalized = value?.replace(/\s+/g, ' ').trim();
+  return normalized ? normalized.slice(0, 100) : null;
+}
+
+function normalizeContactEmail(value?: string | null): string | null {
+  const normalized = value?.trim().toLowerCase();
+  return normalized && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)
+    ? normalized.slice(0, 120)
+    : null;
+}
+
+function normalizeContactPhone(value?: string | null): string | null {
+  const normalized = value?.replace(/\s+/g, ' ').trim();
+  return normalized ? normalized.slice(0, 40) : null;
+}
+
 type VisitorUpdateInput = {
   visitorId: string;
   nowIso: string;
@@ -381,6 +404,9 @@ type VisitorUpdateInput = {
   utmSourceLabel?: string | null;
   campaignLabel?: string | null;
   inquiryType?: string | null;
+  contactName?: string | null;
+  contactEmail?: string | null;
+  contactPhone?: string | null;
   incrementView?: boolean;
   markConversion?: boolean;
 };
@@ -403,6 +429,9 @@ function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdate
       utmSource: input.utmSourceLabel ?? null,
       utmCampaign: input.campaignLabel ?? null,
       lastInquiryType: input.inquiryType ?? null,
+      contactName: input.contactName ?? null,
+      contactEmail: input.contactEmail ?? null,
+      contactPhone: input.contactPhone ?? null,
       viewCount: 0,
       conversionCount: 0,
       pages: {},
@@ -418,6 +447,9 @@ function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdate
   record.utmSource = input.utmSourceLabel ?? record.utmSource ?? null;
   record.utmCampaign = input.campaignLabel ?? record.utmCampaign ?? null;
   record.lastInquiryType = input.inquiryType ?? record.lastInquiryType ?? null;
+  record.contactName = input.contactName ?? record.contactName ?? null;
+  record.contactEmail = input.contactEmail ?? record.contactEmail ?? null;
+  record.contactPhone = input.contactPhone ?? record.contactPhone ?? null;
 
   if (normalizedPath) {
     record.recentPages = Array.from(new Set([normalizedPath, ...(record.recentPages ?? [])])).slice(
@@ -471,6 +503,9 @@ async function getRecentVisitorsFromRedis(
         utmSource: recordRaw.utmSource || null,
         utmCampaign: recordRaw.utmCampaign || null,
         lastInquiryType: recordRaw.lastInquiryType || null,
+        contactName: recordRaw.contactName || null,
+        contactEmail: recordRaw.contactEmail || null,
+        contactPhone: recordRaw.contactPhone || null,
         viewCount: Number(
           recordRaw.viewCount ?? Object.values(pageMap).reduce((sum, value) => sum + value, 0)
         ),
@@ -509,6 +544,9 @@ function getRecentVisitorsFromFile(
       utmSource: visitor.utmSource ?? null,
       utmCampaign: visitor.utmCampaign ?? null,
       lastInquiryType: visitor.lastInquiryType ?? null,
+      contactName: visitor.contactName ?? null,
+      contactEmail: visitor.contactEmail ?? null,
+      contactPhone: visitor.contactPhone ?? null,
       viewCount: visitor.viewCount ?? 0,
       conversionCount: visitor.conversionCount ?? 0,
       pages: sortPages(visitor.pages ?? {}),
@@ -768,7 +806,9 @@ export async function trackConversion(
   input: {
     type?: 'contact-form';
     inquiryType?: string | null;
+    name?: string | null;
     email?: string | null;
+    phone?: string | null;
     company?: string | null;
     sourcePage?: string | null;
     utmSource?: string | null;
@@ -784,7 +824,10 @@ export async function trackConversion(
   const dateKey = getDateKey(now);
   const conversionKey = input.type ?? 'contact-form';
   const inquiryType = normalizeInquiryType(input.inquiryType);
-  const companyLabel = normalizeCompanyLabel(input.company) ?? inferCompanyFromEmail(input.email);
+  const contactName = normalizeContactName(input.name);
+  const contactEmail = normalizeContactEmail(input.email);
+  const contactPhone = normalizeContactPhone(input.phone);
+  const companyLabel = normalizeCompanyLabel(input.company) ?? inferCompanyFromEmail(contactEmail);
   const sourcePageLabel = normalizeLeadPage(input.sourcePage);
   const utmSourceLabel = normalizeUtmValue(input.utmSource);
   const campaignLabel = buildCampaignLabel(input);
@@ -818,6 +861,9 @@ export async function trackConversion(
           ...(companyLabel ? { company: companyLabel } : {}),
           ...(utmSourceLabel ? { utmSource: utmSourceLabel } : {}),
           ...(campaignLabel ? { utmCampaign: campaignLabel } : {}),
+          ...(contactName ? { contactName } : {}),
+          ...(contactEmail ? { contactEmail } : {}),
+          ...(contactPhone ? { contactPhone } : {}),
         })
         .hSetNX(visitorKey, 'firstSeenAt', nowIso)
         .hIncrBy(visitorKey, 'conversionCount', 1)
@@ -916,6 +962,9 @@ export async function trackConversion(
     utmSourceLabel,
     campaignLabel,
     inquiryType,
+    contactName,
+    contactEmail,
+    contactPhone,
     incrementView: false,
     markConversion: true,
   });

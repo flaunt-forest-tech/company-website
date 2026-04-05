@@ -266,7 +266,9 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     await trackConversion({
       type: 'contact-form',
       inquiryType: formData.inquiryType,
+      name: formData.name,
       email: senderEmail,
+      phone: formData.phone,
       sourcePage: formData.sourcePage || requestHeaders.get('referer'),
       utmSource: formData.utmSource,
       utmMedium: formData.utmMedium,
