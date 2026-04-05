@@ -5,8 +5,8 @@ import ServicesSection from '@/components/it-services/services-section';
 
 export default function DataSecurityPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'DATA INTELLIGENCE & ANALYTICS',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
+    title: 'WEBSITES & CLIENT PORTALS',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Websites & Client Portals' }],
   };
   return (
     <ITServicePageLayout pageHeaderData={pageHeaderData}>

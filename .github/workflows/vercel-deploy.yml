@@ -2,25 +2,57 @@ name: Deploy to Vercel
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
   push:
     branches:
       - main
 
+concurrency:
+  group: vercel-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  deploy:
+  preview-deploy:
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Skip when deploy hook is not configured
+      - name: Notice when preview hook is not configured
+        if: ${{ secrets.VERCEL_PREVIEW_DEPLOY_HOOK == '' }}
+        run: |
+          echo "VERCEL_PREVIEW_DEPLOY_HOOK is not set, so PR preview deploys are being skipped."
+          echo "Add the preview deploy hook URL in GitHub repo Settings > Secrets and variables > Actions to re-enable Vercel preview auto deploys from pull requests."
+
+      - name: Trigger Vercel Preview Deploy Hook
+        if: ${{ secrets.VERCEL_PREVIEW_DEPLOY_HOOK != '' }}
+        env:
+          VERCEL_PREVIEW_DEPLOY_HOOK: ${{ secrets.VERCEL_PREVIEW_DEPLOY_HOOK }}
+        run: |
+          curl --fail --silent --show-error --location --retry 3 --request POST "$VERCEL_PREVIEW_DEPLOY_HOOK"
+          echo "Vercel preview deploy hook triggered successfully."
+
+  production-deploy:
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notice when production hook is not configured
         if: ${{ secrets.VERCEL_DEPLOY_HOOK == '' }}
         run: |
-          echo "VERCEL_DEPLOY_HOOK is not set, so the manual deploy hook step is being skipped."
-          echo "If you want GitHub Actions to explicitly trigger flauntforest, add the hook URL in repo Settings > Secrets and variables > Actions."
+          echo "VERCEL_DEPLOY_HOOK is not set, so production deploys from main are being skipped."
+          echo "Add the production deploy hook URL in GitHub repo Settings > Secrets and variables > Actions to re-enable main-branch Vercel auto deploys."
 
-      - name: Trigger Vercel Deploy Hook
+      - name: Trigger Vercel Production Deploy Hook
         if: ${{ secrets.VERCEL_DEPLOY_HOOK != '' }}
         env:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
         run: |
           curl --fail --silent --show-error --location --retry 3 --request POST "$VERCEL_DEPLOY_HOOK"
-          echo "Vercel deploy hook triggered successfully."
+          echo "Vercel production deploy hook triggered successfully."

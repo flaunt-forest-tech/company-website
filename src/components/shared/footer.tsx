@@ -44,10 +44,10 @@ export default function Footer() {
             <h4 className="ls-0">QUICK LINKS</h4>
             <ul className="list-unstyled">
               <li className="mb-1">
-                <Link href="/ai-solutions">AI Solutions</Link>
+                <Link href="/it-services">Services &amp; Process</Link>
               </li>
               <li className="mb-1">
-                <Link href="/it-services">AI Delivery Roadmap</Link>
+                <Link href="/ai-solutions">AI Solutions</Link>
               </li>
               <li className="mb-1">
                 <Link href="/careers">Careers</Link>

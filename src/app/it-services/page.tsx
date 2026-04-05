@@ -10,9 +10,10 @@ import Link from 'next/link';
 
 export default function ITServicesOverviewPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'AI DELIVERY ROADMAP',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Delivery Roadmap' }],
+    title: 'SERVICES & PROCESS',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Services & Process' }],
   };
+
   return (
     <div className="body">
       <Header activePage="ITServices" />
@@ -31,18 +32,18 @@ function ServicesSection() {
   const processSteps = [
     {
       step: '1',
-      title: '1. DATA FOUNDATION',
-      desc: 'We start by mapping your business goals to data. We design the metrics, data model, and reporting layer needed for confident decision-making.',
+      title: '1. UNDERSTAND THE WORKFLOW',
+      desc: 'We start by understanding what you are trying to improve, where the friction is, and what a better result should look like.',
     },
     {
       step: '2',
-      title: '2. AUTOMATION ENGINEERING',
-      desc: 'Next, we transform workflows using intelligent automation and agentic AI systems so operations run faster with less manual overhead.',
+      title: '2. DEFINE THE RIGHT SOLUTION',
+      desc: 'We recommend a practical scope based on the real need, whether that is a website, internal tool, automation flow, backend work, or cloud support.',
     },
     {
       step: '3',
-      title: '3. AI SCALE-UP',
-      desc: 'Finally, we deploy AI solutions on top of your data and infrastructure stack, then optimize continuously to keep performance and business outcomes growing.',
+      title: '3. BUILD, LAUNCH, AND IMPROVE',
+      desc: 'We deliver the system, help get it live, and continue improving it where useful after launch.',
     },
   ];
 
@@ -61,19 +62,18 @@ function ServicesSection() {
           <div className="col-md-10 text-center">
             <div className="overflow-hidden mb-2">
               <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
-                OUR EXPERTISE
+                OUR SERVICES
               </span>
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                Delivery Roadmap for AI-Driven Growth
+                Services built around practical business needs
               </h2>
             </div>
             <p className="custom-text-size-1 mb-5">
-              We help companies and teams modernize existing platforms and build new websites and
-              apps from scratch, then scale with agentic AI, intelligent automation, and modern
-              infrastructure for long-term growth across frontend, backend, database, and
-              AWS/GCP/Azure cloud environments.
+              We work with small and midsize businesses, service providers, growing teams, and
+              individual clients who need clearer systems, better websites, automation, or reliable
+              technical support.
             </p>
           </div>
         </div>
@@ -92,12 +92,6 @@ function ServicesSection() {
                   />
                   <h4 className="text-color-primary font-weight-bold text-6 mb-3">{title}</h4>
                   <p className="custom-text-size-1">{description}</p>
-                  {/* <a
-                    href="/demo-it-services-services-detail"
-                    className="text-color-dark font-weight-bold custom-text-size-1"
-                  >
-                    READ MORE +
-                  </a> */}
                   <Link href={link} className="text-color-dark font-weight-bold custom-text-size-1">
                     READ MORE +
                   </Link>
@@ -108,10 +102,15 @@ function ServicesSection() {
         </div>
 
         <div className="row">
-          <div className="col">
+          <div className="col text-center">
+            <div className="overflow-hidden mb-2">
+              <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
+                HOW WE WORK
+              </span>
+            </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-center text-8 line-height-2 mb-0">
-                Our Process
+                A simple, professional delivery process
               </h2>
             </div>
           </div>

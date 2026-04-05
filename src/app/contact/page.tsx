@@ -27,8 +27,8 @@ export type ContactFormInputs = {
 
 export default function ContactPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'CONTACT US',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Contact Us' }],
+    title: 'CONTACT',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'Contact' }],
   };
   return (
     <div className="body">
@@ -37,6 +37,7 @@ export default function ContactPage() {
         <PageHeader {...pageHeaderData} />
         <LocationSection />
         <ContactSection />
+        <ContactSupportSections />
       </div>
       <Footer />
       <ScriptLoader />
@@ -71,9 +72,7 @@ function LocationSection() {
                       />
                     </div>
                     <div className="feature-box-info ps-2 pt-1">
-                      <h4 className="text-color-light font-weight-bold text-6">
-                        Corporate Headquarters
-                      </h4>
+                      <h4 className="text-color-light font-weight-bold text-6">Office</h4>
                       <p className="text-color-light opacity-5 font-weight-light custom-text-size-1 pb-2 mb-4">
                         {CONTACT.ADDRESS.street}
                         <br />
@@ -256,7 +255,7 @@ function ContactSection() {
                 data-appear-animation="maskUp"
                 data-appear-animation-delay="500"
               >
-                Tell Us What You Are Exploring
+                Tell Us What You Need Help With
               </h2>
             </div>
             <p
@@ -264,11 +263,9 @@ function ContactSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Tell us about your current systems, priorities, and constraints. We can help with
-              existing platform upgrades, new website and app development, agentic AI systems,
-              business-critical platform support, cross-system data integration, full-stack delivery
-              (frontend, backend, database), and AI implementation on AWS, GCP, Azure, or hybrid
-              cloud.
+              A short summary is enough to start. We help with websites, automation, custom
+              software, internal tools, backend systems, integrations, cloud deployment, and other
+              practical technical projects for businesses, teams, and individual clients.
             </p>
           </div>
         </div>
@@ -357,27 +354,22 @@ function ContactSection() {
                     <option value="" disabled>
                       Project Focus
                     </option>
-                    <option value="Data Foundation & Analytics">Data Foundation & Analytics</option>
-                    <option value="AI Strategy & Next Steps">AI Strategy & Next Steps</option>
-                    <option value="AI Agents & Automation">AI Agents & Automation</option>
-                    <option value="Web/App + AI Integration">Web/App + AI Integration</option>
-                    <option value="New Website / App Development">
-                      New Website / App Development
+                    <option value="Automation or AI">Automation or AI</option>
+                    <option value="Custom Software or Internal Tool">
+                      Custom Software or Internal Tool
                     </option>
-                    <option value="Full-Stack Engineering (Frontend/Backend/Database)">
-                      Full-Stack Engineering (Frontend/Backend/Database)
+                    <option value="Website or Web App">Website or Web App</option>
+                    <option value="Backend, API, or Integration">
+                      Backend, API, or Integration
                     </option>
-                    <option value="Business-Critical Platform Support">
-                      Business-Critical Platform Support
+                    <option value="Cloud Deployment or Support">Cloud Deployment or Support</option>
+                    <option value="Small Business System Improvement">
+                      Small Business System Improvement
                     </option>
-                    <option value="Cloud Architecture (AWS/GCP/Azure)">
-                      Cloud Architecture (AWS/GCP/Azure)
+                    <option value="Personal or Individual Project">
+                      Personal or Individual Project
                     </option>
-                    <option value="Cross-System Data Integration & Analytics">
-                      Cross-System Data Integration & Analytics
-                    </option>
-                    <option value="Cloud & Infrastructure">Cloud & Infrastructure</option>
-                    <option value="Web3.0 Solutions">Web3.0 Solutions</option>
+                    <option value="Not Sure Yet">Not Sure Yet</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
@@ -447,6 +439,51 @@ function ContactSection() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContactSupportSections() {
+  return (
+    <section className="section bg-color-transparent border-0 mt-0 mb-0 pt-2 pb-4">
+      <div className="container container-xl-custom">
+        <div className="row">
+          <div className="col-lg-6 mb-4">
+            <div className="card border-0 custom-box-shadow-1 h-100">
+              <div className="card-body p-4">
+                <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-2">
+                  WHO THIS IS FOR
+                </span>
+                <h3 className="text-color-dark font-weight-bold text-6 mb-3">
+                  A strong fit if you are
+                </h3>
+                <ul className="custom-text-size-1 ps-3 mb-0">
+                  <li className="pb-2">A small or midsize business improving operations</li>
+                  <li className="pb-2">A team replacing manual workflows and disconnected tools</li>
+                  <li className="pb-2">A service provider needing a better website or portal</li>
+                  <li>An individual client with a clear technical project in mind</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="col-lg-6 mb-4">
+            <div className="card border-0 custom-box-shadow-1 h-100">
+              <div className="card-body p-4">
+                <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-2">
+                  WHAT HAPPENS NEXT
+                </span>
+                <h3 className="text-color-dark font-weight-bold text-6 mb-3">After you submit</h3>
+                <ol className="custom-text-size-1 ps-3 mb-0">
+                  <li className="pb-2">We review your request and current context</li>
+                  <li className="pb-2">We follow up with practical next steps if there is a fit</li>
+                  <li className="pb-2">We align scope, timeline, and delivery approach</li>
+                  <li>We start with the highest-value first step</li>
+                </ol>
+              </div>
+            </div>
           </div>
         </div>
       </div>

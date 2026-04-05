@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+
 const ITServicesOverview: React.FC = () => {
   return (
     <section
@@ -23,7 +24,7 @@ const ITServicesOverview: React.FC = () => {
                 <Image
                   src="/img/generic-1.jpg"
                   className="card-img-top rounded-0 img-fluid"
-                  alt="AI Strategy"
+                  alt="Automation and AI"
                   width={600}
                   height={400}
                   style={{ width: '100%', height: 'auto' }}
@@ -31,11 +32,11 @@ const ITServicesOverview: React.FC = () => {
                 />
                 <div className="card-body pt-4">
                   <h4 className="custom-heading-bar font-weight-bold text-color-dark text-5">
-                    AI STRATEGY
+                    AUTOMATION &amp; AI
                   </h4>
                   <p className="custom-font-secondary text-4 mb-3">
-                    We align AI with your business model to target practical gains: faster
-                    execution, lower operating cost, and better operational visibility.
+                    Reduce repeated admin, improve follow-up, and make day-to-day work easier with
+                    practical automation and carefully applied AI.
                   </p>
                 </div>
               </div>
@@ -48,7 +49,7 @@ const ITServicesOverview: React.FC = () => {
                   <Image
                     src="/img/generic-2.jpg"
                     className="card-img-top rounded-0 img-fluid"
-                    alt="Agentic AI Systems"
+                    alt="Custom software and websites"
                     width={600}
                     height={400}
                     style={{ width: '100%', height: 'auto' }}
@@ -56,11 +57,11 @@ const ITServicesOverview: React.FC = () => {
                   />
                   <div className="card-body pt-4">
                     <h4 className="custom-heading-bar custom-heading-bar-right font-weight-bold text-color-dark text-end text-5">
-                      AGENTIC AI SYSTEMS
+                      CUSTOM SOFTWARE &amp; WEBSITES
                     </h4>
                     <p className="text-end custom-font-secondary text-4 ps-4 ms-3 mb-3">
-                      We build agentic AI systems that automate workflows, support decision-making,
-                      and keep critical operations moving without bottlenecks.
+                      Build portals, internal tools, websites, and web apps around the way you
+                      actually work instead of forcing more workarounds.
                     </p>
                   </div>
                 </div>
@@ -82,33 +83,40 @@ const ITServicesOverview: React.FC = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              WHO WE ARE
+              HOW WE COLLABORATE
             </span>
             <h2
               className="text-color-dark font-weight-bold text-8 line-height-2 negative-ls-1 pb-3 mb-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We help teams turn operations into AI-enabled systems
+              Direct communication, practical scope, and accountable delivery
             </h2>
             <p
-              className="custom-text-size-1 pb-3 mb-4 appear-animation"
+              className="custom-text-size-1 pb-3 mb-3 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Founded in 2025 and headquartered in Houston, Texas, we help companies modernize
-              existing systems with agentic AI, intelligent automation, and cloud delivery. Our
-              approach is pragmatic, hands-on, and built to improve execution without adding
-              unnecessary complexity. With deep experience in AI implementation and cloud systems,
-              we help businesses in Houston and beyond modernize operations responsibly.
+              We keep projects focused and execution-led. You get clear recommendations, realistic
+              scope, and a build process that stays tied to the real business need.
             </p>
+            <ul
+              className="custom-text-size-1 ps-3 mb-4 appear-animation"
+              data-appear-animation="fadeInUpShorter"
+              data-appear-animation-delay="1200"
+            >
+              <li className="pb-2">Short discovery to define priorities and next steps</li>
+              <li className="pb-2">Focused implementation with regular progress visibility</li>
+              <li className="pb-2">Practical decisions on tools, architecture, and scope</li>
+              <li>Post-launch refinement and ongoing support when needed</li>
+            </ul>
             <Link
-              href="/about-us"
+              href="/it-services"
               className="d-flex align-items-center custom-link-effect-1 text-color-primary font-weight-bold text-decoration-none text-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1300"
             >
-              Learn How We Work <i className="custom-arrow-icon ms-2"></i>
+              See Delivery Approach <i className="custom-arrow-icon ms-2"></i>
             </Link>
           </div>
         </div>

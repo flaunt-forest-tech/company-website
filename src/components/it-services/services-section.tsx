@@ -5,30 +5,30 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const SERVICE_USE_CASES: Record<string, string[]> = {
-  'AI Integration Solutions': [
-    'Executive copilots for faster strategic planning and decision support.',
-    'AI features embedded into full-stack web and app products across frontend, backend, and database layers.',
-    'Predictive models for demand, churn, and revenue optimization across business-critical systems.',
+  'AI & Workflow Automation': [
+    'Lead routing, follow-up, and admin automation that reduce repeated manual tasks.',
+    'Internal notifications, summaries, and workflow handoffs that keep work moving.',
+    'AI assistance for search, classification, support, or information processing where it adds clear value.',
   ],
-  'Agentic AI Systems': [
-    'Autonomous agents handling multi-step internal workflows end-to-end.',
-    'Cross-tool orchestration for support, operations, and back-office execution across API and database workflows.',
-    'Decision automation with human-in-the-loop governance controls.',
+  'Custom Software & Internal Tools': [
+    'Dashboards for operations, requests, bookings, or service delivery.',
+    'Internal tools that replace spreadsheets and patchwork workflows.',
+    'Custom business logic for approvals, tracking, staff workflows, or client management.',
   ],
-  'Data Intelligence & Analytics': [
-    'Leadership dashboards with real-time KPIs and business health visibility.',
-    'Unified pipelines that connect sales, operations, and customer data from multiple platforms.',
-    'Analytics foundations that prepare teams for AI-native execution.',
+  'Websites & Client Portals': [
+    'Conversion-focused websites with clearer messaging and stronger calls to action.',
+    'Client portals and web apps for requests, updates, forms, or account access.',
+    'Service platforms that make it easier for people to interact with you online.',
   ],
-  'Cloud, Platform & Infrastructure': [
-    'Cloud modernization on AWS, GCP, and Azure for AI workloads and scalable digital products.',
-    'Reliability engineering to reduce downtime and protect performance.',
-    'Security and governance baselines for compliant growth at scale across hybrid environments.',
+  'Backend Systems & Integrations': [
+    'APIs and integrations that connect forms, CRMs, databases, payments, or internal tools.',
+    'Backend logic for automation, reporting, portals, and business workflows.',
+    'Data handling and system structure that make your setup more reliable and easier to extend.',
   ],
-  'Web3.0 & Decentralized Systems': [
-    'Blockchain-based workflows for transparent records and trusted transactions.',
-    'Smart contract systems that automate validation and execution logic.',
-    'Decentralized applications for new ecosystem and platform business models.',
+  'Cloud Deployment & Support': [
+    'Hosting, deployment, and environment setup for websites, apps, and automation systems.',
+    'Performance fixes, reliability improvements, and ongoing technical support.',
+    'A cleaner cloud setup that is easier to maintain as your needs change.',
   ],
 };
 
@@ -50,7 +50,7 @@ export default function ServicesSection() {
           <div className="col-md-7 mb-5 mb-md-0">
             <div className="overflow-hidden mb-2">
               <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-0">
-                EXTEND YOUR BUSINESS
+                SERVICE OVERVIEW
               </span>
             </div>
             <div className="overflow-hidden mb-4">
@@ -96,7 +96,7 @@ export default function ServicesSection() {
             />
             <Image
               src="/img/about-us/generic-1.jpg"
-              alt="Our Employer Culture"
+              alt="Project planning and delivery"
               width={500}
               height={500}
               className="img-fluid position-relative z-index-1"
@@ -104,24 +104,22 @@ export default function ServicesSection() {
           </div>
           <div className="col-lg-6">
             <p className="custom-text-size-1 pb-2 mb-4">
-              Our team combines data strategy, automation engineering, and AI delivery expertise to
-              turn business goals into measurable outcomes with full-stack execution.
+              We combine planning, build, and deployment so you get a clear path from problem to a
+              working solution.
             </p>
             <p className="custom-text-size-1 pb-2 mb-4">
-              We treat IT and cloud as the foundation, then build intelligent capabilities on top so
-              your operations can scale with confidence across frontend, backend, and database
-              systems.
+              Some clients need a focused website or portal. Others need backend work, automation,
+              internal tools, or technical cleanup. We shape the work around the actual need.
             </p>
             <p className="custom-text-size-1 pb-3 mb-4">
-              From data and analytics to AI-native workflows on AWS, GCP, Azure, and hybrid cloud,
-              we help you move faster, make smarter decisions, and unlock long-term growth
-              opportunities.
+              The aim is dependable delivery, useful systems, and better day-to-day operations, not
+              vague promises or unnecessary complexity.
             </p>
             <a
               href="/contact"
               className="btn btn-secondary btn-outline text-color-dark font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3"
             >
-              DISCUSS YOUR USE CASE <i className="custom-arrow-icon ms-5" />
+              TALK THROUGH YOUR PROJECT <i className="custom-arrow-icon ms-5" />
             </a>
           </div>
         </div>
@@ -141,14 +139,14 @@ export default function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                Where This Service Creates Value
+                Where this service fits best
               </h2>
             </div>
           </div>
         </div>
         <div className="row mb-5">
           {(
-            SERVICE_USE_CASES[mainService.title] || SERVICE_USE_CASES['AI Integration Solutions']
+            SERVICE_USE_CASES[mainService.title] || SERVICE_USE_CASES['AI & Workflow Automation']
           ).map((item) => (
             <div key={item} className="col-md-6 col-lg-4 mb-4">
               <div className="card border-0 custom-box-shadow-1 h-100">
@@ -169,7 +167,7 @@ export default function ServicesSection() {
             </div>
             <div className="overflow-hidden mb-4">
               <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-0">
-                More Services We Offer
+                More ways we can help
               </h2>
             </div>
           </div>
@@ -188,16 +186,16 @@ export default function ServicesSection() {
                       width={100}
                       height={100}
                       alt={service.title}
-                      className={`img-fluid svg-fill-color-${service.titleClass}`}
+                      className="img-fluid"
                     />
                   </div>
-                  <h4 className={`text-color-${service.titleClass} font-weight-bold text-6 mb-3`}>
+                  <h4 className={`${service.titleClass} font-weight-bold text-6 mb-3`}>
                     {service.title}
                   </h4>
                   <p className="custom-text-size-1 px-lg-4">{service.description}</p>
                   <Link
                     href={service.link}
-                    className={`text-color-${service.linkClass} font-weight-bold custom-text-size-1`}
+                    className={`${service.linkClass} font-weight-bold custom-text-size-1`}
                   >
                     READ MORE +
                   </Link>

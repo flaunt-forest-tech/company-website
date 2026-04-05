@@ -7,11 +7,12 @@ import { cn } from '@/lib/utils';
 import { CONTACT } from '@/constants/contact';
 
 type HeaderProps = {
-  activePage: 'Home' | 'AboutUs' | 'AISolutions' | 'ITServices' | 'Careers' | 'Contact'; // prop to determine the active page
+  activePage: 'Home' | 'AboutUs' | 'AISolutions' | 'ITServices' | 'Careers' | 'Contact';
 };
 
 const Header: React.FC<HeaderProps> = ({ activePage }) => {
   const isItServiceMenuActive = activePage === 'ITServices' || activePage === 'AISolutions';
+
   return (
     <header
       id="header"
@@ -57,44 +58,44 @@ const Header: React.FC<HeaderProps> = ({ activePage }) => {
                             className={cn('dropdown-item dropdown-toggle', {
                               active: isItServiceMenuActive,
                             })}
-                            href="/ai-solutions"
+                            href="/it-services"
                           >
-                            AI Solutions
+                            Services
                           </Link>
                           <ul className="dropdown-menu">
+                            <li>
+                              <Link className="nav-link" href="/it-services">
+                                Services &amp; Process
+                              </Link>
+                            </li>
                             <li>
                               <Link className="nav-link" href="/ai-solutions">
                                 AI Solutions
                               </Link>
                             </li>
                             <li>
-                              <Link className="nav-link" href="/it-services">
-                                AI Delivery Roadmap
-                              </Link>
-                            </li>
-                            <li>
                               <Link className="nav-link" href="/it-services/cloud-services">
-                                AI Integration Solutions
+                                AI &amp; Workflow Automation
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/tech-support">
-                                Agentic AI Systems
+                                Custom Software &amp; Internal Tools
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/data-security">
-                                Data Intelligence &amp; Analytics
+                                Websites &amp; Client Portals
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/software-dev">
-                                Cloud, Platform &amp; Infrastructure
+                                Backend Systems &amp; Integrations
                               </Link>
                             </li>
                             <li>
                               <Link className="nav-link" href="/it-services/web3-solutions">
-                                Web3.0 &amp; Decentralized Systems
+                                Cloud Deployment &amp; Support
                               </Link>
                             </li>
                           </ul>
