@@ -4,7 +4,7 @@ import { timingSafeEqual } from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
 import { google, gmail_v1 } from 'googleapis';
-import { createClient } from 'redis';
+import { getSharedRedisClient } from '@/lib/redis';
 import { PubSubMessage, GmailPushPayload } from './types';
 
 export const runtime = 'nodejs';
@@ -146,59 +146,6 @@ const STORE_DIR = path.join(process.cwd(), 'data');
 const STORE_FILE = path.join(STORE_DIR, 'gmail-history.json');
 const PROCESSED_FILE = path.join(STORE_DIR, 'gmail-processed.json');
 
-// Redis client (optional). Configure with REDIS_URL or REDIS_HOST/REDIS_PORT.
-let redisClient: ReturnType<typeof createClient> | null = null;
-let redisConnected = false;
-
-function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) return process.env.REDIS_URL;
-  const host = process.env.REDIS_HOST;
-  const port = process.env.REDIS_PORT ?? '6379';
-  if (host) return `redis://${host}:${port}`;
-  return null;
-}
-
-async function ensureRedis() {
-  if (redisConnected) return redisClient;
-
-  const url = getRedisUrl();
-  if (!url) return null;
-
-  const useTls = url.startsWith('rediss://');
-  const u = new URL(url);
-  const skipTlsVerification = process.env.REDIS_TLS_INSECURE_SKIP_VERIFY === 'true';
-
-  const client = createClient({
-    url,
-    socket: useTls
-      ? {
-          tls: true,
-          rejectUnauthorized: !skipTlsVerification,
-          servername: u.hostname,
-        }
-      : undefined,
-  });
-
-  try {
-    await client.connect();
-  } catch {
-    try {
-      await client.disconnect();
-    } catch {}
-    console.error('Failed to connect to Redis, falling back to file store');
-    return null;
-  }
-
-  client.on('error', (err) =>
-    console.error('Redis error', err instanceof Error ? err.message : err)
-  );
-
-  redisClient = client;
-  redisConnected = true;
-  console.log(`Connected to Redis${skipTlsVerification ? ' with insecure TLS verification disabled' : ''}`);
-  return redisClient;
-}
-
 type HistoryStore = Record<string, string>; // emailAddress -> lastHistoryId
 type ProcessedStore = Record<string, Record<string, true>>; // emailAddress -> { msgId: true }
 
@@ -288,7 +235,7 @@ export async function POST(req: Request) {
     messageId: body.message.messageId,
   });
 
-  const r = await ensureRedis();
+  const r = await getSharedRedisClient();
 
   async function getLastHistory(emailAddr: string): Promise<string | null> {
     if (r) {

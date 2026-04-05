@@ -1,79 +1,25 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { createClient } from 'redis';
 import { Resend } from 'resend';
+
+import { trackConversion } from '@/lib/analytics';
+import { getLeadScore, getLeadTemperature, sendLeadAlert } from '@/lib/lead-alerts';
+import { getSharedRedisClient } from '@/lib/redis';
+import { extractClientIp } from '@/lib/request-ip';
+
 import { ContactFormInputs } from '../contact/page';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const emailFrom = process.env.RESEND_FROM_EMAIL || 'Acme <onboarding@resend.dev>';
-const emailTo = process.env.CONTACT_TO_EMAIL || 'sales@flauntforest.com';
+const contactEmailTo = process.env.CONTACT_TO_EMAIL || 'sales@flauntforest.com';
+const leadAlertEmailTo = process.env.LEAD_ALERT_TO_EMAIL || 'flauntforesttech@gmail.com';
 
 // In-memory fallback when Redis is not configured.
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 3; // Max 3 requests per minute
 const RATE_LIMIT_PREFIX = 'rate:contact';
-
-let redisClient: ReturnType<typeof createClient> | null = null;
-let redisConnected = false;
-
-function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) return process.env.REDIS_URL;
-  const host = process.env.REDIS_HOST;
-  const port = process.env.REDIS_PORT ?? '6379';
-  if (host) return `redis://${host}:${port}`;
-  return null;
-}
-
-async function ensureRedis() {
-  if (redisConnected) return redisClient;
-
-  const url = getRedisUrl();
-  if (!url) return null;
-
-  const useTls = url.startsWith('rediss://');
-  const u = new URL(url);
-  const skipTlsVerification = process.env.REDIS_TLS_INSECURE_SKIP_VERIFY === 'true';
-
-  const client = createClient({
-    url,
-    socket: useTls
-      ? {
-          tls: true,
-          rejectUnauthorized: !skipTlsVerification,
-          servername: u.hostname,
-        }
-      : undefined,
-  });
-
-  try {
-    await client.connect();
-  } catch {
-    try {
-      await client.disconnect();
-    } catch {}
-    console.error('Failed to connect to Redis, falling back to in-memory rate limiting');
-    return null;
-  }
-
-  client.on('error', (err) =>
-    console.error('Redis error', err instanceof Error ? err.message : err)
-  );
-
-  redisClient = client;
-  redisConnected = true;
-  return redisClient;
-}
-
-function pickClientIp(forwardedFor: string | null, realIp: string | null): string {
-  if (forwardedFor) {
-    const firstIp = forwardedFor.split(',')[0]?.trim();
-    if (firstIp) return firstIp;
-  }
-  if (realIp) return realIp;
-  return 'unknown-ip';
-}
 
 function normalizeOrigin(value: string): string | null {
   try {
@@ -216,7 +162,7 @@ function checkMemoryRateLimit(clientId: string): { allowed: boolean; error?: str
 }
 
 async function checkRateLimit(clientIp: string): Promise<{ allowed: boolean; error?: string }> {
-  const redis = await ensureRedis();
+  const redis = await getSharedRedisClient();
   const key = `${RATE_LIMIT_PREFIX}:${clientIp}`;
 
   if (redis) {
@@ -252,10 +198,7 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     return { success: false, error: 'Invalid request source' };
   }
 
-  const clientIp = pickClientIp(
-    requestHeaders.get('x-forwarded-for'),
-    requestHeaders.get('x-real-ip')
-  );
+  const clientIp = extractClientIp(requestHeaders) ?? 'unknown-ip';
 
   // Rate limiting by client IP.
   const rateCheck = await checkRateLimit(clientIp);
@@ -276,6 +219,25 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
   const inquiryType = escapeHtml(formData.inquiryType.trim());
   const messageEscaped = escapeHtml(formData.message.trim()).replace(/\n/g, '<br/>');
   const subjectEscaped = escapeHtml(formData.subject.trim());
+  const sourcePage = escapeHtml(
+    (formData.sourcePage || requestHeaders.get('referer') || 'Unknown').trim()
+  );
+  const utmSource = escapeHtml((formData.utmSource || 'direct').trim());
+  const utmMedium = escapeHtml((formData.utmMedium || 'none').trim());
+  const utmCampaign = escapeHtml((formData.utmCampaign || 'none').trim());
+  const leadScore = getLeadScore({
+    name: formData.name,
+    email: senderEmail,
+    phone: formData.phone,
+    inquiryType: formData.inquiryType,
+    subject: formData.subject,
+    message: formData.message,
+    sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+    utmSource: formData.utmSource,
+    utmMedium: formData.utmMedium,
+    utmCampaign: formData.utmCampaign,
+  });
+  const leadTemperature = getLeadTemperature(leadScore);
   const subject = `[${inquiryType}] ${subjectEscaped} | ${name}`;
   const html = `
     <p><strong>Name:</strong> ${name}</p>
@@ -283,18 +245,52 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Project Focus:</strong> ${inquiryType}</p>
     <p><strong>Subject:</strong> ${subjectEscaped}</p>
+    <p><strong>Lead Score:</strong> ${leadScore}/100 (${leadTemperature})</p>
+    <p><strong>Source Page:</strong> ${sourcePage}</p>
+    <p><strong>UTM:</strong> ${utmSource} / ${utmMedium} / ${utmCampaign}</p>
     <hr/>
     <p>${messageEscaped}</p>
   `;
 
   try {
+    const recipients = Array.from(new Set([contactEmailTo, leadAlertEmailTo]));
+
     const data = await resend.emails.send({
       from: emailFrom,
-      to: [emailTo],
+      to: recipients,
       replyTo: senderEmail,
       subject: subject,
       html,
     });
+
+    await trackConversion({
+      type: 'contact-form',
+      inquiryType: formData.inquiryType,
+      name: formData.name,
+      email: senderEmail,
+      phone: formData.phone,
+      sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+      utmSource: formData.utmSource,
+      utmMedium: formData.utmMedium,
+      utmCampaign: formData.utmCampaign,
+      visitorId: formData.visitorId,
+      ipAddress: clientIp,
+      userAgent: requestHeaders.get('user-agent'),
+    });
+
+    await sendLeadAlert({
+      name: formData.name,
+      email: senderEmail,
+      phone: formData.phone,
+      inquiryType: formData.inquiryType,
+      subject: formData.subject,
+      message: formData.message,
+      sourcePage: formData.sourcePage || requestHeaders.get('referer'),
+      utmSource: formData.utmSource,
+      utmMedium: formData.utmMedium,
+      utmCampaign: formData.utmCampaign,
+    });
+
     return { success: true, data };
   } catch {
     // Log error but don't expose sensitive details to client

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import AnalyticsTracker from '@/components/analytics-tracker';
+
 import './globals.css';
 // import Script from 'next/script';
 // import Head from 'next/head';
@@ -40,6 +42,7 @@ export default function RootLayout({
           <script src="/js/theme.init.js" defer /> */}
         {/* </Head> */}
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <AnalyticsTracker />
           {children}
           {/* <ScriptLoader /> */}
         </body>
