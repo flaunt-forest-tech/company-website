@@ -69,6 +69,26 @@ const scrollAreaStyle: CSSProperties = {
 
 const chartColors = ['#60a5fa', '#34d399', '#f59e0b', '#f472b6', '#a78bfa'];
 const MAX_VISIBLE_VISITOR_CARDS = 24;
+const HOUSTON_TIME_ZONE = 'America/Chicago';
+const houstonDateFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: HOUSTON_TIME_ZONE,
+  month: 'short',
+  day: 'numeric',
+});
+const houstonDateTimeFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: HOUSTON_TIME_ZONE,
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZoneName: 'short',
+});
+const houstonDateKeyFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: HOUSTON_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
 
 type ChartPoint = {
   x: number;
@@ -93,19 +113,11 @@ function getSearchParamValue(value: string | string[] | undefined): string {
 }
 
 function formatDate(date: string): string {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-  }).format(new Date(`${date}T00:00:00Z`));
+  return houstonDateFormatter.format(new Date(`${date}T12:00:00Z`));
 }
 
 function formatDateTime(dateTime: string): string {
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  }).format(new Date(dateTime));
+  return houstonDateTimeFormatter.format(new Date(dateTime));
 }
 
 function formatCompactNumber(value: number): string {
@@ -154,7 +166,7 @@ function getVisitorIntentScore(visitor: AnalyticsVisitorRecord): number {
       Math.min(visitor.viewCount * 6, 30) +
       Math.min(visitor.pages.length * 5, 15) +
       (visitor.recentPages.includes('/contact') ? 15 : 0) +
-      (visitor.company ? 10 : 0) +
+      (hasCompanySignal(visitor) ? 10 : 0) +
       (visitor.lastInquiryType ? 8 : 0) +
       (spanMinutes >= 10 ? 8 : 0)
   );
@@ -180,7 +192,7 @@ function getVisitorIntentSummary(score: number): {
 }
 
 function getVisitorDisplayName(visitor: AnalyticsVisitorRecord): string {
-  if (visitor.contactName && visitor.company) {
+  if (visitor.contactName && hasCompanySignal(visitor) && visitor.company) {
     return `${visitor.contactName} · ${visitor.company}`;
   }
 
@@ -188,7 +200,7 @@ function getVisitorDisplayName(visitor: AnalyticsVisitorRecord): string {
     return visitor.contactName;
   }
 
-  if (visitor.company) {
+  if (hasCompanySignal(visitor) && visitor.company) {
     return visitor.company;
   }
 
@@ -203,6 +215,22 @@ function hasKnownContact(visitor: AnalyticsVisitorRecord): boolean {
   return Boolean(visitor.contactEmail || visitor.contactPhone);
 }
 
+function hasCompanySignal(visitor: AnalyticsVisitorRecord): boolean {
+  if (!visitor.company) {
+    return (
+      visitor.networkType === 'Company / business' ||
+      visitor.networkType === 'Organization / institution'
+    );
+  }
+
+  return ![
+    'Personal / residential',
+    'Carrier / shared network',
+    'Cloud / hosting',
+    'Bot / automation',
+  ].includes(visitor.networkType ?? '');
+}
+
 function getVisitorIdentityStatus(visitor: AnalyticsVisitorRecord): {
   label: string;
   tone: 'green' | 'blue' | 'amber' | 'slate';
@@ -211,8 +239,20 @@ function getVisitorIdentityStatus(visitor: AnalyticsVisitorRecord): {
     return { label: 'Known lead', tone: 'green' };
   }
 
-  if (visitor.company) {
+  if (visitor.networkType === 'Organization / institution') {
+    return { label: 'Organization', tone: 'blue' };
+  }
+
+  if (hasCompanySignal(visitor)) {
     return { label: 'Likely company', tone: 'blue' };
+  }
+
+  if (visitor.networkType === 'Personal / residential') {
+    return { label: 'Likely individual', tone: 'amber' };
+  }
+
+  if (visitor.networkType === 'Cloud / hosting' || visitor.networkType === 'Bot / automation') {
+    return { label: 'Infra / bot', tone: 'slate' };
   }
 
   if (visitor.ipAddress) {
@@ -252,12 +292,40 @@ function getVisitorCampaignLabel(visitor: AnalyticsVisitorRecord): string {
 }
 
 function getVisitorQuickFacts(visitor: AnalyticsVisitorRecord): string {
-  return [visitor.source, visitor.device, visitor.location ?? 'Location pending'].join(' · ');
+  return [
+    visitor.source,
+    visitor.device,
+    visitor.location ?? 'Location pending',
+    visitor.networkType ?? 'Profile pending',
+  ].join(' · ');
+}
+
+function getVisitorNetworkSummary(visitor: AnalyticsVisitorRecord): string {
+  return [
+    hasCompanySignal(visitor) && visitor.company ? `Org: ${visitor.company}` : null,
+    visitor.hostname ? `Host: ${visitor.hostname}` : null,
+    visitor.isp
+      ? `ISP: ${visitor.isp}${visitor.networkAsn ? ` (${visitor.networkAsn})` : ''}`
+      : null,
+    visitor.networkService ? `Services: ${visitor.networkService}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }
 
 function getDateKeyFromDateTime(value: string): string {
   const parsed = new Date(value);
-  return Number.isFinite(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : '';
+
+  if (!Number.isFinite(parsed.getTime())) {
+    return '';
+  }
+
+  const parts = houstonDateKeyFormatter.formatToParts(parsed);
+  const year = parts.find((part) => part.type === 'year')?.value ?? '0000';
+  const month = parts.find((part) => part.type === 'month')?.value ?? '01';
+  const day = parts.find((part) => part.type === 'day')?.value ?? '01';
+
+  return `${year}-${month}-${day}`;
 }
 
 function wasVisitorActiveOnDay(visitor: AnalyticsVisitorRecord, dateKey: string): boolean {
@@ -301,7 +369,12 @@ function matchesVisitorQuery(visitor: AnalyticsVisitorRecord, query: string): bo
   const searchTarget = [
     visitor.id,
     visitor.ipAddress ?? '',
+    visitor.hostname ?? '',
     visitor.company ?? '',
+    visitor.isp ?? '',
+    visitor.networkAsn ?? '',
+    visitor.networkType ?? '',
+    visitor.networkService ?? '',
     visitor.contactName ?? '',
     visitor.contactEmail ?? '',
     visitor.contactPhone ?? '',
@@ -660,8 +733,6 @@ export default async function AdminDashboardPage({
   const chartPoints = getChartPoints(snapshot.recentDays);
   const pieSlices = getPieSlices(snapshot.topSourcesLast14Days);
   const totalCtaClicks = sumLabelValues(snapshot.topCtaClicksLast14Days);
-  const contactPageViews =
-    snapshot.topPagesLast14Days.find((page) => page.path === '/contact')?.views ?? 0;
   const likelyAccounts = snapshot.companyBreakdownLast14Days.slice(0, 5).map((company, index) => {
     const score = Math.min(
       96,
@@ -701,19 +772,20 @@ export default async function AdminDashboardPage({
     .filter((visitor) => matchesVisitorQuery(visitor, normalizedVisitorQuery))
     .filter((visitor) => activeSourceFilter === 'all' || visitor.source === activeSourceFilter)
     .sort((left, right) => {
+      const newestFirst =
+        new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime();
+
+      if (newestFirst !== 0) {
+        return newestFirst;
+      }
+
       const rankDifference = getVisitorPriorityRank(left) - getVisitorPriorityRank(right);
 
       if (rankDifference !== 0) {
         return rankDifference;
       }
 
-      const intentDifference = getVisitorIntentScore(right) - getVisitorIntentScore(left);
-
-      if (intentDifference !== 0) {
-        return intentDifference;
-      }
-
-      return new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime();
+      return getVisitorIntentScore(right) - getVisitorIntentScore(left);
     });
   const visibleVisitors = filteredVisitors.slice(0, MAX_VISIBLE_VISITOR_CARDS);
   const hiddenVisitorCount = Math.max(0, filteredVisitors.length - visibleVisitors.length);
@@ -725,7 +797,7 @@ export default async function AdminDashboardPage({
     filteredVisitors[0] ??
     null;
   const identifiedCompanyCount = snapshot.recentVisitors.filter((visitor) =>
-    Boolean(visitor.company)
+    hasCompanySignal(visitor)
   ).length;
   const knownContactCount = snapshot.recentVisitors.filter((visitor) =>
     hasKnownContact(visitor)
@@ -926,6 +998,7 @@ export default async function AdminDashboardPage({
                 <span style={statusChipStyle}>Pipeline {pipelineReadinessScore}/100</span>
                 <span style={statusChipStyle}>Top source: {topSource}</span>
                 <span style={statusChipStyle}>Lead inbox: {alertInbox}</span>
+                <span style={statusChipStyle}>Time zone: Houston (CST/CDT)</span>
               </div>
             </div>
 
@@ -2306,7 +2379,7 @@ export default async function AdminDashboardPage({
                     type="text"
                     name="visitorQuery"
                     defaultValue={activeVisitorQuery}
-                    placeholder="Search name, email, phone, IP, company..."
+                    placeholder="Search name, email, phone, IP, hostname, ISP, company..."
                     style={{
                       width: '100%',
                       padding: '10px 12px',
@@ -2510,11 +2583,10 @@ export default async function AdminDashboardPage({
                               <div style={{ color: '#cfe5ff', fontSize: '13px', marginTop: '6px' }}>
                                 {visitor.contactEmail || visitor.contactPhone
                                   ? `Direct contact: ${[visitor.contactEmail, visitor.contactPhone].filter(Boolean).join(' · ')}`
-                                  : visitor.company
-                                    ? `Company hint: ${visitor.company}`
-                                    : visitor.lastInquiryType
+                                  : getVisitorNetworkSummary(visitor) ||
+                                    (visitor.lastInquiryType
                                       ? `Interest: ${visitor.lastInquiryType}`
-                                      : 'No company hint yet'}
+                                      : 'No company or ISP hint yet')}
                                 {visitor.ipAddress ? ` · IP ${visitor.ipAddress}` : ''}
                               </div>
 
@@ -2575,21 +2647,64 @@ export default async function AdminDashboardPage({
                         const orderedRecentPages = selectedVisitor.recentPages
                           .slice(0, 10)
                           .reverse();
+                        const networkIntelRows = [
+                          {
+                            label: 'IP address',
+                            value: selectedVisitor.ipAddress ?? 'Not available',
+                          },
+                          {
+                            label: 'Hostname',
+                            value: selectedVisitor.hostname ?? 'Not resolved yet',
+                          },
+                          {
+                            label: 'ISP',
+                            value: selectedVisitor.isp ?? 'Not available',
+                          },
+                          {
+                            label: 'ASN',
+                            value: selectedVisitor.networkAsn ?? 'Not available',
+                          },
+                          {
+                            label: 'Services',
+                            value: selectedVisitor.networkService ?? 'None detected',
+                          },
+                          {
+                            label: 'Profile guess',
+                            value: selectedVisitor.networkType ?? 'Not enough data yet',
+                          },
+                          {
+                            label: 'Organization',
+                            value:
+                              hasCompanySignal(selectedVisitor) && selectedVisitor.company
+                                ? selectedVisitor.company
+                                : 'No confirmed company signal yet',
+                          },
+                          {
+                            label: 'Location',
+                            value: selectedVisitor.location ?? 'Location pending',
+                          },
+                          {
+                            label: 'Source',
+                            value: selectedVisitor.source,
+                          },
+                          {
+                            label: 'Last seen',
+                            value: formatDateTime(selectedVisitor.lastSeenAt),
+                          },
+                        ];
                         const detailCards = [
                           {
                             label: 'Identity',
                             value: identity.label,
                           },
                           {
-                            label: 'IP / network',
-                            value: selectedVisitor.ipAddress ?? 'Not available',
+                            label: 'Observed span',
+                            value: getObservedSpan(
+                              selectedVisitor.firstSeenAt,
+                              selectedVisitor.lastSeenAt
+                            ),
                           },
-                          { label: 'Source', value: selectedVisitor.source },
                           { label: 'Device', value: selectedVisitor.device },
-                          {
-                            label: 'Location',
-                            value: selectedVisitor.location ?? 'Location pending',
-                          },
                           {
                             label: 'Campaign',
                             value: getVisitorCampaignLabel(selectedVisitor),
@@ -2652,6 +2767,59 @@ export default async function AdminDashboardPage({
 
                             <div
                               style={{
+                                marginBottom: '12px',
+                                padding: '14px',
+                                borderRadius: '14px',
+                                background:
+                                  'linear-gradient(180deg, rgba(17, 34, 64, 0.96), rgba(11, 23, 43, 0.92))',
+                                border: '1px solid rgba(96,165,250,0.18)',
+                              }}
+                            >
+                              <div
+                                style={{
+                                  color: '#f8fbff',
+                                  fontWeight: 700,
+                                  marginBottom: '10px',
+                                }}
+                              >
+                                Network intelligence
+                              </div>
+                              <div style={{ display: 'grid', gap: '6px' }}>
+                                {networkIntelRows.map((item, index) => (
+                                  <div
+                                    key={`${selectedVisitor.id}-network-${item.label}`}
+                                    style={{
+                                      display: 'grid',
+                                      gridTemplateColumns: '120px minmax(0, 1fr)',
+                                      gap: '10px',
+                                      alignItems: 'start',
+                                      padding: '6px 0',
+                                      borderBottom:
+                                        index === networkIntelRows.length - 1
+                                          ? 'none'
+                                          : '1px solid rgba(148,163,184,0.08)',
+                                    }}
+                                  >
+                                    <div style={{ color: '#8fb6ff', fontSize: '12px' }}>
+                                      {item.label}:
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: '#f8fbff',
+                                        fontSize: '13px',
+                                        lineHeight: 1.6,
+                                        wordBreak: 'break-word',
+                                      }}
+                                    >
+                                      {item.value}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                                 gap: '10px',
@@ -2703,9 +2871,11 @@ export default async function AdminDashboardPage({
                               <div style={{ color: '#cfe5ff', fontSize: '13px', lineHeight: 1.7 }}>
                                 {selectedVisitor.contactEmail || selectedVisitor.contactPhone
                                   ? `Reach out directly${selectedVisitor.contactEmail ? ` via ${selectedVisitor.contactEmail}` : ''}${selectedVisitor.contactPhone ? `${selectedVisitor.contactEmail ? ' or' : ' via'} ${selectedVisitor.contactPhone}` : ''}.`
-                                  : selectedVisitor.company
+                                  : hasCompanySignal(selectedVisitor) && selectedVisitor.company
                                     ? `Research ${selectedVisitor.company} and use LinkedIn, the company website, or a tailored email intro based on the pages viewed.`
-                                    : 'No direct contact details yet — use stronger CTA offers or retargeting until the visitor identifies themselves.'}
+                                    : selectedVisitor.isp
+                                      ? `This visitor looks like ${selectedVisitor.networkType?.toLowerCase() ?? 'an unknown network'} traffic on ${selectedVisitor.isp}; keep nurturing with stronger CTA offers until they identify themselves.`
+                                      : 'No direct contact details yet — use stronger CTA offers or retargeting until the visitor identifies themselves.'}
                               </div>
                             </div>
 

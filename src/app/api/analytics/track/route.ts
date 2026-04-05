@@ -38,13 +38,17 @@ function getLocationLabel(headers: Headers): string | null {
   return parts.length > 0 ? parts.join(', ') : null;
 }
 
-function getCompanyHint(headers: Headers): string | null {
+function getNetworkProvider(headers: Headers): string | null {
   return decodeHeaderValue(
     headers.get('x-vercel-ip-as-organization') ??
       headers.get('cf-connecting-organization') ??
       headers.get('x-forwarded-company') ??
       headers.get('x-real-company')
   );
+}
+
+function getNetworkAsn(headers: Headers): string | null {
+  return decodeHeaderValue(headers.get('x-vercel-ip-as-number'));
 }
 
 export async function POST(request: Request) {
@@ -81,7 +85,8 @@ export async function POST(request: Request) {
       userAgent: requestHeaders.get('user-agent'),
       referrer: payload.referrer || requestHeaders.get('referer'),
       location: getLocationLabel(requestHeaders),
-      company: getCompanyHint(requestHeaders),
+      networkProvider: getNetworkProvider(requestHeaders),
+      networkAsn: getNetworkAsn(requestHeaders),
       utmSource: payload.utmSource,
       utmMedium: payload.utmMedium,
       utmCampaign: payload.utmCampaign,
