@@ -33,8 +33,8 @@ const cardStyle: CSSProperties = {
   border: '1px solid rgba(148, 163, 184, 0.22)',
   borderRadius: '20px',
   padding: '18px',
-  boxShadow: '0 20px 45px rgba(2, 6, 23, 0.28)',
-  backdropFilter: 'blur(10px)',
+  boxShadow: '0 12px 28px rgba(2, 6, 23, 0.22)',
+  backdropFilter: 'none',
 };
 
 const metricCardStyle: CSSProperties = {
@@ -64,9 +64,11 @@ const scrollAreaStyle: CSSProperties = {
   paddingRight: '6px',
   scrollbarWidth: 'thin',
   scrollbarColor: 'rgba(96,165,250,0.45) rgba(15,23,42,0.35)',
+  contain: 'layout paint',
 };
 
 const chartColors = ['#60a5fa', '#34d399', '#f59e0b', '#f472b6', '#a78bfa'];
+const MAX_VISIBLE_VISITOR_CARDS = 24;
 
 type ChartPoint = {
   x: number;
@@ -713,6 +715,8 @@ export default async function AdminDashboardPage({
 
       return new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime();
     });
+  const visibleVisitors = filteredVisitors.slice(0, MAX_VISIBLE_VISITOR_CARDS);
+  const hiddenVisitorCount = Math.max(0, filteredVisitors.length - visibleVisitors.length);
   const priorityVisitorCount = filteredVisitors.filter(
     (visitor) => visitor.conversionCount > 0 || getVisitorIntentScore(visitor) >= 75
   ).length;
@@ -1133,6 +1137,7 @@ export default async function AdminDashboardPage({
                         section: 'ai-scout',
                       })}
                       scroll={false}
+                      prefetch={false}
                       style={{ textDecoration: 'none' }}
                     >
                       <div
@@ -1180,6 +1185,7 @@ export default async function AdminDashboardPage({
                       section: 'ai-scout',
                     })}
                     scroll={false}
+                    prefetch={false}
                     style={{
                       textDecoration: 'none',
                       padding: '6px 10px',
@@ -2252,6 +2258,7 @@ export default async function AdminDashboardPage({
                           day: day.date,
                         })}
                         scroll={false}
+                        prefetch={false}
                         style={{ textDecoration: 'none' }}
                       >
                         <span
@@ -2345,6 +2352,7 @@ export default async function AdminDashboardPage({
                   <Link
                     href={buildAdminVisitorHref({ day: activeDay })}
                     scroll={false}
+                    prefetch={false}
                     style={{
                       textDecoration: 'none',
                       textAlign: 'center',
@@ -2378,6 +2386,9 @@ export default async function AdminDashboardPage({
                     activeSourceFilter === 'all' ? 'All channels' : activeSourceFilter,
                     activeSourceFilter === 'all' ? 'slate' : 'blue'
                   )}
+                  {hiddenVisitorCount > 0
+                    ? renderPill(`Showing top ${visibleVisitors.length}`, 'slate')
+                    : null}
                 </div>
               </div>
 
@@ -2404,7 +2415,24 @@ export default async function AdminDashboardPage({
                       maxHeight: '640px',
                     }}
                   >
-                    {filteredVisitors.map((visitor) => {
+                    {hiddenVisitorCount > 0 ? (
+                      <div
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: '12px',
+                          background: 'rgba(15, 23, 42, 0.72)',
+                          border: '1px solid rgba(148,163,184,0.08)',
+                          color: '#9fb0cd',
+                          fontSize: '13px',
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        For smoother browsing, the list is showing the top {visibleVisitors.length}{' '}
+                        visitors right now. Use the search box or day/source filters to narrow it
+                        further.
+                      </div>
+                    ) : null}
+                    {visibleVisitors.map((visitor) => {
                       const intentScore = getVisitorIntentScore(visitor);
                       const intent = getVisitorIntentSummary(intentScore);
                       const returning = isReturningVisitor(visitor);
@@ -2433,6 +2461,7 @@ export default async function AdminDashboardPage({
                             day: activeDay,
                           })}
                           scroll={false}
+                          prefetch={false}
                           style={{ textDecoration: 'none' }}
                         >
                           <div
@@ -2848,6 +2877,7 @@ export default async function AdminDashboardPage({
                       section: 'daily-feed',
                     })}
                     aria-current={isActiveDay ? 'page' : undefined}
+                    prefetch={false}
                     style={{ textDecoration: 'none' }}
                   >
                     <div

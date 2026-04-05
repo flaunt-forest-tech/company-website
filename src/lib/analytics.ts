@@ -126,6 +126,7 @@ type FileAnalyticsStore = {
 
 const ANALYTICS_STORE_PATH = path.join(process.cwd(), 'data', 'analytics-store.json');
 const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 120;
+const RECENT_VISITOR_FETCH_LIMIT = 80;
 
 function normalizePath(pathname: string): string | null {
   const cleanPath = pathname.split('?')[0]?.trim() || '/';
@@ -472,7 +473,7 @@ function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdate
 
 async function getRecentVisitorsFromRedis(
   redis: SharedRedisClient,
-  limit = 120
+  limit = RECENT_VISITOR_FETCH_LIMIT
 ): Promise<AnalyticsVisitorRecord[]> {
   const visitorIds = await redis.zRange('analytics:recent-visitors', 0, limit - 1, { REV: true });
 
@@ -522,7 +523,7 @@ async function getRecentVisitorsFromRedis(
 function getRecentVisitorsFromFile(
   store: FileAnalyticsStore,
   days: number,
-  limit = 120
+  limit = RECENT_VISITOR_FETCH_LIMIT
 ): AnalyticsVisitorRecord[] {
   const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
 
