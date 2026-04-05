@@ -1,4 +1,5 @@
 import { trackClickEvent, trackPageView } from '@/lib/analytics';
+import { extractClientIp } from '@/lib/request-ip';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -54,14 +55,14 @@ export async function POST(request: Request) {
       eventType?: 'page-view' | 'cta-click';
       label?: string | null;
       target?: string | null;
+      visitorId?: string | null;
       utmSource?: string | null;
       utmMedium?: string | null;
       utmCampaign?: string | null;
     };
 
     const requestHeaders = request.headers;
-    const forwardedFor = requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim();
-    const realIp = requestHeaders.get('x-real-ip')?.trim();
+    const clientIp = extractClientIp(requestHeaders);
 
     if (payload.eventType === 'cta-click') {
       await trackClickEvent({
@@ -75,7 +76,8 @@ export async function POST(request: Request) {
 
     await trackPageView({
       pathname: payload.pathname || '/',
-      ipAddress: forwardedFor || realIp || null,
+      visitorId: payload.visitorId,
+      ipAddress: clientIp,
       userAgent: requestHeaders.get('user-agent'),
       referrer: payload.referrer || requestHeaders.get('referer'),
       location: getLocationLabel(requestHeaders),

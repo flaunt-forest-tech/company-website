@@ -1,11 +1,12 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { createClient } from 'redis';
 import { Resend } from 'resend';
 
 import { trackConversion } from '@/lib/analytics';
 import { getLeadScore, getLeadTemperature, sendLeadAlert } from '@/lib/lead-alerts';
+import { getSharedRedisClient } from '@/lib/redis';
+import { extractClientIp } from '@/lib/request-ip';
 
 import { ContactFormInputs } from '../contact/page';
 
@@ -19,72 +20,6 @@ const requestLog = new Map<string, number[]>();
 const RATE_LIMIT_WINDOW = 60000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 3; // Max 3 requests per minute
 const RATE_LIMIT_PREFIX = 'rate:contact';
-
-let redisClient: ReturnType<typeof createClient> | null = null;
-let redisConnected = false;
-
-function normalizeRedisUrl(value: string): string {
-  const trimmedValue = value.trim();
-  if (/^redis(s)?:\/\//i.test(trimmedValue)) return trimmedValue;
-  return `redis://${trimmedValue}`;
-}
-
-function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) return normalizeRedisUrl(process.env.REDIS_URL);
-  const host = process.env.REDIS_HOST;
-  const port = process.env.REDIS_PORT ?? '6379';
-  if (host) return `redis://${host}:${port}`;
-  return null;
-}
-
-async function ensureRedis() {
-  if (redisConnected) return redisClient;
-
-  const url = getRedisUrl();
-  if (!url) return null;
-
-  const useTls = url.startsWith('rediss://');
-  const u = new URL(url);
-  const skipTlsVerification = process.env.REDIS_TLS_INSECURE_SKIP_VERIFY === 'true';
-
-  const client = createClient({
-    url,
-    socket: useTls
-      ? {
-          tls: true,
-          rejectUnauthorized: !skipTlsVerification,
-          servername: u.hostname,
-        }
-      : undefined,
-  });
-
-  try {
-    await client.connect();
-  } catch {
-    try {
-      await client.disconnect();
-    } catch {}
-    console.error('Failed to connect to Redis, falling back to in-memory rate limiting');
-    return null;
-  }
-
-  client.on('error', (err) =>
-    console.error('Redis error', err instanceof Error ? err.message : err)
-  );
-
-  redisClient = client;
-  redisConnected = true;
-  return redisClient;
-}
-
-function pickClientIp(forwardedFor: string | null, realIp: string | null): string {
-  if (forwardedFor) {
-    const firstIp = forwardedFor.split(',')[0]?.trim();
-    if (firstIp) return firstIp;
-  }
-  if (realIp) return realIp;
-  return 'unknown-ip';
-}
 
 function normalizeOrigin(value: string): string | null {
   try {
@@ -227,7 +162,7 @@ function checkMemoryRateLimit(clientId: string): { allowed: boolean; error?: str
 }
 
 async function checkRateLimit(clientIp: string): Promise<{ allowed: boolean; error?: string }> {
-  const redis = await ensureRedis();
+  const redis = await getSharedRedisClient();
   const key = `${RATE_LIMIT_PREFIX}:${clientIp}`;
 
   if (redis) {
@@ -263,10 +198,7 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
     return { success: false, error: 'Invalid request source' };
   }
 
-  const clientIp = pickClientIp(
-    requestHeaders.get('x-forwarded-for'),
-    requestHeaders.get('x-real-ip')
-  );
+  const clientIp = extractClientIp(requestHeaders) ?? 'unknown-ip';
 
   // Rate limiting by client IP.
   const rateCheck = await checkRateLimit(clientIp);
@@ -339,6 +271,9 @@ export async function sendEmail(formData: ContactFormInputs & { honeypot?: strin
       utmSource: formData.utmSource,
       utmMedium: formData.utmMedium,
       utmCampaign: formData.utmCampaign,
+      visitorId: formData.visitorId,
+      ipAddress: clientIp,
+      userAgent: requestHeaders.get('user-agent'),
     });
 
     await sendLeadAlert({

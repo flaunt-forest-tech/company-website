@@ -1,5 +1,7 @@
 import type { CSSProperties } from 'react';
 
+import Link from 'next/link';
+
 import AdminIdleGuard from '@/components/admin/admin-idle-guard';
 import { getAdminUsername, requireAdminAccess } from '@/lib/admin-auth';
 import {
@@ -7,6 +9,7 @@ import {
   type AnalyticsDayStat,
   type AnalyticsLabelStat,
   type AnalyticsPageStat,
+  type AnalyticsVisitorRecord,
 } from '@/lib/analytics';
 
 export const dynamic = 'force-dynamic';
@@ -54,6 +57,14 @@ const statusChipStyle: CSSProperties = {
   fontWeight: 700,
 };
 
+const scrollAreaStyle: CSSProperties = {
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  paddingRight: '6px',
+  scrollbarWidth: 'thin',
+  scrollbarColor: 'rgba(96,165,250,0.45) rgba(15,23,42,0.35)',
+};
+
 const chartColors = ['#60a5fa', '#34d399', '#f59e0b', '#f472b6', '#a78bfa'];
 
 type ChartPoint = {
@@ -70,6 +81,12 @@ type PieSlice = {
   percentage: number;
   value: number;
 };
+
+type SearchParamsRecord = Record<string, string | string[] | undefined>;
+
+function getSearchParamValue(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
+}
 
 function formatDate(date: string): string {
   return new Intl.DateTimeFormat('en-US', {
@@ -92,6 +109,180 @@ function formatCompactNumber(value: number): string {
     notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value);
+}
+
+function getObservedSpan(firstSeenAt: string, lastSeenAt: string): string {
+  const first = new Date(firstSeenAt).getTime();
+  const last = new Date(lastSeenAt).getTime();
+
+  if (!Number.isFinite(first) || !Number.isFinite(last) || last <= first) {
+    return '<1 min';
+  }
+
+  const minutes = Math.max(1, Math.round((last - first) / 60000));
+
+  if (minutes < 60) {
+    return `${minutes} min`;
+  }
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+}
+
+function isReturningVisitor(visitor: AnalyticsVisitorRecord): boolean {
+  const first = new Date(visitor.firstSeenAt).getTime();
+  const last = new Date(visitor.lastSeenAt).getTime();
+  const spanMinutes = Number.isFinite(first) && Number.isFinite(last) ? (last - first) / 60000 : 0;
+
+  return visitor.viewCount >= 4 || spanMinutes >= 30 || visitor.pages.length >= 3;
+}
+
+function getVisitorIntentScore(visitor: AnalyticsVisitorRecord): number {
+  const first = new Date(visitor.firstSeenAt).getTime();
+  const last = new Date(visitor.lastSeenAt).getTime();
+  const spanMinutes =
+    Number.isFinite(first) && Number.isFinite(last) ? Math.max(0, (last - first) / 60000) : 0;
+
+  return Math.min(
+    100,
+    visitor.conversionCount * 45 +
+      Math.min(visitor.viewCount * 6, 30) +
+      Math.min(visitor.pages.length * 5, 15) +
+      (visitor.recentPages.includes('/contact') ? 15 : 0) +
+      (visitor.company ? 10 : 0) +
+      (visitor.lastInquiryType ? 8 : 0) +
+      (spanMinutes >= 10 ? 8 : 0)
+  );
+}
+
+function getVisitorIntentSummary(score: number): {
+  label: string;
+  tone: 'green' | 'blue' | 'amber' | 'slate';
+} {
+  if (score >= 75) {
+    return { label: 'High intent', tone: 'green' };
+  }
+
+  if (score >= 55) {
+    return { label: 'Warm', tone: 'amber' };
+  }
+
+  if (score >= 35) {
+    return { label: 'Active', tone: 'blue' };
+  }
+
+  return { label: 'New', tone: 'slate' };
+}
+
+function getVisitorDisplayName(visitor: AnalyticsVisitorRecord): string {
+  if (visitor.company) {
+    return visitor.company;
+  }
+
+  if (visitor.ipAddress) {
+    return `IP ${visitor.ipAddress}`;
+  }
+
+  return `Visitor ${visitor.id.slice(0, 8)}`;
+}
+
+function getVisitorCampaignLabel(visitor: AnalyticsVisitorRecord): string {
+  return visitor.utmCampaign ?? visitor.utmSource ?? 'Unattributed';
+}
+
+function getVisitorQuickFacts(visitor: AnalyticsVisitorRecord): string {
+  return [visitor.source, visitor.device, visitor.location ?? 'Location pending'].join(' · ');
+}
+
+function getDateKeyFromDateTime(value: string): string {
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : '';
+}
+
+function wasVisitorActiveOnDay(visitor: AnalyticsVisitorRecord, dateKey: string): boolean {
+  if (!dateKey) {
+    return true;
+  }
+
+  const firstKey = getDateKeyFromDateTime(visitor.firstSeenAt);
+  const lastKey = getDateKeyFromDateTime(visitor.lastSeenAt);
+
+  return (
+    firstKey === dateKey ||
+    lastKey === dateKey ||
+    Boolean(firstKey && lastKey && firstKey <= dateKey && lastKey >= dateKey)
+  );
+}
+
+function getVisitorPriorityRank(visitor: AnalyticsVisitorRecord): number {
+  const intentScore = getVisitorIntentScore(visitor);
+
+  if (visitor.conversionCount > 0) {
+    return 0;
+  }
+
+  if (intentScore >= 75) {
+    return 1;
+  }
+
+  if (isReturningVisitor(visitor)) {
+    return 2;
+  }
+
+  return 3;
+}
+
+function matchesVisitorQuery(visitor: AnalyticsVisitorRecord, query: string): boolean {
+  if (!query) {
+    return true;
+  }
+
+  const searchTarget = [
+    visitor.id,
+    visitor.ipAddress ?? '',
+    visitor.company ?? '',
+    visitor.source,
+    visitor.location ?? '',
+    visitor.device,
+    visitor.utmSource ?? '',
+    visitor.utmCampaign ?? '',
+    visitor.lastInquiryType ?? '',
+    ...visitor.recentPages,
+    ...visitor.pages.map((page) => page.path),
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  return searchTarget.includes(query);
+}
+
+function buildAdminVisitorHref(params: {
+  visitorQuery?: string;
+  source?: string;
+  visitor?: string;
+  day?: string;
+}): string {
+  const nextParams = new URLSearchParams();
+
+  if (params.visitorQuery?.trim()) {
+    nextParams.set('visitorQuery', params.visitorQuery.trim());
+  }
+
+  if (params.source && params.source !== 'all') {
+    nextParams.set('source', params.source);
+  }
+
+  if (params.visitor?.trim()) {
+    nextParams.set('visitor', params.visitor.trim());
+  }
+
+  if (params.day?.trim()) {
+    nextParams.set('day', params.day.trim());
+  }
+
+  const queryString = nextParams.toString();
+  return queryString ? `/admin?${queryString}#visitor-journeys` : '/admin#visitor-journeys';
 }
 
 function getChangeLabel(current: number, previous: number): string {
@@ -338,8 +529,19 @@ function renderPill(label: string, tone: 'green' | 'blue' | 'amber' | 'slate' = 
   return <span style={getPillStyle(tone)}>{label}</span>;
 }
 
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({
+  searchParams,
+}: {
+  searchParams?: SearchParamsRecord | Promise<SearchParamsRecord>;
+}) {
   await requireAdminAccess();
+
+  const resolvedSearchParams = (searchParams ? await searchParams : {}) ?? {};
+  const activeVisitorQuery = getSearchParamValue(resolvedSearchParams.visitorQuery).trim();
+  const normalizedVisitorQuery = activeVisitorQuery.toLowerCase();
+  const activeSourceFilter = getSearchParamValue(resolvedSearchParams.source).trim() || 'all';
+  const activeVisitorId = getSearchParamValue(resolvedSearchParams.visitor).trim();
+  const activeDayParam = getSearchParamValue(resolvedSearchParams.day).trim();
 
   const snapshot = await getAnalyticsSnapshot();
   const today = snapshot.today;
@@ -403,6 +605,45 @@ export default async function AdminDashboardPage() {
         '/',
     };
   });
+  const availableDayKeys = snapshot.recentDays.map((day) => day.date);
+  const activeDay = availableDayKeys.includes(activeDayParam) ? activeDayParam : today.date;
+  const selectedDay = snapshot.recentDays.find((day) => day.date === activeDay) ?? today;
+  const recentSelectableDays = snapshot.recentDays.slice(-7).reverse();
+  const visitorSourceOptions = Array.from(
+    new Set(
+      snapshot.recentVisitors
+        .filter((visitor) => wasVisitorActiveOnDay(visitor, activeDay))
+        .map((visitor) => visitor.source.trim())
+        .filter((source) => source.length > 0)
+    )
+  ).sort((left, right) => left.localeCompare(right));
+  const filteredVisitors = [...snapshot.recentVisitors]
+    .filter((visitor) => wasVisitorActiveOnDay(visitor, activeDay))
+    .filter((visitor) => matchesVisitorQuery(visitor, normalizedVisitorQuery))
+    .filter((visitor) => activeSourceFilter === 'all' || visitor.source === activeSourceFilter)
+    .sort((left, right) => {
+      const rankDifference = getVisitorPriorityRank(left) - getVisitorPriorityRank(right);
+
+      if (rankDifference !== 0) {
+        return rankDifference;
+      }
+
+      const intentDifference = getVisitorIntentScore(right) - getVisitorIntentScore(left);
+
+      if (intentDifference !== 0) {
+        return intentDifference;
+      }
+
+      return new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime();
+    });
+  const priorityVisitorCount = filteredVisitors.filter(
+    (visitor) => visitor.conversionCount > 0 || getVisitorIntentScore(visitor) >= 75
+  ).length;
+  const selectedVisitor =
+    filteredVisitors.find((visitor) => visitor.id === activeVisitorId) ??
+    filteredVisitors[0] ??
+    null;
+
   const sourceComparison = snapshot.topSourcesLast14Days.slice(0, 5).map((source) => {
     const trafficShare = total14DayViews > 0 ? (source.value / total14DayViews) * 100 : 0;
     const estimatedLeads = (source.value * snapshot.conversionRateLast14Days) / 100;
@@ -900,7 +1141,7 @@ export default async function AdminDashboardPage() {
               Devices, regions & company signals
             </h2>
 
-            <div style={{ display: 'grid', gap: '18px' }}>
+            <div style={{ ...scrollAreaStyle, display: 'grid', gap: '18px', maxHeight: '560px' }}>
               <div>
                 <h3 style={{ margin: '0 0 10px', fontSize: '16px', color: '#dbe7fb' }}>
                   Device mix
@@ -1067,7 +1308,14 @@ export default async function AdminDashboardPage() {
                 Channel performance will appear after more tracked visits.
               </p>
             ) : (
-              <div style={{ overflowX: 'auto' }}>
+              <div
+                style={{
+                  overflowX: 'auto',
+                  overflowY: 'auto',
+                  maxHeight: '320px',
+                  paddingRight: '6px',
+                }}
+              >
                 <table style={{ width: '100%', borderCollapse: 'collapse', color: '#dbe7fb' }}>
                   <thead>
                     <tr style={{ color: '#93a8c9', textAlign: 'left' }}>
@@ -1323,7 +1571,7 @@ export default async function AdminDashboardPage() {
               />
             </div>
 
-            <div style={{ display: 'grid', gap: '12px' }}>
+            <div style={{ ...scrollAreaStyle, display: 'grid', gap: '12px', maxHeight: '280px' }}>
               {[
                 `Double down on ${topSource} because it is currently your strongest traffic source.`,
                 `Run tighter offers around ${topCampaign} and ${topTaggedSource} so you can attribute real pipeline back to campaigns.`,
@@ -1386,7 +1634,7 @@ export default async function AdminDashboardPage() {
                 here.
               </p>
             ) : (
-              <div style={{ display: 'grid', gap: '8px' }}>
+              <div style={{ ...scrollAreaStyle, display: 'grid', gap: '8px', maxHeight: '330px' }}>
                 <div
                   style={{
                     display: 'grid',
@@ -1453,7 +1701,7 @@ export default async function AdminDashboardPage() {
               )}
             </div>
             <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Lead timeline</h2>
-            <div style={{ display: 'grid', gap: '10px' }}>
+            <div style={{ ...scrollAreaStyle, display: 'grid', gap: '10px', maxHeight: '360px' }}>
               {snapshot.recentDays
                 .slice(-7)
                 .reverse()
@@ -1507,10 +1755,565 @@ export default async function AdminDashboardPage() {
           </section>
         </div>
 
+        <section style={{ ...cardStyle, marginBottom: '18px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Visitor journeys</p>
+            {renderInfoTip(
+              'This is best-effort matching: the same browser usually keeps the same visitor ID, while the same person on a different device or network can still appear as a new visitor.'
+            )}
+          </div>
+          <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>
+            Visitors active on {formatDate(selectedDay.date)}
+          </h2>
+
+          {snapshot.recentVisitors.length === 0 ? (
+            <p style={{ margin: 0, color: '#9fb0cd' }}>
+              Once visits start coming in, this section will show recent anonymous visitor profiles,
+              their IP or network hint, and the pages they looked at.
+            </p>
+          ) : (
+            <div style={{ display: 'grid', gap: '14px' }}>
+              <div
+                style={{
+                  padding: '14px',
+                  borderRadius: '16px',
+                  background: 'rgba(8, 15, 30, 0.58)',
+                  border: '1px solid rgba(148,163,184,0.12)',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    marginBottom: '12px',
+                  }}
+                >
+                  {recentSelectableDays.map((day) => {
+                    const isActiveDay = day.date === activeDay;
+
+                    return (
+                      <Link
+                        key={day.date}
+                        href={buildAdminVisitorHref({
+                          visitorQuery: activeVisitorQuery,
+                          source: activeSourceFilter,
+                          day: day.date,
+                        })}
+                        scroll={false}
+                        style={{ textDecoration: 'none' }}
+                      >
+                        <span
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '8px 10px',
+                            borderRadius: '999px',
+                            border: isActiveDay
+                              ? '1px solid rgba(125,211,252,0.58)'
+                              : '1px solid rgba(148,163,184,0.16)',
+                            background: isActiveDay
+                              ? 'rgba(59,130,246,0.18)'
+                              : 'rgba(15, 23, 42, 0.85)',
+                            color: isActiveDay ? '#f8fbff' : '#dbe7fb',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {formatDate(day.date)} · {day.uniqueVisitors} visitors
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                <div style={{ color: '#cfe5ff', fontSize: '13px', marginBottom: '12px' }}>
+                  Viewing customer activity for <strong>{formatDate(selectedDay.date)}</strong> ·{' '}
+                  {selectedDay.totalViews} views · {selectedDay.contactSubmissions} lead(s)
+                </div>
+
+                <form
+                  action="/admin#visitor-journeys"
+                  method="get"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(220px, 1.2fr) minmax(180px, 0.8fr) auto auto',
+                    gap: '10px',
+                    alignItems: 'center',
+                  }}
+                >
+                  <input type="hidden" name="day" value={activeDay} />
+                  <input
+                    type="text"
+                    name="visitorQuery"
+                    defaultValue={activeVisitorQuery}
+                    placeholder="Search IP, company, page, source..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(148,163,184,0.16)',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      color: '#f8fbff',
+                    }}
+                  />
+                  <select
+                    name="source"
+                    defaultValue={activeSourceFilter}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: '12px',
+                      border: '1px solid rgba(148,163,184,0.16)',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      color: '#f8fbff',
+                    }}
+                  >
+                    <option value="all">All sources</option>
+                    {visitorSourceOptions.map((source) => (
+                      <option key={source} value={source}>
+                        {source}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="submit"
+                    style={{
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '10px 14px',
+                      background: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                      color: '#f8fbff',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Filter
+                  </button>
+                  <Link
+                    href={buildAdminVisitorHref({ day: activeDay })}
+                    scroll={false}
+                    style={{
+                      textDecoration: 'none',
+                      textAlign: 'center',
+                      borderRadius: '12px',
+                      padding: '10px 14px',
+                      background: 'rgba(15, 23, 42, 0.85)',
+                      border: '1px solid rgba(148,163,184,0.16)',
+                      color: '#dbe7fb',
+                      fontWeight: 700,
+                    }}
+                  >
+                    Reset
+                  </Link>
+                </form>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    alignItems: 'center',
+                    marginTop: '10px',
+                  }}
+                >
+                  {renderPill(`${filteredVisitors.length} shown`, 'blue')}
+                  {renderPill(
+                    `${priorityVisitorCount} priority`,
+                    priorityVisitorCount > 0 ? 'amber' : 'slate'
+                  )}
+                  {renderPill(
+                    activeSourceFilter === 'all' ? 'All channels' : activeSourceFilter,
+                    activeSourceFilter === 'all' ? 'slate' : 'blue'
+                  )}
+                </div>
+              </div>
+
+              {filteredVisitors.length === 0 ? (
+                <p style={{ margin: 0, color: '#9fb0cd' }}>
+                  No visitors matched the current filters for {formatDate(selectedDay.date)}. Try a
+                  different day, IP, source, or company keyword.
+                </p>
+              ) : (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'minmax(0, 1.08fr) minmax(320px, 0.92fr)',
+                    gap: '14px',
+                    alignItems: 'stretch',
+                  }}
+                >
+                  <div
+                    style={{
+                      ...scrollAreaStyle,
+                      display: 'grid',
+                      gap: '10px',
+                      minHeight: '640px',
+                      maxHeight: '640px',
+                    }}
+                  >
+                    {filteredVisitors.map((visitor) => {
+                      const intentScore = getVisitorIntentScore(visitor);
+                      const intent = getVisitorIntentSummary(intentScore);
+                      const returning = isReturningVisitor(visitor);
+                      const isSelected = selectedVisitor?.id === visitor.id;
+                      const isPriority = visitor.conversionCount > 0 || intentScore >= 75;
+                      const visitorStatus =
+                        visitor.conversionCount > 0 ? 'Lead' : returning ? 'Returning' : 'New';
+                      const visitorTone =
+                        visitor.conversionCount > 0 ? 'green' : returning ? 'blue' : 'slate';
+                      const journeyPreview = visitor.recentPages.slice(0, 4).reverse().join(' → ');
+
+                      return (
+                        <Link
+                          key={visitor.id}
+                          href={buildAdminVisitorHref({
+                            visitorQuery: activeVisitorQuery,
+                            source: activeSourceFilter,
+                            visitor: visitor.id,
+                            day: activeDay,
+                          })}
+                          scroll={false}
+                          style={{ textDecoration: 'none' }}
+                        >
+                          <div
+                            style={{
+                              display: 'grid',
+                              gridTemplateColumns: 'minmax(0, 1fr) auto',
+                              gap: '14px',
+                              alignItems: 'start',
+                              padding: '12px',
+                              borderRadius: '14px',
+                              background: isSelected
+                                ? 'linear-gradient(180deg, rgba(17, 34, 64, 0.98), rgba(11, 23, 43, 0.94))'
+                                : 'rgba(12, 22, 40, 0.9)',
+                              border: isSelected
+                                ? '1px solid rgba(125,211,252,0.58)'
+                                : isPriority
+                                  ? '1px solid rgba(248,113,113,0.34)'
+                                  : returning
+                                    ? '1px solid rgba(96,165,250,0.24)'
+                                    : '1px solid rgba(148,163,184,0.08)',
+                              boxShadow: isSelected ? '0 0 0 1px rgba(125,211,252,0.12)' : 'none',
+                            }}
+                          >
+                            <div>
+                              <div
+                                style={{
+                                  display: 'flex',
+                                  flexWrap: 'wrap',
+                                  gap: '8px',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <strong style={{ color: '#f8fbff' }}>
+                                  {getVisitorDisplayName(visitor)}
+                                </strong>
+                                {renderPill(visitorStatus, visitorTone)}
+                                {renderPill(`${intent.label} · ${intentScore}/100`, intent.tone)}
+                                {isPriority ? renderPill('Priority', 'amber') : null}
+                              </div>
+
+                              <div style={{ color: '#93a8c9', fontSize: '13px', marginTop: '6px' }}>
+                                {getVisitorQuickFacts(visitor)}
+                              </div>
+
+                              <div style={{ color: '#cfe5ff', fontSize: '13px', marginTop: '6px' }}>
+                                {visitor.company
+                                  ? `Company hint: ${visitor.company}`
+                                  : visitor.lastInquiryType
+                                    ? `Interest: ${visitor.lastInquiryType}`
+                                    : 'No company hint yet'}
+                                {visitor.ipAddress ? ` · IP ${visitor.ipAddress}` : ''}
+                              </div>
+
+                              <div
+                                style={{
+                                  color: '#dbe7fb',
+                                  fontSize: '13px',
+                                  marginTop: '8px',
+                                  lineHeight: 1.6,
+                                }}
+                              >
+                                <strong style={{ color: '#f8fbff' }}>Recent path:</strong>{' '}
+                                {journeyPreview || 'No page history yet'}
+                              </div>
+                            </div>
+
+                            <div style={{ textAlign: 'right', color: '#cbd5e1', fontSize: '13px' }}>
+                              <div>
+                                <strong style={{ color: '#f8fbff' }}>{visitor.viewCount}</strong>{' '}
+                                views
+                              </div>
+                              <div>
+                                <strong style={{ color: '#f8fbff' }}>
+                                  {visitor.conversionCount}
+                                </strong>{' '}
+                                leads
+                              </div>
+                              <div>
+                                <strong style={{ color: '#f8fbff' }}>{visitor.pages.length}</strong>{' '}
+                                pages
+                              </div>
+                              <div style={{ marginTop: '6px' }}>
+                                Last seen {formatDateTime(visitor.lastSeenAt)}
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <div
+                    style={{
+                      ...cardStyle,
+                      position: 'sticky',
+                      top: '16px',
+                      padding: '16px',
+                      minHeight: '640px',
+                      height: '640px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {selectedVisitor ? (
+                      (() => {
+                        const intentScore = getVisitorIntentScore(selectedVisitor);
+                        const intent = getVisitorIntentSummary(intentScore);
+                        const orderedRecentPages = selectedVisitor.recentPages
+                          .slice(0, 10)
+                          .reverse();
+                        const detailCards = [
+                          {
+                            label: 'IP / network',
+                            value: selectedVisitor.ipAddress ?? 'Not available',
+                          },
+                          { label: 'Source', value: selectedVisitor.source },
+                          { label: 'Device', value: selectedVisitor.device },
+                          {
+                            label: 'Location',
+                            value: selectedVisitor.location ?? 'Location pending',
+                          },
+                          {
+                            label: 'Campaign',
+                            value: getVisitorCampaignLabel(selectedVisitor),
+                          },
+                          {
+                            label: 'Interest',
+                            value: selectedVisitor.lastInquiryType ?? 'Not captured yet',
+                          },
+                        ];
+
+                        return (
+                          <div
+                            style={{
+                              ...scrollAreaStyle,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '12px',
+                              height: '100%',
+                              maxHeight: '100%',
+                              paddingRight: '10px',
+                            }}
+                          >
+                            <div
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                gap: '12px',
+                                alignItems: 'start',
+                                marginBottom: '12px',
+                              }}
+                            >
+                              <div>
+                                <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>
+                                  Visitor detail panel · {formatDate(selectedDay.date)}
+                                </p>
+                                <h3
+                                  style={{ margin: '6px 0 0', color: '#f8fbff', fontSize: '22px' }}
+                                >
+                                  {getVisitorDisplayName(selectedVisitor)}
+                                </h3>
+                              </div>
+                              <div style={{ display: 'grid', gap: '6px', justifyItems: 'end' }}>
+                                {renderPill(`${intent.label} · ${intentScore}/100`, intent.tone)}
+                                {selectedVisitor.conversionCount > 0
+                                  ? renderPill('Lead captured', 'green')
+                                  : renderPill('Watching', 'blue')}
+                              </div>
+                            </div>
+
+                            <div
+                              style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                                gap: '10px',
+                                marginBottom: '12px',
+                              }}
+                            >
+                              {detailCards.map((item) => (
+                                <div
+                                  key={`${selectedVisitor.id}-${item.label}`}
+                                  style={{
+                                    padding: '10px 12px',
+                                    borderRadius: '12px',
+                                    background: 'rgba(15, 23, 42, 0.72)',
+                                    border: '1px solid rgba(148,163,184,0.1)',
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      color: '#8fb6ff',
+                                      fontSize: '12px',
+                                      marginBottom: '4px',
+                                    }}
+                                  >
+                                    {item.label}
+                                  </div>
+                                  <div
+                                    style={{ color: '#f8fbff', fontSize: '13px', lineHeight: 1.5 }}
+                                  >
+                                    {item.value}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div
+                              style={{
+                                marginBottom: '12px',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                background: 'rgba(15, 23, 42, 0.72)',
+                                border: '1px solid rgba(148,163,184,0.1)',
+                              }}
+                            >
+                              <div
+                                style={{ color: '#f8fbff', fontWeight: 700, marginBottom: '8px' }}
+                              >
+                                Time-ordered browsing track
+                              </div>
+                              {orderedRecentPages.length === 0 ? (
+                                <p style={{ margin: 0, color: '#9fb0cd', fontSize: '13px' }}>
+                                  No browsing timeline recorded yet.
+                                </p>
+                              ) : (
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                  {orderedRecentPages.map((path, index) => (
+                                    <div
+                                      key={`${selectedVisitor.id}-ordered-${index}-${path}`}
+                                      style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: '24px 1fr',
+                                        gap: '8px',
+                                        alignItems: 'start',
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          width: '24px',
+                                          height: '24px',
+                                          borderRadius: '999px',
+                                          background: 'rgba(59,130,246,0.16)',
+                                          color: '#93c5fd',
+                                          display: 'inline-flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          fontSize: '12px',
+                                          fontWeight: 700,
+                                        }}
+                                      >
+                                        {index + 1}
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: '#dbe7fb',
+                                          fontSize: '13px',
+                                          lineHeight: 1.6,
+                                        }}
+                                      >
+                                        {path}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            <div
+                              style={{
+                                marginBottom: '12px',
+                                padding: '12px',
+                                borderRadius: '12px',
+                                background: 'rgba(15, 23, 42, 0.72)',
+                                border: '1px solid rgba(148,163,184,0.1)',
+                              }}
+                            >
+                              <div
+                                style={{ color: '#f8fbff', fontWeight: 700, marginBottom: '8px' }}
+                              >
+                                Pages viewed
+                              </div>
+                              {selectedVisitor.pages.length === 0 ? (
+                                <p style={{ margin: 0, color: '#9fb0cd', fontSize: '13px' }}>
+                                  No page totals recorded yet.
+                                </p>
+                              ) : (
+                                <div style={{ display: 'grid', gap: '8px' }}>
+                                  {selectedVisitor.pages.slice(0, 10).map((page) => (
+                                    <div
+                                      key={`${selectedVisitor.id}-${page.path}`}
+                                      style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        gap: '12px',
+                                        color: '#dbe7fb',
+                                        fontSize: '13px',
+                                      }}
+                                    >
+                                      <span style={{ wordBreak: 'break-word' }}>{page.path}</span>
+                                      <strong style={{ color: '#f8fbff', whiteSpace: 'nowrap' }}>
+                                        {page.views} view{page.views === 1 ? '' : 's'}
+                                      </strong>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+
+                            <div
+                              style={{
+                                color: '#9fb0cd',
+                                fontSize: '12px',
+                                lineHeight: 1.7,
+                                marginTop: 'auto',
+                                paddingTop: '6px',
+                              }}
+                            >
+                              First seen {formatDateTime(selectedVisitor.firstSeenAt)} · Last seen{' '}
+                              {formatDateTime(selectedVisitor.lastSeenAt)} · Visitor ID{' '}
+                              {selectedVisitor.id}
+                            </div>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <p style={{ margin: 0, color: '#9fb0cd' }}>
+                        Choose a visitor from the left to inspect their browsing details.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
         <section style={cardStyle}>
           <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Operations</p>
           <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Daily feed</h2>
-          <div style={{ display: 'grid', gap: '8px' }}>
+          <div style={{ ...scrollAreaStyle, display: 'grid', gap: '8px', maxHeight: '360px' }}>
             <div
               style={{
                 display: 'grid',
@@ -1531,37 +2334,69 @@ export default async function AdminDashboardPage() {
             {snapshot.recentDays
               .slice(-7)
               .reverse()
-              .map((day) => (
-                <div
-                  key={day.date}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.5fr 0.8fr 0.8fr auto',
-                    gap: '12px',
-                    alignItems: 'center',
-                    padding: '10px 12px',
-                    borderRadius: '12px',
-                    background: 'rgba(15, 23, 42, 0.72)',
-                    border: '1px solid rgba(148,163,184,0.08)',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 700 }}>{formatDate(day.date)}</div>
-                    <div style={{ color: '#94a3b8', fontSize: '13px' }}>
-                      {day.sources[0]?.label ?? 'Direct'} ·{' '}
-                      {day.locations[0]?.label ?? 'Location pending'}
+              .map((day) => {
+                const isActiveDay = day.date === activeDay;
+
+                return (
+                  <Link
+                    key={day.date}
+                    href={buildAdminVisitorHref({
+                      visitorQuery: activeVisitorQuery,
+                      source: activeSourceFilter,
+                      day: day.date,
+                    })}
+                    scroll={false}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <div
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1.5fr 0.8fr 0.8fr auto',
+                        gap: '12px',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        borderRadius: '12px',
+                        background: isActiveDay
+                          ? 'linear-gradient(180deg, rgba(17, 34, 64, 0.98), rgba(11, 23, 43, 0.94))'
+                          : 'rgba(15, 23, 42, 0.72)',
+                        border: isActiveDay
+                          ? '1px solid rgba(125,211,252,0.58)'
+                          : '1px solid rgba(148,163,184,0.08)',
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 700 }}>{formatDate(day.date)}</div>
+                        <div style={{ color: '#94a3b8', fontSize: '13px' }}>
+                          {day.sources[0]?.label ?? 'Direct'} ·{' '}
+                          {day.locations[0]?.label ?? 'Location pending'}
+                        </div>
+                      </div>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700 }}>{day.totalViews}</div>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700 }}>
+                        {day.contactSubmissions}
+                      </div>
+                      <div>
+                        {renderPill(
+                          isActiveDay
+                            ? 'Viewing'
+                            : day.contactSubmissions > 0
+                              ? 'Lead'
+                              : day.totalViews > 0
+                                ? 'Active'
+                                : 'Quiet',
+                          isActiveDay
+                            ? 'blue'
+                            : day.contactSubmissions > 0
+                              ? 'green'
+                              : day.totalViews > 0
+                                ? 'blue'
+                                : 'slate'
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  <div style={{ color: '#dbe7fb', fontWeight: 700 }}>{day.totalViews}</div>
-                  <div style={{ color: '#dbe7fb', fontWeight: 700 }}>{day.contactSubmissions}</div>
-                  <div>
-                    {renderPill(
-                      day.contactSubmissions > 0 ? 'Lead' : day.totalViews > 0 ? 'Active' : 'Quiet',
-                      day.contactSubmissions > 0 ? 'green' : day.totalViews > 0 ? 'blue' : 'slate'
-                    )}
-                  </div>
-                </div>
-              ))}
+                  </Link>
+                );
+              })}
           </div>
         </section>
       </div>

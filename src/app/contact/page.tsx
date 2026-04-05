@@ -22,6 +22,7 @@ export type ContactFormInputs = {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
+  visitorId?: string;
 };
 
 export default function ContactPage() {
@@ -186,6 +187,19 @@ function ContactSection() {
     setValue('sourcePage', window.location.pathname);
 
     try {
+      const existingVisitorId = window.localStorage.getItem('fft_visitor_id')?.trim();
+      const visitorId =
+        existingVisitorId ||
+        (typeof window.crypto?.randomUUID === 'function'
+          ? window.crypto.randomUUID()
+          : `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
+
+      if (!existingVisitorId) {
+        window.localStorage.setItem('fft_visitor_id', visitorId);
+      }
+
+      setValue('visitorId', visitorId);
+
       const stored = window.sessionStorage.getItem('fft_utm_attribution');
       if (!stored) {
         return;
@@ -418,6 +432,7 @@ function ContactSection() {
               <input type="hidden" {...register('utmSource')} />
               <input type="hidden" {...register('utmMedium')} />
               <input type="hidden" {...register('utmCampaign')} />
+              <input type="hidden" {...register('visitorId')} />
 
               <div className="row">
                 <div className="form-group col mb-0">

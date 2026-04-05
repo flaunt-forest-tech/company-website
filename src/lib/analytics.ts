@@ -4,7 +4,13 @@ import crypto from 'node:crypto';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 
-import { createClient } from 'redis';
+import {
+  formatRedisError,
+  getSharedRedisClient,
+  resetSharedRedisClient,
+  type SharedRedisClient,
+} from '@/lib/redis';
+import { formatClientIpLabel } from '@/lib/request-ip';
 
 export type AnalyticsPageStat = {
   path: string;
@@ -33,6 +39,24 @@ export type AnalyticsDayStat = {
   inquiryTypes: AnalyticsLabelStat[];
 };
 
+export type AnalyticsVisitorRecord = {
+  id: string;
+  ipAddress: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  source: string;
+  location: string | null;
+  company: string | null;
+  device: string;
+  utmSource: string | null;
+  utmCampaign: string | null;
+  lastInquiryType: string | null;
+  viewCount: number;
+  conversionCount: number;
+  pages: AnalyticsPageStat[];
+  recentPages: string[];
+};
+
 export type AnalyticsSnapshot = {
   generatedAt: string;
   source: 'redis' | 'file';
@@ -51,6 +75,25 @@ export type AnalyticsSnapshot = {
   inquiryBreakdownLast14Days: AnalyticsLabelStat[];
   contactSubmissionsLast14Days: number;
   conversionRateLast14Days: number;
+  recentVisitors: AnalyticsVisitorRecord[];
+};
+
+type FileAnalyticsVisitorRecord = {
+  id: string;
+  ipAddress?: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+  source?: string;
+  location?: string | null;
+  company?: string | null;
+  device?: string;
+  utmSource?: string | null;
+  utmCampaign?: string | null;
+  lastInquiryType?: string | null;
+  viewCount: number;
+  conversionCount: number;
+  pages: Record<string, number>;
+  recentPages: string[];
 };
 
 type FileAnalyticsStore = {
@@ -72,119 +115,11 @@ type FileAnalyticsStore = {
       inquiryTypes?: Record<string, number>;
     }
   >;
+  visitors?: Record<string, FileAnalyticsVisitorRecord>;
 };
 
 const ANALYTICS_STORE_PATH = path.join(process.cwd(), 'data', 'analytics-store.json');
 const ANALYTICS_TTL_SECONDS = 60 * 60 * 24 * 120;
-
-let redisClient: ReturnType<typeof createClient> | null = null;
-let redisConnected = false;
-let redisAttempted = false;
-
-function formatRedisError(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
-
-async function resetRedisClient(
-  client: ReturnType<typeof createClient> | null = redisClient
-): Promise<void> {
-  redisClient = null;
-  redisConnected = false;
-  redisAttempted = true;
-
-  if (!client) {
-    return;
-  }
-
-  try {
-    await client.quit();
-  } catch {
-    try {
-      client.disconnect();
-    } catch {}
-  }
-}
-
-function normalizeRedisUrl(value: string): string {
-  const trimmedValue = value.trim();
-
-  if (/^redis(s)?:\/\//i.test(trimmedValue)) {
-    return trimmedValue;
-  }
-
-  return `redis://${trimmedValue}`;
-}
-
-function getRedisUrl(): string | null {
-  if (process.env.REDIS_URL) {
-    return normalizeRedisUrl(process.env.REDIS_URL);
-  }
-
-  const host = process.env.REDIS_HOST;
-  const port = process.env.REDIS_PORT ?? '6379';
-
-  if (!host) {
-    return null;
-  }
-
-  return `redis://${host}:${port}`;
-}
-
-async function getRedisClient(): Promise<ReturnType<typeof createClient> | null> {
-  if (redisConnected && redisClient) {
-    return redisClient;
-  }
-
-  if (redisAttempted) {
-    return null;
-  }
-
-  redisAttempted = true;
-
-  const url = getRedisUrl();
-
-  if (!url) {
-    return null;
-  }
-
-  let client: ReturnType<typeof createClient> | null = null;
-
-  try {
-    const useTls = url.startsWith('rediss://');
-    const skipTlsVerification = process.env.REDIS_TLS_INSECURE_SKIP_VERIFY === 'true';
-
-    client = createClient({
-      url,
-      ...(useTls
-        ? {
-            socket: {
-              tls: true,
-              rejectUnauthorized: !skipTlsVerification,
-              servername: new URL(url).hostname,
-            },
-          }
-        : {}),
-    });
-
-    client.on('error', (error) => {
-      console.error('Analytics Redis error', formatRedisError(error));
-    });
-
-    await client.connect();
-
-    redisClient = client;
-    redisConnected = true;
-
-    return redisClient;
-  } catch (error) {
-    console.error(
-      'Analytics Redis unavailable, falling back to file storage',
-      formatRedisError(error)
-    );
-    await resetRedisClient(client);
-    return null;
-  }
-}
 
 function normalizePath(pathname: string): string | null {
   const cleanPath = pathname.split('?')[0]?.trim() || '/';
@@ -420,6 +355,167 @@ function buildVisitorId(ipAddress?: string | null, userAgent?: string | null): s
     .digest('hex');
 }
 
+function normalizeVisitorToken(value?: string | null): string | null {
+  const normalized = value?.trim();
+
+  if (!normalized) {
+    return null;
+  }
+
+  return /^[a-zA-Z0-9_-]{8,120}$/.test(normalized) ? normalized : null;
+}
+
+function normalizeIpAddress(value?: string | null): string | null {
+  return formatClientIpLabel(value);
+}
+
+type VisitorUpdateInput = {
+  visitorId: string;
+  nowIso: string;
+  pathname?: string | null;
+  ipAddress?: string | null;
+  sourceLabel?: string | null;
+  locationLabel?: string | null;
+  companyLabel?: string | null;
+  deviceLabel?: string | null;
+  utmSourceLabel?: string | null;
+  campaignLabel?: string | null;
+  inquiryType?: string | null;
+  incrementView?: boolean;
+  markConversion?: boolean;
+};
+
+function updateFileVisitorRecord(store: FileAnalyticsStore, input: VisitorUpdateInput): void {
+  store.visitors ??= {};
+
+  const normalizedPath = input.pathname ? normalizePath(input.pathname) : null;
+  const record =
+    store.visitors[input.visitorId] ??
+    ({
+      id: input.visitorId,
+      ipAddress: input.ipAddress ?? null,
+      firstSeenAt: input.nowIso,
+      lastSeenAt: input.nowIso,
+      source: input.sourceLabel ?? 'Direct',
+      location: input.locationLabel ?? null,
+      company: input.companyLabel ?? null,
+      device: input.deviceLabel ?? 'Unknown',
+      utmSource: input.utmSourceLabel ?? null,
+      utmCampaign: input.campaignLabel ?? null,
+      lastInquiryType: input.inquiryType ?? null,
+      viewCount: 0,
+      conversionCount: 0,
+      pages: {},
+      recentPages: [],
+    } satisfies FileAnalyticsVisitorRecord);
+
+  record.lastSeenAt = input.nowIso;
+  record.ipAddress = input.ipAddress ?? record.ipAddress ?? null;
+  record.source = input.sourceLabel ?? record.source ?? 'Direct';
+  record.location = input.locationLabel ?? record.location ?? null;
+  record.company = input.companyLabel ?? record.company ?? null;
+  record.device = input.deviceLabel ?? record.device ?? 'Unknown';
+  record.utmSource = input.utmSourceLabel ?? record.utmSource ?? null;
+  record.utmCampaign = input.campaignLabel ?? record.utmCampaign ?? null;
+  record.lastInquiryType = input.inquiryType ?? record.lastInquiryType ?? null;
+
+  if (normalizedPath) {
+    record.recentPages = Array.from(new Set([normalizedPath, ...(record.recentPages ?? [])])).slice(
+      0,
+      6
+    );
+
+    if (input.incrementView !== false) {
+      record.viewCount += 1;
+      record.pages[normalizedPath] = (record.pages[normalizedPath] ?? 0) + 1;
+    }
+  }
+
+  if (input.markConversion) {
+    record.conversionCount = (record.conversionCount ?? 0) + 1;
+  }
+
+  store.visitors[input.visitorId] = record;
+}
+
+async function getRecentVisitorsFromRedis(
+  redis: SharedRedisClient,
+  limit = 120
+): Promise<AnalyticsVisitorRecord[]> {
+  const visitorIds = await redis.zRange('analytics:recent-visitors', 0, limit - 1, { REV: true });
+
+  const visitors = await Promise.all(
+    visitorIds.map(async (visitorId) => {
+      const [recordRaw, pageMapRaw, recentPathsRaw] = await Promise.all([
+        redis.hGetAll(`analytics:visitor:${visitorId}`),
+        redis.hGetAll(`analytics:visitor-pages:${visitorId}`),
+        redis.lRange(`analytics:visitor-recent-paths:${visitorId}`, 0, 5),
+      ]);
+
+      if (Object.keys(recordRaw).length === 0) {
+        return null;
+      }
+
+      const pageMap = toNumberMap(pageMapRaw);
+      const recentPages = Array.from(new Set(recentPathsRaw.filter(Boolean))).slice(0, 6);
+
+      return {
+        id: recordRaw.id || visitorId,
+        ipAddress: recordRaw.ipAddress || null,
+        firstSeenAt: recordRaw.firstSeenAt || recordRaw.lastSeenAt || new Date().toISOString(),
+        lastSeenAt: recordRaw.lastSeenAt || new Date().toISOString(),
+        source: recordRaw.source || 'Direct',
+        location: recordRaw.location || null,
+        company: recordRaw.company || null,
+        device: recordRaw.device || 'Unknown',
+        utmSource: recordRaw.utmSource || null,
+        utmCampaign: recordRaw.utmCampaign || null,
+        lastInquiryType: recordRaw.lastInquiryType || null,
+        viewCount: Number(
+          recordRaw.viewCount ?? Object.values(pageMap).reduce((sum, value) => sum + value, 0)
+        ),
+        conversionCount: Number(recordRaw.conversionCount ?? 0),
+        pages: sortPages(pageMap),
+        recentPages,
+      } satisfies AnalyticsVisitorRecord;
+    })
+  );
+
+  return visitors.filter((visitor): visitor is AnalyticsVisitorRecord => Boolean(visitor));
+}
+
+function getRecentVisitorsFromFile(
+  store: FileAnalyticsStore,
+  days: number,
+  limit = 120
+): AnalyticsVisitorRecord[] {
+  const cutoffTime = Date.now() - days * 24 * 60 * 60 * 1000;
+
+  return Object.values(store.visitors ?? {})
+    .filter((visitor) => new Date(visitor.lastSeenAt).getTime() >= cutoffTime)
+    .sort(
+      (left, right) => new Date(right.lastSeenAt).getTime() - new Date(left.lastSeenAt).getTime()
+    )
+    .slice(0, limit)
+    .map((visitor) => ({
+      id: visitor.id,
+      ipAddress: visitor.ipAddress ?? null,
+      firstSeenAt: visitor.firstSeenAt,
+      lastSeenAt: visitor.lastSeenAt,
+      source: visitor.source ?? 'Direct',
+      location: visitor.location ?? null,
+      company: visitor.company ?? null,
+      device: visitor.device ?? 'Unknown',
+      utmSource: visitor.utmSource ?? null,
+      utmCampaign: visitor.utmCampaign ?? null,
+      lastInquiryType: visitor.lastInquiryType ?? null,
+      viewCount: visitor.viewCount ?? 0,
+      conversionCount: visitor.conversionCount ?? 0,
+      pages: sortPages(visitor.pages ?? {}),
+      recentPages: (visitor.recentPages ?? []).slice(0, 6),
+    }));
+}
+
 function createEmptyDay(date: string): AnalyticsDayStat {
   return {
     date,
@@ -467,6 +563,7 @@ function getRecentDateKeys(days: number): string[] {
 
 export async function trackPageView(input: {
   pathname: string;
+  visitorId?: string | null;
   ipAddress?: string | null;
   userAgent?: string | null;
   referrer?: string | null;
@@ -483,15 +580,18 @@ export async function trackPageView(input: {
   }
 
   const now = new Date();
+  const nowIso = now.toISOString();
   const dateKey = getDateKey(now);
-  const visitorId = buildVisitorId(input.ipAddress, input.userAgent);
+  const normalizedIp = normalizeIpAddress(input.ipAddress);
+  const visitorId =
+    normalizeVisitorToken(input.visitorId) ?? buildVisitorId(normalizedIp, input.userAgent);
   const sourceLabel = normalizeSource(input.referrer);
   const locationLabel = normalizeLocationLabel(input.location);
   const companyLabel = normalizeCompanyLabel(input.company);
   const utmSourceLabel = normalizeUtmValue(input.utmSource);
   const campaignLabel = buildCampaignLabel(input);
   const deviceLabel = detectDeviceType(input.userAgent);
-  const redis = await getRedisClient();
+  const redis = await getSharedRedisClient();
 
   if (redis) {
     const totalsKey = `analytics:totals:${dateKey}`;
@@ -504,8 +604,38 @@ export async function trackPageView(input: {
     const utmSourcesKey = `analytics:utm-sources:${dateKey}`;
     const campaignsKey = `analytics:campaigns:${dateKey}`;
     const devicesKey = `analytics:devices:${dateKey}`;
+    const visitorKey = `analytics:visitor:${visitorId}`;
+    const visitorPagesKey = `analytics:visitor-pages:${visitorId}`;
+    const visitorRecentPathsKey = `analytics:visitor-recent-paths:${visitorId}`;
 
     try {
+      const visitorMetadata: Record<string, string> = {
+        id: visitorId,
+        lastSeenAt: nowIso,
+        source: sourceLabel,
+        device: deviceLabel,
+      };
+
+      if (normalizedIp) {
+        visitorMetadata.ipAddress = normalizedIp;
+      }
+
+      if (locationLabel) {
+        visitorMetadata.location = locationLabel;
+      }
+
+      if (companyLabel) {
+        visitorMetadata.company = companyLabel;
+      }
+
+      if (utmSourceLabel) {
+        visitorMetadata.utmSource = utmSourceLabel;
+      }
+
+      if (campaignLabel) {
+        visitorMetadata.utmCampaign = campaignLabel;
+      }
+
       const transaction = redis
         .multi()
         .incr(totalsKey)
@@ -514,11 +644,22 @@ export async function trackPageView(input: {
         .hIncrBy(allTimePagesKey, normalizedPath, 1)
         .hIncrBy(sourcesKey, sourceLabel, 1)
         .hIncrBy(devicesKey, deviceLabel, 1)
+        .hSet(visitorKey, visitorMetadata)
+        .hSetNX(visitorKey, 'firstSeenAt', nowIso)
+        .hIncrBy(visitorKey, 'viewCount', 1)
+        .hIncrBy(visitorPagesKey, normalizedPath, 1)
+        .lPush(visitorRecentPathsKey, normalizedPath)
+        .lTrim(visitorRecentPathsKey, 0, 5)
+        .zAdd('analytics:recent-visitors', [{ score: now.getTime(), value: visitorId }])
         .expire(totalsKey, ANALYTICS_TTL_SECONDS)
         .expire(visitorsKey, ANALYTICS_TTL_SECONDS)
         .expire(pagesKey, ANALYTICS_TTL_SECONDS)
         .expire(sourcesKey, ANALYTICS_TTL_SECONDS)
-        .expire(devicesKey, ANALYTICS_TTL_SECONDS);
+        .expire(devicesKey, ANALYTICS_TTL_SECONDS)
+        .expire(visitorKey, ANALYTICS_TTL_SECONDS)
+        .expire(visitorPagesKey, ANALYTICS_TTL_SECONDS)
+        .expire(visitorRecentPathsKey, ANALYTICS_TTL_SECONDS)
+        .expire('analytics:recent-visitors', ANALYTICS_TTL_SECONDS);
 
       if (locationLabel) {
         transaction
@@ -552,7 +693,7 @@ export async function trackPageView(input: {
         'Analytics Redis write failed, using file storage instead',
         formatRedisError(error)
       );
-      await resetRedisClient(redis);
+      await resetSharedRedisClient(redis);
     }
   }
 
@@ -582,23 +723,42 @@ export async function trackPageView(input: {
   existingDay.campaigns = existingDay.campaigns ?? {};
   existingDay.devices = existingDay.devices ?? {};
   existingDay.sources[sourceLabel] = (existingDay.sources[sourceLabel] ?? 0) + 1;
+
   if (locationLabel) {
     existingDay.locations[locationLabel] = (existingDay.locations[locationLabel] ?? 0) + 1;
   }
+
   if (companyLabel) {
     existingDay.companies[companyLabel] = (existingDay.companies[companyLabel] ?? 0) + 1;
   }
+
   if (utmSourceLabel) {
     existingDay.utmSources[utmSourceLabel] = (existingDay.utmSources[utmSourceLabel] ?? 0) + 1;
   }
+
   if (campaignLabel) {
     existingDay.campaigns[campaignLabel] = (existingDay.campaigns[campaignLabel] ?? 0) + 1;
   }
+
   existingDay.devices[deviceLabel] = (existingDay.devices[deviceLabel] ?? 0) + 1;
 
   if (!existingDay.uniqueVisitors.includes(visitorId)) {
     existingDay.uniqueVisitors.push(visitorId);
   }
+
+  updateFileVisitorRecord(store, {
+    visitorId,
+    nowIso,
+    pathname: normalizedPath,
+    ipAddress: normalizedIp,
+    sourceLabel,
+    locationLabel,
+    companyLabel,
+    deviceLabel,
+    utmSourceLabel,
+    campaignLabel,
+    incrementView: true,
+  });
 
   store.daily[dateKey] = existingDay;
   await writeFileStore(store);
@@ -614,9 +774,13 @@ export async function trackConversion(
     utmSource?: string | null;
     utmMedium?: string | null;
     utmCampaign?: string | null;
+    visitorId?: string | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
   } = {}
 ): Promise<void> {
   const now = new Date();
+  const nowIso = now.toISOString();
   const dateKey = getDateKey(now);
   const conversionKey = input.type ?? 'contact-form';
   const inquiryType = normalizeInquiryType(input.inquiryType);
@@ -624,7 +788,11 @@ export async function trackConversion(
   const sourcePageLabel = normalizeLeadPage(input.sourcePage);
   const utmSourceLabel = normalizeUtmValue(input.utmSource);
   const campaignLabel = buildCampaignLabel(input);
-  const redis = await getRedisClient();
+  const normalizedIp = normalizeIpAddress(input.ipAddress);
+  const deviceLabel = detectDeviceType(input.userAgent);
+  const visitorId =
+    normalizeVisitorToken(input.visitorId) ?? buildVisitorId(normalizedIp, input.userAgent);
+  const redis = await getSharedRedisClient();
 
   if (redis) {
     const conversionsKey = `analytics:conversions:${dateKey}`;
@@ -633,14 +801,29 @@ export async function trackConversion(
     const utmSourcesKey = `analytics:utm-sources:${dateKey}`;
     const campaignsKey = `analytics:campaigns:${dateKey}`;
     const leadPagesKey = `analytics:lead-pages:${dateKey}`;
+    const visitorKey = `analytics:visitor:${visitorId}`;
+    const visitorRecentPathsKey = `analytics:visitor-recent-paths:${visitorId}`;
 
     try {
       const transaction = redis
         .multi()
         .hIncrBy(conversionsKey, conversionKey, 1)
         .hIncrBy(inquiryTypesKey, inquiryType, 1)
+        .hSet(visitorKey, {
+          id: visitorId,
+          lastSeenAt: nowIso,
+          device: deviceLabel,
+          lastInquiryType: inquiryType,
+          ...(normalizedIp ? { ipAddress: normalizedIp } : {}),
+          ...(companyLabel ? { company: companyLabel } : {}),
+          ...(utmSourceLabel ? { utmSource: utmSourceLabel } : {}),
+          ...(campaignLabel ? { utmCampaign: campaignLabel } : {}),
+        })
+        .hSetNX(visitorKey, 'firstSeenAt', nowIso)
+        .hIncrBy(visitorKey, 'conversionCount', 1)
         .expire(conversionsKey, ANALYTICS_TTL_SECONDS)
-        .expire(inquiryTypesKey, ANALYTICS_TTL_SECONDS);
+        .expire(inquiryTypesKey, ANALYTICS_TTL_SECONDS)
+        .expire(visitorKey, ANALYTICS_TTL_SECONDS);
 
       if (companyLabel) {
         transaction
@@ -663,7 +846,10 @@ export async function trackConversion(
       if (sourcePageLabel) {
         transaction
           .hIncrBy(leadPagesKey, sourcePageLabel, 1)
-          .expire(leadPagesKey, ANALYTICS_TTL_SECONDS);
+          .lPush(visitorRecentPathsKey, sourcePageLabel)
+          .lTrim(visitorRecentPathsKey, 0, 5)
+          .expire(leadPagesKey, ANALYTICS_TTL_SECONDS)
+          .expire(visitorRecentPathsKey, ANALYTICS_TTL_SECONDS);
       }
 
       await transaction.exec();
@@ -674,7 +860,7 @@ export async function trackConversion(
         'Analytics conversion write failed, using file storage instead',
         formatRedisError(error)
       );
-      await resetRedisClient(redis);
+      await resetSharedRedisClient(redis);
     }
   }
 
@@ -703,18 +889,36 @@ export async function trackConversion(
   existingDay.leadPages = existingDay.leadPages ?? {};
   existingDay.conversions[conversionKey] = (existingDay.conversions[conversionKey] ?? 0) + 1;
   existingDay.inquiryTypes[inquiryType] = (existingDay.inquiryTypes[inquiryType] ?? 0) + 1;
+
   if (companyLabel) {
     existingDay.companies[companyLabel] = (existingDay.companies[companyLabel] ?? 0) + 1;
   }
+
   if (utmSourceLabel) {
     existingDay.utmSources[utmSourceLabel] = (existingDay.utmSources[utmSourceLabel] ?? 0) + 1;
   }
+
   if (campaignLabel) {
     existingDay.campaigns[campaignLabel] = (existingDay.campaigns[campaignLabel] ?? 0) + 1;
   }
+
   if (sourcePageLabel) {
     existingDay.leadPages[sourcePageLabel] = (existingDay.leadPages[sourcePageLabel] ?? 0) + 1;
   }
+
+  updateFileVisitorRecord(store, {
+    visitorId,
+    nowIso,
+    pathname: sourcePageLabel,
+    ipAddress: normalizedIp,
+    companyLabel,
+    deviceLabel,
+    utmSourceLabel,
+    campaignLabel,
+    inquiryType,
+    incrementView: false,
+    markConversion: true,
+  });
 
   store.daily[dateKey] = existingDay;
   await writeFileStore(store);
@@ -733,7 +937,7 @@ export async function trackClickEvent(input: {
 
   const now = new Date();
   const dateKey = getDateKey(now);
-  const redis = await getRedisClient();
+  const redis = await getSharedRedisClient();
 
   if (redis) {
     const ctaClicksKey = `analytics:cta-clicks:${dateKey}`;
@@ -750,7 +954,7 @@ export async function trackClickEvent(input: {
         'Analytics click tracking failed, using file storage instead',
         formatRedisError(error)
       );
-      await resetRedisClient(redis);
+      await resetSharedRedisClient(redis);
     }
   }
 
@@ -779,7 +983,7 @@ export async function trackClickEvent(input: {
 
 export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot> {
   const dateKeys = getRecentDateKeys(days);
-  const redis = await getRedisClient();
+  const redis = await getSharedRedisClient();
 
   if (redis) {
     try {
@@ -905,6 +1109,7 @@ export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot
         0
       );
       const totalViewsLast14Days = dayStats.reduce((sum, day) => sum + day.totalViews, 0);
+      const recentVisitors = await getRecentVisitorsFromRedis(redis);
 
       return {
         generatedAt: new Date().toISOString(),
@@ -927,13 +1132,14 @@ export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot
           totalViewsLast14Days > 0
             ? (contactSubmissionsLast14Days / totalViewsLast14Days) * 100
             : 0,
+        recentVisitors,
       };
     } catch (error) {
       console.error(
         'Analytics Redis read failed, using file storage instead',
         formatRedisError(error)
       );
-      await resetRedisClient(redis);
+      await resetSharedRedisClient(redis);
     }
   }
 
@@ -1033,6 +1239,7 @@ export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot
     0
   );
   const totalViewsLast14Days = dayStats.reduce((sum, day) => sum + day.totalViews, 0);
+  const recentVisitors = getRecentVisitorsFromFile(store, days);
 
   return {
     generatedAt: new Date().toISOString(),
@@ -1053,5 +1260,6 @@ export async function getAnalyticsSnapshot(days = 14): Promise<AnalyticsSnapshot
     contactSubmissionsLast14Days,
     conversionRateLast14Days:
       totalViewsLast14Days > 0 ? (contactSubmissionsLast14Days / totalViewsLast14Days) * 100 : 0,
+    recentVisitors,
   };
 }

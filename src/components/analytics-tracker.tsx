@@ -10,6 +10,7 @@ type UTMValues = {
 };
 
 const STORAGE_KEY = 'fft_utm_attribution';
+const VISITOR_KEY = 'fft_visitor_id';
 
 function readStoredUTM(): UTMValues {
   if (typeof window === 'undefined') {
@@ -44,6 +45,25 @@ function persistUTM(values: UTMValues): UTMValues {
   return nextValues;
 }
 
+function getOrCreateVisitorId(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem(VISITOR_KEY)?.trim();
+  if (stored) {
+    return stored;
+  }
+
+  const generated =
+    typeof window.crypto?.randomUUID === 'function'
+      ? window.crypto.randomUUID()
+      : `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
+  window.localStorage.setItem(VISITOR_KEY, generated);
+  return generated;
+}
+
 function postAnalytics(payload: Record<string, unknown>) {
   const body = JSON.stringify(payload);
 
@@ -73,11 +93,13 @@ function AnalyticsTrackerInner() {
     }
 
     const utmValues = persistUTM(getUTMFromSearch(searchParams));
+    const visitorId = getOrCreateVisitorId();
 
     postAnalytics({
       eventType: 'page-view',
       pathname,
       referrer: document.referrer || null,
+      visitorId,
       ...utmValues,
     });
   }, [pathname, searchParams]);
@@ -88,6 +110,7 @@ function AnalyticsTrackerInner() {
     }
 
     const utmValues = persistUTM(getUTMFromSearch(searchParams));
+    const visitorId = getOrCreateVisitorId();
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target;
@@ -117,6 +140,7 @@ function AnalyticsTrackerInner() {
         pathname,
         label,
         target: href || null,
+        visitorId,
         ...utmValues,
       });
     };

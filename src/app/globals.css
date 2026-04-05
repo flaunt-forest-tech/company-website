@@ -1,21 +1,54 @@
 /* Vendor CSS */
-@import "../vendor/bootstrap/css/bootstrap.min.css";
-@import "../vendor/fontawesome-free/css/all.min.css";
-@import "../vendor/animate/animate.compat.css";
-@import "../vendor/simple-line-icons/css/simple-line-icons.min.css";
-@import "../vendor/owl.carousel/assets/owl.carousel.min.css";
-@import "../vendor/owl.carousel/assets/owl.theme.default.min.css";
-@import "../vendor/magnific-popup/magnific-popup.min.css";
+@import '../vendor/bootstrap/css/bootstrap.min.css';
+@import '../vendor/fontawesome-free/css/all.min.css';
+@import '../vendor/animate/animate.compat.css';
+@import '../vendor/simple-line-icons/css/simple-line-icons.min.css';
+@import '../vendor/owl.carousel/assets/owl.carousel.min.css';
+@import '../vendor/owl.carousel/assets/owl.theme.default.min.css';
+@import '../vendor/magnific-popup/magnific-popup.min.css';
 
 /* Theme CSS */
-@import "../css/theme.css";
-@import "../css/theme-elements.css";
-@import "../css/theme-blog.css";
-@import "../css/theme-shop.css";
+@import '../css/theme.css';
+@import '../css/theme-elements.css';
+@import '../css/theme-blog.css';
+@import '../css/theme-shop.css';
 
 /* Demo CSS */
-@import "../css/demo-it-services.css";
+@import '../css/demo-it-services.css';
 
 /* Skin CSS */
-@import "../css/skin-it-services.css";
+@import '../css/skin-it-services.css';
 
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(71, 118, 196, 0.5) rgba(7, 18, 38, 0.32);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(71, 118, 196, 0.5) rgba(7, 18, 38, 0.32);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: rgba(7, 18, 38, 0.32);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(67, 104, 179, 0.72), rgba(37, 99, 235, 0.52));
+  border-radius: 999px;
+  border: 1px solid rgba(7, 18, 38, 0.32);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(96, 165, 250, 0.82), rgba(59, 130, 246, 0.64));
+}
+
+*::-webkit-scrollbar-corner {
+  background: rgba(7, 18, 38, 0.32);
+}
