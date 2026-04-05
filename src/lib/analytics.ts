@@ -526,13 +526,10 @@ type EnrichedNetworkMetadata = {
   cacheUpdated: boolean;
 };
 
-async function fetchIpIntelligenceFromProvider(
-  ipAddress: string,
-  userAgent?: string | null
-): Promise<CachedIpIntelligence | null> {
+async function fetchJsonWithTimeout(url: string): Promise<unknown | null> {
   try {
     const response = await Promise.race([
-      fetch(`https://ipwho.is/${encodeURIComponent(ipAddress)}`, {
+      fetch(url, {
         headers: { accept: 'application/json' },
         cache: 'no-store',
       }),
@@ -541,46 +538,54 @@ async function fetchIpIntelligenceFromProvider(
       }),
     ]);
 
-    if (!response) {
+    if (!response || !response.ok) {
       return null;
     }
 
-    const payload = (await response.json()) as {
-      success?: boolean;
-      ip?: string;
-      connection?: {
-        isp?: string | null;
-        org?: string | null;
-        asn?: string | number | null;
-        domain?: string | null;
-        type?: string | null;
-      };
-      hostname?: string | null;
+    return await response.json();
+  } catch {
+    return null;
+  }
+}
+
+async function fetchIpIntelligenceFromProvider(
+  ipAddress: string,
+  userAgent?: string | null
+): Promise<CachedIpIntelligence | null> {
+  const ipWhoisPayload = (await fetchJsonWithTimeout(
+    `https://ipwho.is/${encodeURIComponent(ipAddress)}`
+  )) as {
+    success?: boolean;
+    connection?: {
+      isp?: string | null;
+      org?: string | null;
+      asn?: string | number | null;
+      domain?: string | null;
+      type?: string | null;
     };
+    hostname?: string | null;
+  } | null;
 
-    if (payload.success === false) {
-      return null;
-    }
-
+  if (ipWhoisPayload && ipWhoisPayload.success !== false) {
     const hostname =
-      normalizeHostnameLabel(payload.connection?.domain ?? payload.hostname) ??
+      normalizeHostnameLabel(ipWhoisPayload.connection?.domain ?? ipWhoisPayload.hostname) ??
       (await resolveHostnameFromIp(ipAddress));
-    const isp = normalizeIspLabel(payload.connection?.isp ?? payload.connection?.org);
+    const isp = normalizeIspLabel(ipWhoisPayload.connection?.isp ?? ipWhoisPayload.connection?.org);
     const networkAsn = normalizeAsnLabel(
-      typeof payload.connection?.asn === 'number'
-        ? String(payload.connection.asn)
-        : payload.connection?.asn
+      typeof ipWhoisPayload.connection?.asn === 'number'
+        ? String(ipWhoisPayload.connection.asn)
+        : ipWhoisPayload.connection?.asn
     );
     const providerSummary = [
-      payload.connection?.type,
-      payload.connection?.isp,
-      payload.connection?.org,
+      ipWhoisPayload.connection?.type,
+      ipWhoisPayload.connection?.isp,
+      ipWhoisPayload.connection?.org,
       hostname,
     ]
       .filter(Boolean)
       .join(' ');
     const derived = deriveNetworkProfile(
-      providerSummary || isp || payload.connection?.org,
+      providerSummary || isp || ipWhoisPayload.connection?.org,
       userAgent
     );
 
@@ -589,15 +594,66 @@ async function fetchIpIntelligenceFromProvider(
       hostname,
       isp,
       networkAsn,
-      company: normalizeCompanyLabel(payload.connection?.org) ?? derived.companyLabel,
+      company: normalizeCompanyLabel(ipWhoisPayload.connection?.org) ?? derived.companyLabel,
       networkType: derived.networkType,
       networkService: derived.networkService,
       fetchedAt: new Date().toISOString(),
       source: 'ipwho.is',
     };
-  } catch {
+  }
+
+  const ipInfoPayload = (await fetchJsonWithTimeout(
+    `https://ipinfo.io/${encodeURIComponent(ipAddress)}/json`
+  )) as {
+    org?: string | null;
+    hostname?: string | null;
+  } | null;
+
+  if (ipInfoPayload) {
+    const orgText = ipInfoPayload.org?.trim() ?? null;
+    const asnToken = orgText?.split(/\s+/)[0] ?? null;
+    const providerText = orgText?.replace(/^AS\d+\s+/i, '') ?? null;
+    const hostname =
+      normalizeHostnameLabel(ipInfoPayload.hostname) ?? (await resolveHostnameFromIp(ipAddress));
+    const isp = normalizeIspLabel(providerText);
+    const networkAsn = normalizeAsnLabel(asnToken);
+    const derived = deriveNetworkProfile(
+      [providerText, hostname].filter(Boolean).join(' '),
+      userAgent
+    );
+
+    return {
+      ipAddress,
+      hostname,
+      isp,
+      networkAsn,
+      company: normalizeCompanyLabel(providerText) ?? derived.companyLabel,
+      networkType: derived.networkType,
+      networkService: derived.networkService,
+      fetchedAt: new Date().toISOString(),
+      source: 'ipwho.is',
+    };
+  }
+
+  const hostname = await resolveHostnameFromIp(ipAddress);
+
+  if (!hostname) {
     return null;
   }
+
+  const derived = deriveNetworkProfile(hostname, userAgent);
+
+  return {
+    ipAddress,
+    hostname,
+    isp: null,
+    networkAsn: null,
+    company: derived.companyLabel,
+    networkType: derived.networkType,
+    networkService: derived.networkService,
+    fetchedAt: new Date().toISOString(),
+    source: 'ipwho.is',
+  };
 }
 
 async function enrichNetworkMetadata(input: {
