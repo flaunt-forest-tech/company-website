@@ -11,6 +11,7 @@ import {
   type AnalyticsPageStat,
   type AnalyticsVisitorRecord,
 } from '@/lib/analytics';
+import { buildProspectScout } from '@/lib/prospect-scout';
 
 export const dynamic = 'force-dynamic';
 
@@ -644,6 +645,8 @@ export default async function AdminDashboardPage({
     filteredVisitors[0] ??
     null;
 
+  const aiScout = buildProspectScout(filteredVisitors);
+
   const sourceComparison = snapshot.topSourcesLast14Days.slice(0, 5).map((source) => {
     const trafficShare = total14DayViews > 0 ? (source.value / total14DayViews) * 100 : 0;
     const estimatedLeads = (source.value * snapshot.conversionRateLast14Days) / 100;
@@ -922,6 +925,168 @@ export default async function AdminDashboardPage({
                 <div style={{ color: '#cfe5ff', marginTop: '8px' }}>{item.note}</div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section style={{ ...cardStyle, marginBottom: '18px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              gap: '12px',
+              flexWrap: 'wrap',
+              marginBottom: '14px',
+            }}
+          >
+            <div>
+              <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>
+                AI Prospect Scout
+              </p>
+              <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>
+                Likely customers for {formatDate(selectedDay.date)}
+              </h2>
+            </div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              {renderPill(`${aiScout.hotCount} hot`, aiScout.hotCount > 0 ? 'green' : 'slate')}
+              {renderPill(`${aiScout.returningCount} returning`, 'blue')}
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.05fr) minmax(280px, 0.95fr)',
+              gap: '14px',
+              alignItems: 'stretch',
+            }}
+          >
+            <div
+              style={{
+                borderRadius: '16px',
+                padding: '14px',
+                background: 'rgba(8, 15, 30, 0.58)',
+                border: '1px solid rgba(148,163,184,0.12)',
+              }}
+            >
+              <div
+                style={{ color: '#f8fbff', fontSize: '18px', fontWeight: 800, marginBottom: '8px' }}
+              >
+                {aiScout.headline}
+              </div>
+              <p style={{ margin: '0 0 12px', color: '#cfe5ff', lineHeight: 1.7 }}>
+                {aiScout.summary}
+              </p>
+              <div style={{ color: '#93a8c9', fontSize: '13px', marginBottom: '12px' }}>
+                Recommended next move:{' '}
+                <strong style={{ color: '#dbe7fb' }}>{aiScout.actionLabel}</strong>
+              </div>
+
+              {aiScout.items.length === 0 ? (
+                <p style={{ margin: 0, color: '#9fb0cd' }}>
+                  The scout will rank likely prospects once more visitor behavior comes in.
+                </p>
+              ) : (
+                <div
+                  style={{ ...scrollAreaStyle, display: 'grid', gap: '10px', maxHeight: '320px' }}
+                >
+                  {aiScout.items.map((item) => (
+                    <div
+                      key={item.id}
+                      style={{
+                        borderRadius: '14px',
+                        padding: '12px',
+                        background: 'rgba(12, 22, 40, 0.9)',
+                        border: '1px solid rgba(148,163,184,0.08)',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          gap: '12px',
+                          alignItems: 'center',
+                          marginBottom: '8px',
+                        }}
+                      >
+                        <strong style={{ color: '#f8fbff', wordBreak: 'break-word' }}>
+                          {item.name}
+                        </strong>
+                        {renderPill(
+                          `${item.priority} · ${item.score}/100`,
+                          item.priority === 'Hot'
+                            ? 'green'
+                            : item.priority === 'Warm'
+                              ? 'amber'
+                              : 'blue'
+                        )}
+                      </div>
+                      <p style={{ margin: '0 0 8px', color: '#cfe5ff', lineHeight: 1.6 }}>
+                        {item.summary}
+                      </p>
+                      <div style={{ color: '#93a8c9', fontSize: '13px' }}>
+                        Next step: <strong style={{ color: '#dbe7fb' }}>{item.nextAction}</strong>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div
+              style={{
+                borderRadius: '16px',
+                padding: '14px',
+                background: 'rgba(8, 15, 30, 0.58)',
+                border: '1px solid rgba(148,163,184,0.12)',
+              }}
+            >
+              <div
+                style={{
+                  color: '#f8fbff',
+                  fontSize: '18px',
+                  fontWeight: 800,
+                  marginBottom: '10px',
+                }}
+              >
+                Why these visitors matter
+              </div>
+              {aiScout.items.length === 0 ? (
+                <p style={{ margin: 0, color: '#9fb0cd' }}>
+                  Once visitors start exploring more of the site, the scout will explain the
+                  strongest signals here.
+                </p>
+              ) : (
+                <div
+                  style={{ ...scrollAreaStyle, display: 'grid', gap: '10px', maxHeight: '320px' }}
+                >
+                  {aiScout.items.map((item) => (
+                    <div
+                      key={`${item.id}-reasons`}
+                      style={{
+                        borderRadius: '14px',
+                        padding: '12px',
+                        background: 'rgba(12, 22, 40, 0.9)',
+                        border: '1px solid rgba(148,163,184,0.08)',
+                      }}
+                    >
+                      <div style={{ color: '#dbe7fb', fontWeight: 700, marginBottom: '8px' }}>
+                        {item.name}
+                      </div>
+                      <div style={{ display: 'grid', gap: '6px' }}>
+                        {item.reasons.map((reason) => (
+                          <div
+                            key={`${item.id}-${reason}`}
+                            style={{ color: '#cfe5ff', fontSize: '13px' }}
+                          >
+                            • {reason}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </section>
 
