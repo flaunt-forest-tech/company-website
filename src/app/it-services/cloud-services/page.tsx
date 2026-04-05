@@ -5,8 +5,8 @@ import ServicesSection from '@/components/it-services/services-section';
 
 export default function CloudServicesPage() {
   const pageHeaderData: PageHeaderProps = {
-    title: 'AI INTEGRATION SOLUTIONS',
-    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI Solutions' }],
+    title: 'AI & WORKFLOW AUTOMATION',
+    breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'AI & Workflow Automation' }],
   };
   return (
     <ITServicePageLayout pageHeaderData={pageHeaderData}>

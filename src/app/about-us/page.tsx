@@ -12,6 +12,7 @@ export default function AboutUSPage() {
     title: 'ABOUT US',
     breadcrumbs: [{ label: 'Home', href: '/' }, { label: 'About Us' }],
   };
+
   return (
     <div className="body">
       <Header activePage="AboutUs" />
@@ -61,7 +62,7 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="900"
             >
-              We build practical AI systems for real operations
+              We build practical systems that make work easier
             </h2>
 
             <p
@@ -69,11 +70,9 @@ function WhoWeAreSection() {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="1100"
             >
-              Founded in 2025 and headquartered in Houston, Texas, Flaunt Forest Tech was built to
-              help growing companies, private businesses, and selected larger teams adopt AI without
-              the usual consulting overhead. We focus on agentic AI, intelligent automation, and
-              cloud integration where the work has to connect with real systems, real users, and
-              real operational constraints.
+              Flaunt Forest Tech helps small and midsize businesses, growing teams, and individual
+              clients improve the way work gets done. We build practical solutions across
+              automation, AI, websites, custom software, backend systems, and cloud deployment.
             </p>
 
             <p
@@ -82,12 +81,10 @@ function WhoWeAreSection() {
               data-appear-animation-delay="1300"
               data-plugin-options='{"accY": 200}'
             >
-              Our model is hands-on and delivery-led. We work across strategy, product, engineering,
-              data, and cloud so clients can move from idea to working implementation with one
-              accountable team. As a young company, we stay close to the latest tools while applying
-              governance, security, and responsible AI practices from day one. With deep experience
-              in AI implementation and cloud systems, we help businesses in Houston and beyond
-              modernize operations responsibly.
+              Our approach is clear and hands-on. We focus on understanding the workflow, choosing
+              the right scope, and delivering something useful rather than overcomplicating the
+              project. The goal is simple: build tools and systems that are reliable, professional,
+              and worth using.
             </p>
           </div>
 
@@ -111,27 +108,27 @@ function WhoWeAreSection() {
 function IndustryUseCasesSection() {
   const useCases = [
     {
-      title: 'Retail & Commerce Intelligence',
+      title: 'Small & Midsize Businesses',
       points: [
-        'Integrate sales, inventory, and commerce channels into one decision layer.',
-        'Build dashboards for product performance, margin trends, and demand shifts.',
-        'Deploy AI models for forecasting, replenishment, and promotional optimization.',
+        'Replace manual tasks, spreadsheets, and disconnected tools with a clearer system.',
+        'Improve operations with automation, internal tools, and better reporting.',
+        'Launch websites and portals that support growth and enquiries professionally.',
       ],
     },
     {
-      title: 'Manufacturing & Operations Systems',
+      title: 'Service Providers & Growing Teams',
       points: [
-        'Provide dedicated support teams for mission-critical business systems.',
-        'Stabilize operations while modernizing legacy workflows with automation.',
-        'Connect production, supply chain, and finance data for faster decision cycles.',
+        'Build better client workflows, intake processes, and service dashboards.',
+        'Connect websites, forms, backend tools, and follow-up processes more cleanly.',
+        'Reduce friction in daily operations with practical automation and backend support.',
       ],
     },
     {
-      title: 'Service Businesses & AI-Enabled Apps',
+      title: 'Founders & Individual Clients',
       points: [
-        'Build web and mobile apps with embedded AI copilots and workflow assistants.',
-        'Automate customer support and internal operations with agentic AI flows.',
-        'Use unified data pipelines to improve service quality and growth planning.',
+        'Launch or improve a website, portal, or digital service with direct technical support.',
+        'Turn an idea or workflow problem into a clearer project with sensible scope.',
+        'Get hands-on help without the overhead of a large consulting-style engagement.',
       ],
     },
   ];
@@ -142,10 +139,10 @@ function IndustryUseCasesSection() {
         <div className="row">
           <div className="col text-center">
             <span className="d-block font-weight-bold custom-text-color-grey-1 line-height-1 mb-2">
-              INDUSTRY USE CASES
+              WHO WE HELP
             </span>
             <h2 className="text-color-dark font-weight-bold text-8 line-height-2 mb-4">
-              How We Apply Digital + AI In The Real World
+              Where we are a strong fit
             </h2>
           </div>
         </div>
@@ -186,28 +183,22 @@ function OurMission() {
             <div className="card-body">
               <Image
                 src={'/img/about-us/our-mission.jpg'}
-                alt="Our Mission"
+                alt="How we work"
                 className="img-fluid pb-2 mb-4"
                 sizes="(max-width: 768px) 100vw, 33vw"
-                width={600} // replace with actual image width
-                height={400} // replace with actual image height
+                width={600}
+                height={400}
               />
-              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR MISSION</h4>
+              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">HOW WE WORK</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Our mission is to modernize real businesses by combining strong IT delivery with
-                practical AI execution, governance, and industry-informed implementation.
+                We keep the process straightforward: understand the problem, define the right scope,
+                and build something useful.
               </p>
               <ul className="custom-text-size-1 ps-3 mb-0">
-                <li className="pb-2">
-                  Upgrade websites and apps with AI-powered capabilities and responsible governance
-                </li>
-                <li className="pb-2">
-                  Support business-critical software operations with practical industry context
-                </li>
-                <li className="pb-2">
-                  Engineer high-performance prompts and AI solutions for your domain
-                </li>
-                <li>Turn operational data into intelligent decisions and growth</li>
+                <li className="pb-2">Start with the real workflow and pain points</li>
+                <li className="pb-2">Recommend a sensible technical next step</li>
+                <li className="pb-2">Build with clarity, usability, and reliability in mind</li>
+                <li>Support and improve the system after launch if needed</li>
               </ul>
             </div>
           </div>
@@ -222,27 +213,26 @@ function OurMission() {
             <div className="card-body">
               <Image
                 src={'/img/about-us/generic-3.jpg'}
-                alt="Our Vision"
+                alt="Why clients choose us"
                 className="img-fluid pb-2 mb-4"
                 sizes="(max-width: 768px) 100vw, 33vw"
-                width={600} // replace with actual image width
-                height={400} // replace with actual image height
+                width={600}
+                height={400}
               />
-              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR VISION</h4>
+              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">
+                WHY CLIENTS CHOOSE US
+              </h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                To become a reliable AI-first transformation partner for ambitious companies and
-                teams, turning data into intelligence with responsible AI governance and practical
-                delivery expertise.
+                Clients come to us when they need direct communication, hands-on delivery, and
+                modern technical capability without inflated promises.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We envision a future where data systems, automation, prompt-engineered AI, and
-                responsible governance are deeply integrated into daily operations, helping teams
-                decide faster and execute with precision across vertical industries.
+                We aim to make the project feel clearer, not more complicated. That means practical
+                advice, sensible scoping, and work that stays tied to the real problem.
               </p>
               <p className="custom-text-size-1 mb-0">
-                Our focus is to help businesses move from traditional systems to AI-native
-                operations with sustainable, high-impact innovation grounded in strong delivery
-                fundamentals and industry context.
+                Whether the need is a website refresh, a workflow improvement, or a more advanced
+                software build, the focus stays on useful execution.
               </p>
             </div>
           </div>
@@ -257,27 +247,26 @@ function OurMission() {
             <div className="card-body">
               <Image
                 src={'/img/about-us/generic-4.jpg'}
-                alt="Careers"
+                alt="What we build"
                 className="img-fluid pb-2 mb-4"
                 sizes="(max-width: 768px) 100vw, 33vw"
-                width={600} // replace with actual image width
-                height={400} // replace with actual image height
+                width={600}
+                height={400}
               />
-              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">OUR CAREERS</h4>
+              <h4 className="font-weight-bold text-color-dark text-6 pb-1 mb-4">WHAT WE BUILD</h4>
               <p className="custom-font-secondary custom-text-size-2 line-height-4 pb-2 mb-4">
-                Join our team to build the future of AI-first business transformation through prompt
-                engineering, AI governance, and hands-on delivery across real business use cases.
+                We work across automation, custom software, websites, portals, backend systems, and
+                cloud deployment.
               </p>
               <p className="custom-text-size-1 pb-2 mb-4">
-                We seek passionate engineers, AI specialists, and data architects who can architect
-                responsible AI solutions, craft powerful prompts, and turn business requirements
-                into practical systems.
+                Some projects start small and focused. Others grow into ongoing improvements and
+                support. Either way, the goal is the same: a better system behind the work.
               </p>
               <Link
-                href="/careers"
+                href="/it-services"
                 className="d-flex align-items-center custom-link-effect-1 text-color-primary font-weight-bold text-decoration-none text-4"
               >
-                See All Positions <i className="custom-arrow-icon ms-2" />
+                View Services <i className="custom-arrow-icon ms-2" />
               </Link>
             </div>
           </div>

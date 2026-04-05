@@ -9,7 +9,7 @@ const Carousel: React.FC = () => {
         height="840"
         viewBox="0 0 481.54166 222.25"
         version="1.1"
-        aria-label="Build, modernize, and scale with AI services overview"
+        aria-label="Practical technology services overview"
         style={{
           backgroundImage: 'url(/img/backgrounds/bg-full.jpg)',
           backgroundSize: 'cover',
@@ -40,41 +40,38 @@ const Carousel: React.FC = () => {
       </svg>
       <div className="container container-xl-custom z-index-1">
         <div className="row">
-          <div className="col-md-7 col-lg-6">
+          <div className="col-md-8 col-lg-7">
             <h1
               className="text-color-light font-weight-extra-bold text-6 text-lg-10 text-xl-14 line-height-1-1 negative-ls-1 pb-2 mb-2 mb-xl-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="300"
             >
-              AI SOLUTIONS FOR GROWING AND ESTABLISHED COMPANIES
+              AI, automation, and custom software that solve real business problems
             </h1>
             <p
               className="custom-font-secondary custom-text-color-light-1 line-height-5 text-xl-5 pe-5 pb-3 mb-2 mb-xl-4 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              <strong className="text-color-light">Upgrade existing systems</strong> with AI-powered
-              automation and analytics.{' '}
-              <strong className="text-color-light">Build new digital products</strong> with
-              production-grade architecture.{' '}
-              <strong className="text-color-light">Scale AI responsibly</strong> with governance
-              frameworks and industry-informed delivery.
+              We help small and midsize businesses, growing teams, and individual clients improve
+              workflows, launch better websites and apps, and build reliable systems without
+              unnecessary complexity.
             </p>
             <a
-              href="/ai-solutions"
+              href="/contact"
               className="btn btn-secondary btn-outline text-color-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              EXPLORE AI SOLUTIONS <i className="custom-arrow-icon ms-2"></i>
+              BOOK A CONSULTATION <i className="custom-arrow-icon ms-2"></i>
             </a>
             <a
-              href="/contact"
+              href="/it-services"
               className="btn btn-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 ms-2 mt-2 mt-sm-0 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="850"
             >
-              START A CONVERSATION <i className="custom-arrow-icon ms-2"></i>
+              VIEW SERVICES <i className="custom-arrow-icon ms-2"></i>
             </a>
           </div>
         </div>

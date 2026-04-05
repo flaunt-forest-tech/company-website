@@ -18,26 +18,26 @@ const GetInTouchSection = () => {
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="500"
             >
-              READY TO EXPLORE A PRACTICAL AI INITIATIVE?
+              NEED A BETTER SYSTEM, WEBSITE, OR WORKFLOW?
             </h2>
             <p
               className="custom-font-secondary text-4 custom-text-color-light-3 mb-0 appear-animation"
               data-appear-animation="fadeInUpShorter"
               data-appear-animation-delay="700"
             >
-              Share your goals and constraints, and we will help map a practical next step across
-              data foundations, intelligent automation, agentic AI systems, and delivery.
+              Tell us what you are trying to improve. We work with businesses, teams, and individual
+              clients on automation, custom software, websites, backend systems, and practical AI.
             </p>
           </div>
           <div className="col-lg-4 col-xl-3">
             <div className="overflow-hidden">
               <Link
-                href="/contact" // Assuming you have a route like /contact
+                href="/contact"
                 className="btn btn-secondary btn-outline text-color-light font-weight-semibold border-width-4 custom-link-effect-1 text-1 text-xl-3 d-inline-flex align-items-center px-4 py-3 appear-animation"
                 data-appear-animation="maskRight"
                 data-appear-animation-delay="900"
               >
-                TALK THROUGH YOUR USE CASE <i className="custom-arrow-icon ms-2" />
+                BOOK A CONSULTATION <i className="custom-arrow-icon ms-2" />
               </Link>
             </div>
           </div>
