@@ -72,6 +72,27 @@ Important values for production:
 - If using Pub/Sub push to your production endpoint, set `x-webhook-secret` to match `WEBHOOK_SECRET`.
 - Any internal caller of `POST /api/gmail/watch` must send `x-internal-api-secret` with `INTERNAL_API_SECRET`.
 
+### GitHub Actions → Vercel auto deploy setup
+
+This repo now includes `.github/workflows/vercel-deploy.yml` for both PR preview deploys and `main` production deploys.
+
+You can re-enable auto deploy with **either** of these approaches:
+
+**Option A — deploy hooks (simplest)**
+Add these GitHub Actions secrets in `Settings > Secrets and variables > Actions`:
+
+- `VERCEL_PREVIEW_DEPLOY_HOOK` — preview deploy hook URL for pull requests into `main`
+- `VERCEL_DEPLOY_HOOK` — production deploy hook URL for pushes to `main`
+
+**Option B — Vercel CLI deployment**
+Add these GitHub Actions secrets instead:
+
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
+
+If the native Vercel GitHub integration was disconnected, either option above will restore visible GitHub deploy checks and automatic preview/production deployments.
+
 ## Getting Started
 
 First, run the development server:-
