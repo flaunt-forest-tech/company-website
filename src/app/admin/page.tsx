@@ -263,6 +263,7 @@ function buildAdminVisitorHref(params: {
   source?: string;
   visitor?: string;
   day?: string;
+  section?: 'visitor-journeys' | 'daily-feed';
 }): string {
   const nextParams = new URLSearchParams();
 
@@ -283,7 +284,8 @@ function buildAdminVisitorHref(params: {
   }
 
   const queryString = nextParams.toString();
-  return queryString ? `/admin?${queryString}#visitor-journeys` : '/admin#visitor-journeys';
+  const section = params.section ?? 'visitor-journeys';
+  return queryString ? `/admin?${queryString}#${section}` : `/admin#${section}`;
 }
 
 function getChangeLabel(current: number, previous: number): string {
@@ -1920,7 +1922,10 @@ export default async function AdminDashboardPage({
           </section>
         </div>
 
-        <section style={{ ...cardStyle, marginBottom: '18px' }}>
+        <section
+          id="visitor-journeys"
+          style={{ ...cardStyle, marginBottom: '18px', scrollMarginTop: '24px' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <p style={{ margin: 0, color: '#8fb6ff', fontWeight: 700 }}>Visitor journeys</p>
             {renderInfoTip(
@@ -2475,16 +2480,17 @@ export default async function AdminDashboardPage({
           )}
         </section>
 
-        <section style={cardStyle}>
+        <section id="daily-feed" style={{ ...cardStyle, scrollMarginTop: '24px' }}>
           <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Operations</p>
           <h2 style={{ marginTop: 0, fontSize: '24px', color: '#f8fbff' }}>Daily feed</h2>
           <div style={{ ...scrollAreaStyle, display: 'grid', gap: '8px', maxHeight: '360px' }}>
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1.5fr 0.8fr 0.8fr auto',
+                gridTemplateColumns:
+                  'minmax(0, 1.65fr) minmax(72px, 0.7fr) minmax(72px, 0.7fr) minmax(104px, auto)',
                 gap: '12px',
-                padding: '0 4px',
+                padding: '0 6px 0 4px',
                 color: '#93a8c9',
                 fontSize: '12px',
                 textTransform: 'uppercase',
@@ -2492,9 +2498,9 @@ export default async function AdminDashboardPage({
               }}
             >
               <span>Day</span>
-              <span>Views</span>
-              <span>Leads</span>
-              <span>Status</span>
+              <span style={{ justifySelf: 'end' }}>Views</span>
+              <span style={{ justifySelf: 'end' }}>Leads</span>
+              <span style={{ justifySelf: 'end' }}>Status</span>
             </div>
             {snapshot.recentDays
               .slice(-7)
@@ -2509,14 +2515,16 @@ export default async function AdminDashboardPage({
                       visitorQuery: activeVisitorQuery,
                       source: activeSourceFilter,
                       day: day.date,
+                      section: 'daily-feed',
                     })}
-                    scroll={false}
+                    aria-current={isActiveDay ? 'page' : undefined}
                     style={{ textDecoration: 'none' }}
                   >
                     <div
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '1.5fr 0.8fr 0.8fr auto',
+                        gridTemplateColumns:
+                          'minmax(0, 1.65fr) minmax(72px, 0.7fr) minmax(72px, 0.7fr) minmax(104px, auto)',
                         gap: '12px',
                         alignItems: 'center',
                         padding: '10px 12px',
@@ -2529,18 +2537,20 @@ export default async function AdminDashboardPage({
                           : '1px solid rgba(148,163,184,0.08)',
                       }}
                     >
-                      <div>
+                      <div style={{ minWidth: 0 }}>
                         <div style={{ fontWeight: 700 }}>{formatDate(day.date)}</div>
                         <div style={{ color: '#94a3b8', fontSize: '13px' }}>
                           {day.sources[0]?.label ?? 'Direct'} ·{' '}
                           {day.locations[0]?.label ?? 'Location pending'}
                         </div>
                       </div>
-                      <div style={{ color: '#dbe7fb', fontWeight: 700 }}>{day.totalViews}</div>
-                      <div style={{ color: '#dbe7fb', fontWeight: 700 }}>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700, justifySelf: 'end' }}>
+                        {day.totalViews}
+                      </div>
+                      <div style={{ color: '#dbe7fb', fontWeight: 700, justifySelf: 'end' }}>
                         {day.contactSubmissions}
                       </div>
-                      <div>
+                      <div style={{ justifySelf: 'end' }}>
                         {renderPill(
                           isActiveDay
                             ? 'Viewing'
