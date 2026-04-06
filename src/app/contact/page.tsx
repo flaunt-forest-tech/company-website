@@ -9,6 +9,12 @@ import { CONTACT } from '@/constants/contact';
 import React, { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { sendEmail } from '../actions/sendEmail';
+import {
+  TRACKING_CONSENT_EVENT,
+  UTM_STORAGE_KEY,
+  VISITOR_STORAGE_KEY,
+  hasTrackingConsent,
+} from '@/lib/tracking-consent';
 
 export type ContactFormInputs = {
   name: string;
@@ -185,37 +191,54 @@ function ContactSection() {
   useEffect(() => {
     setValue('sourcePage', window.location.pathname);
 
-    try {
-      const existingVisitorId = window.localStorage.getItem('fft_visitor_id')?.trim();
-      const visitorId =
-        existingVisitorId ||
-        (typeof window.crypto?.randomUUID === 'function'
-          ? window.crypto.randomUUID()
-          : `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
-
-      if (!existingVisitorId) {
-        window.localStorage.setItem('fft_visitor_id', visitorId);
-      }
-
-      setValue('visitorId', visitorId);
-
-      const stored = window.sessionStorage.getItem('fft_utm_attribution');
-      if (!stored) {
+    const applyTrackingFields = () => {
+      if (!hasTrackingConsent()) {
+        setValue('visitorId', '');
+        setValue('utmSource', '');
+        setValue('utmMedium', '');
+        setValue('utmCampaign', '');
         return;
       }
 
-      const utm = JSON.parse(stored) as {
-        utmSource?: string;
-        utmMedium?: string;
-        utmCampaign?: string;
-      };
+      try {
+        const existingVisitorId = window.localStorage.getItem(VISITOR_STORAGE_KEY)?.trim();
+        const visitorId =
+          existingVisitorId ||
+          (typeof window.crypto?.randomUUID === 'function'
+            ? window.crypto.randomUUID()
+            : `visitor_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`);
 
-      setValue('utmSource', utm.utmSource ?? '');
-      setValue('utmMedium', utm.utmMedium ?? '');
-      setValue('utmCampaign', utm.utmCampaign ?? '');
-    } catch {
-      // Ignore analytics-only field issues.
-    }
+        if (!existingVisitorId) {
+          window.localStorage.setItem(VISITOR_STORAGE_KEY, visitorId);
+        }
+
+        setValue('visitorId', visitorId);
+
+        const stored = window.sessionStorage.getItem(UTM_STORAGE_KEY);
+        if (!stored) {
+          return;
+        }
+
+        const utm = JSON.parse(stored) as {
+          utmSource?: string;
+          utmMedium?: string;
+          utmCampaign?: string;
+        };
+
+        setValue('utmSource', utm.utmSource ?? '');
+        setValue('utmMedium', utm.utmMedium ?? '');
+        setValue('utmCampaign', utm.utmCampaign ?? '');
+      } catch {
+        // Ignore analytics-only field issues.
+      }
+    };
+
+    applyTrackingFields();
+    window.addEventListener(TRACKING_CONSENT_EVENT, applyTrackingFields as EventListener);
+
+    return () => {
+      window.removeEventListener(TRACKING_CONSENT_EVENT, applyTrackingFields as EventListener);
+    };
   }, [setValue]);
 
   const onSubmit: SubmitHandler<ContactFormInputs> = async (data) => {

@@ -1,16 +1,20 @@
 'use client';
 
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+
+import {
+  TRACKING_CONSENT_EVENT,
+  UTM_STORAGE_KEY as STORAGE_KEY,
+  VISITOR_STORAGE_KEY as VISITOR_KEY,
+  getTrackingConsent,
+} from '@/lib/tracking-consent';
 
 type UTMValues = {
   utmSource?: string;
   utmMedium?: string;
   utmCampaign?: string;
 };
-
-const STORAGE_KEY = 'fft_utm_attribution';
-const VISITOR_KEY = 'fft_visitor_id';
 
 function readStoredUTM(): UTMValues {
   if (typeof window === 'undefined') {
@@ -86,9 +90,25 @@ function postAnalytics(payload: Record<string, unknown>) {
 function AnalyticsTrackerInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [trackingAllowed, setTrackingAllowed] = useState(false);
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith('/admin')) {
+    const syncConsent = () => {
+      setTrackingAllowed(getTrackingConsent() === 'accepted');
+    };
+
+    syncConsent();
+    window.addEventListener('storage', syncConsent);
+    window.addEventListener(TRACKING_CONSENT_EVENT, syncConsent as EventListener);
+
+    return () => {
+      window.removeEventListener('storage', syncConsent);
+      window.removeEventListener(TRACKING_CONSENT_EVENT, syncConsent as EventListener);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!trackingAllowed || !pathname || pathname.startsWith('/admin')) {
       return;
     }
 
@@ -102,16 +122,15 @@ function AnalyticsTrackerInner() {
       visitorId,
       ...utmValues,
     });
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, trackingAllowed]);
 
   useEffect(() => {
-    if (!pathname || pathname.startsWith('/admin')) {
+    if (!trackingAllowed || !pathname || pathname.startsWith('/admin')) {
       return;
     }
 
     const utmValues = persistUTM(getUTMFromSearch(searchParams));
     const visitorId = getOrCreateVisitorId();
-
     const handleClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) {
@@ -147,7 +166,7 @@ function AnalyticsTrackerInner() {
 
     document.addEventListener('click', handleClick, true);
     return () => document.removeEventListener('click', handleClick, true);
-  }, [pathname, searchParams]);
+  }, [pathname, searchParams, trackingAllowed]);
 
   return null;
 }
