@@ -85,7 +85,7 @@ export function getAdminSessionCookie() {
       sameSite: 'lax' as const,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
-      maxAge: 60 * 60 * 12,
+      // No maxAge/expires → session cookie; browser deletes it when tab/window is closed
     },
   };
 }

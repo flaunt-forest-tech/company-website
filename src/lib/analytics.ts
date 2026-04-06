@@ -1243,6 +1243,12 @@ export async function trackPageView(input: {
     return;
   }
 
+  // Drop bot/crawler traffic before doing any further work
+  const deviceLabel = detectDeviceType(input.userAgent);
+  if (deviceLabel === 'Bot') {
+    return;
+  }
+
   const now = new Date();
   const nowIso = now.toISOString();
   const dateKey = getDateKey(now);
@@ -1253,7 +1259,6 @@ export async function trackPageView(input: {
   const locationLabel = normalizeLocationLabel(input.location);
   const utmSourceLabel = normalizeUtmValue(input.utmSource);
   const campaignLabel = buildCampaignLabel(input);
-  const deviceLabel = detectDeviceType(input.userAgent);
   const redis = await getSharedRedisClient();
   const networkInfo = await enrichNetworkMetadata({
     ipAddress: normalizedIp,

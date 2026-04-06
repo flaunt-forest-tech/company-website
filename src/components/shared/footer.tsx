@@ -75,6 +75,12 @@ export default function Footer() {
               <li className="mb-1">
                 <Link href="/about-us">About Us</Link>
               </li>
+              <li className="mb-1">
+                <Link href="/privacy">Privacy &amp; Cookies</Link>
+              </li>
+              <li className="mb-1">
+                <Link href="/terms">Terms of Use</Link>
+              </li>
               <li>
                 <Link href="/contact">Send a Message</Link>
               </li>

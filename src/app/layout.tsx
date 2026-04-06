@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
 import AnalyticsTracker from '@/components/analytics-tracker';
+import CookieConsentBanner from '@/components/cookie-consent-banner';
 
 import './globals.css';
 // import Script from 'next/script';
@@ -44,6 +45,7 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <AnalyticsTracker />
           {children}
+          <CookieConsentBanner />
           {/* <ScriptLoader /> */}
         </body>
       </html>

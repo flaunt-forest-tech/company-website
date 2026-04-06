@@ -694,6 +694,8 @@ export default async function AdminDashboardPage({
     activeProspectParam === 'reachable'
       ? activeProspectParam
       : 'all';
+  // hideInfra defaults to true (1); pass hideInfra=0 to show server/bot IPs
+  const hideInfra = getSearchParamValue(resolvedSearchParams.hideInfra).trim() !== '0';
 
   const snapshot = await getAnalyticsSnapshot();
   const today = snapshot.today;
@@ -769,6 +771,11 @@ export default async function AdminDashboardPage({
   ).sort((left, right) => left.localeCompare(right));
   const filteredVisitors = [...snapshot.recentVisitors]
     .filter((visitor) => wasVisitorActiveOnDay(visitor, activeDay))
+    .filter((visitor) => {
+      if (!hideInfra) return true;
+      const nt = visitor.networkType ?? '';
+      return nt !== 'Cloud / hosting' && nt !== 'Bot / automation' && visitor.device !== 'Bot';
+    })
     .filter((visitor) => matchesVisitorQuery(visitor, normalizedVisitorQuery))
     .filter((visitor) => activeSourceFilter === 'all' || visitor.source === activeSourceFilter)
     .sort((left, right) => {
@@ -908,27 +915,27 @@ export default async function AdminDashboardPage({
   ];
   const highIntentSignals = [
     {
-      label: 'Best company signal',
+      label: 'Best org',
       value: topCompanySignal,
-      note: 'Good target for follow-up',
+      note: 'Worth a follow-up',
     },
     {
-      label: 'Reachable contacts',
+      label: 'Contacts ready',
       value: `${knownContactCount} known`,
       note:
         knownContactCount > 0
-          ? 'Email or phone has been captured from a lead form'
-          : 'No direct contact details have been captured yet',
+          ? 'Email or phone captured from a lead form'
+          : 'No direct contact details yet',
     },
     {
-      label: 'Identified companies',
+      label: 'Companies found',
       value: formatCompactNumber(identifiedCompanyCount),
-      note: 'Best-effort matching from company and business email signals',
+      note: 'Matched from business and email signals',
     },
     {
-      label: 'Campaign to push',
+      label: 'Campaign to watch',
       value: topCampaign,
-      note: 'Most promising tagged traffic',
+      note: 'Strongest tagged traffic',
     },
   ];
 
@@ -977,7 +984,7 @@ export default async function AdminDashboardPage({
                     background: snapshot.source === 'redis' ? '#34d399' : '#f59e0b',
                   }}
                 />
-                Internal analytics dashboard
+                Admin overview
               </div>
               <h1
                 style={{
@@ -988,17 +995,17 @@ export default async function AdminDashboardPage({
                   textShadow: '0 1px 2px rgba(2, 6, 23, 0.35)',
                 }}
               >
-                Company traffic cockpit
+                Traffic & leads
               </h1>
               <p style={{ margin: 0, color: '#d9e6fb', lineHeight: 1.7 }}>
                 Signed in as <strong>{getAdminUsername()}</strong> · Updated{' '}
                 {formatDateTime(snapshot.generatedAt)}
               </p>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
-                <span style={statusChipStyle}>Pipeline {pipelineReadinessScore}/100</span>
-                <span style={statusChipStyle}>Top source: {topSource}</span>
-                <span style={statusChipStyle}>Lead inbox: {alertInbox}</span>
-                <span style={statusChipStyle}>Time zone: Houston (CST/CDT)</span>
+                <span style={statusChipStyle}>Pipeline: {pipelineReadinessScore}/100</span>
+                <span style={statusChipStyle}>Best source: {topSource}</span>
+                <span style={statusChipStyle}>Inbox: {alertInbox}</span>
+                <span style={statusChipStyle}>Houston time</span>
               </div>
             </div>
 
@@ -1015,6 +1022,21 @@ export default async function AdminDashboardPage({
               >
                 {snapshot.source === 'redis' ? 'Live Redis storage' : 'File backup mode'}
               </div>
+              <Link
+                href="/admin/prospects"
+                style={{
+                  textDecoration: 'none',
+                  border: '1px solid rgba(52,211,153,0.35)',
+                  background: 'rgba(52,211,153,0.1)',
+                  color: '#6ee7b7',
+                  borderRadius: '12px',
+                  padding: '11px 16px',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                }}
+              >
+                Prospects CRM
+              </Link>
               <form action="/api/admin/logout" method="post">
                 <button
                   type="submit"
@@ -1046,36 +1068,36 @@ export default async function AdminDashboardPage({
         >
           {[
             {
-              label: "Today's page views",
+              label: 'Page views today',
               value: formatCompactNumber(today.totalViews),
               note: getChangeLabel(today.totalViews, yesterday?.totalViews ?? 0),
-              tip: 'Daily tracked page volume across the site.',
+              tip: 'Tracked page volume for today.',
             },
             {
               label: 'Unique visitors',
               value: formatCompactNumber(today.uniqueVisitors),
-              note: `${avgPagesPerVisitor} pages / visitor`,
-              tip: 'Estimated reach after filtering repeat browsing.',
+              note: `${avgPagesPerVisitor} pages each`,
+              tip: 'Estimated reach after repeat visits are grouped.',
             },
             {
-              label: 'Contact submissions',
+              label: 'Contact forms',
               value: formatCompactNumber(today.contactSubmissions),
-              note: `${todayConversionRate}% CVR today`,
-              tip: 'Captured leads from the contact flow.',
+              note: `${todayConversionRate}% conversion rate`,
+              tip: 'Leads captured from the contact flow.',
             },
             {
-              label: 'Top acquisition source',
+              label: 'Best source',
               value: topSource,
               note: snapshot.topSourcesLast14Days[0]
-                ? `Region: ${topLocation}`
+                ? `Top region: ${topLocation}`
                 : 'Awaiting source data',
-              tip: 'Current strongest traffic channel.',
+              tip: 'Strongest traffic channel right now.',
             },
             {
-              label: '14-day average',
+              label: '2-week average',
               value: formatCompactNumber(averageDailyViews),
-              note: `Company signal: ${topCompanySignal}`,
-              tip: 'Baseline traffic trend for the past two weeks.',
+              note: `Top org: ${topCompanySignal}`,
+              tip: 'Traffic baseline over the past two weeks.',
             },
           ].map((metric) => (
             <section key={metric.label} style={metricCardStyle}>
@@ -1119,12 +1141,11 @@ export default async function AdminDashboardPage({
             }}
           >
             <div>
-              <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Lead board</p>
-              <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>Priority follow-up</h2>
+              <p style={{ margin: '0 0 6px', color: '#8fb6ff', fontWeight: 700 }}>Action queue</p>
+              <h2 style={{ margin: 0, fontSize: '24px', color: '#f8fbff' }}>Best next actions</h2>
             </div>
             <div style={{ color: '#7dd3fc', fontWeight: 700 }}>
-              {likelyAccounts.filter((account) => account.status === 'Hot').length} hot account
-              signals
+              {likelyAccounts.filter((account) => account.status === 'Hot').length} hot accounts
             </div>
           </div>
 
@@ -2462,6 +2483,31 @@ export default async function AdminDashboardPage({
                   {hiddenVisitorCount > 0
                     ? renderPill(`Showing top ${visibleVisitors.length}`, 'slate')
                     : null}
+                  <Link
+                    href={
+                      buildAdminVisitorHref({
+                        visitorQuery: activeVisitorQuery,
+                        source: activeSourceFilter,
+                        day: activeDay,
+                        prospectSegment: activeProspectSegment,
+                        section: 'visitor-journeys',
+                      }) + (hideInfra ? '&hideInfra=0' : '')
+                    }
+                    scroll={false}
+                    prefetch={false}
+                    style={{
+                      textDecoration: 'none',
+                      padding: '3px 10px',
+                      borderRadius: '999px',
+                      border: `1px solid ${hideInfra ? 'rgba(148,163,184,0.16)' : 'rgba(248,178,90,0.4)'}`,
+                      background: hideInfra ? 'rgba(15, 23, 42, 0.7)' : 'rgba(248,178,90,0.1)',
+                      color: hideInfra ? '#93a8c9' : '#f8b25a',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {hideInfra ? 'Show servers / bots' : 'Hide servers / bots'}
+                  </Link>
                 </div>
               </div>
 
